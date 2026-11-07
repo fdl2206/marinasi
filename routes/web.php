@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -10,8 +11,20 @@ use Inertia\Inertia;
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
+    if (Auth::check()) {
+        return Inertia::render('Buyer/Home');
+    }
+
+    if (Auth::check()) {
+        return Inertia::render('Buyer/Home');
+    }
+
     return Inertia::render('Public/Home');
 })->name('home');
+
+Route::get('/portal', function () {
+    return Inertia::render('Buyer/Home');
+})->name('buyer.home');
 
 Route::get('/tentang-kami', function () {
     return Inertia::render('Public/About');
@@ -62,6 +75,12 @@ Route::prefix('buyer')->name('buyer.')->group(function () {
     Route::get('/invoices', function () {
         return Inertia::render('Buyer/Invoices/Index');
     })->name('invoices.index');
+
+    Route::get('/products/{id}', function ($id) {
+        return Inertia::render('Buyer/Products/Show', [
+            'id' => $id,
+        ]);
+    })->name('products.show');
 });
 
 /*

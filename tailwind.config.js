@@ -13,7 +13,9 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Inter', 'Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['"Plus Jakarta Sans"', 'Inter', ...defaultTheme.fontFamily.sans],
+                display: ['"Outfit"', 'sans-serif'],
+                mono: ['"Space Grotesk"', ...defaultTheme.fontFamily.mono],
             },
             colors: {
                 navy: {
