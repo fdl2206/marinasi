@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Head, Link, usePage, router } from '@inertiajs/react';
 import { 
     Search, 
@@ -28,83 +28,220 @@ import {
 import ProductCard, { formatRupiah } from '@/Components/Buyer/ProductCard';
 
 /**
- * Data default produk server HPE ML30 Gen10 sesuai mockup Figma.
- * Backend dapat mengirimkan data produk melalui prop `product` dari controller.
+ * Database dummy lengkap untuk fallback katalog produk B2B CV. Putra Nugraha.
+ * Backend dapat menyuplai prop `product` dari Controller secara dinamis.
  */
-const DEFAULT_PRODUCT = {
-    id: 1,
-    name: 'Server HPE ProLiant ML30 Gen10 - Intel Xeon E-2224 16GB RAM 1TB SATA',
-    sku: 'PN-HPE-ML30G10',
-    brand: 'Hewlett Packard Enterprise',
-    warranty: 'Garansi Resmi 3 Tahun',
-    category: 'Hardware & Server',
-    category_id: 'hardware',
-    stock: 12,
-    base_price: 32500000,
-    tier_prices: [
-        { min: 1, max: 2, price: 32500000, label: '1 - 2 Unit: Rp 32.500.000' },
-        { min: 3, max: 5, price: 31750000, label: '3 - 5 Unit: Rp 31.750.000' },
-        { min: 6, max: null, price: null, label: '≥ 6 Unit (Proyek): Harga Khusus RFQ' },
-    ],
-    installation_price: 1500000,
-    images: [
-        '/images/detail-server-main.png',
-        '/images/detail-server-t2.png',
-        '/images/detail-server-t3.png',
-    ],
-    specifications: [
-        { label: 'Processor', value: 'Intel Xeon E-2224 3.4GHz' },
-        { label: 'Memory', value: '16GB DDR4 UDIMM' },
-        { label: 'Storage', value: '2× 1TB SATA 7.2K LFF' },
-        { label: 'Network Controller', value: 'HPE Ethernet 1Gb 2-port' },
-        { label: 'Power Supply', value: '350W ATX' },
-        { label: 'Warranty', value: '3 Tahun Parts, Labor, Onsite' },
-    ],
-};
-
-const DEFAULT_RELATED_PRODUCTS = [
-    {
-        id: 101,
-        name: 'Cisco Catalyst Switch 24-Port',
-        slug: 'cisco-catalyst-switch-24-port',
-        price: 15450000,
+const PRODUCTS_DATABASE = {
+    1: {
+        id: 1,
+        name: 'Server HPE ProLiant ML30 Gen10 - Intel Xeon E-2224 16GB RAM 1TB SATA',
+        sku: 'PN-HPE-ML30G10',
+        brand: 'Hewlett Packard Enterprise',
+        warranty: 'Garansi Resmi 3 Tahun',
+        warranty_badge_top: '3 Tahun',
+        warranty_badge_sub: 'GARANSI RESMI',
+        category: 'Hardware & Server',
+        category_id: 'hardware',
+        stock: 12,
+        base_price: 32500000,
+        unit: 'unit',
         stock_status: 'ready_stock',
         badge_label: 'Ready Stock',
-        tags: ['B2B', 'Faktur Pajak'],
-        image_url: '/images/product-cisco-switch.png',
+        tax_badge: 'B2B • S&K Pajak Aktif (Faktur Pajak)',
+        tier_prices: [
+            { min: 1, max: 2, price: 32500000, label: '1 - 2 Unit: Rp 32.500.000' },
+            { min: 3, max: 5, price: 31750000, label: '3 - 5 Unit: Rp 31.750.000' },
+            { min: 6, max: null, price: null, label: '≥ 6 Unit (Proyek): Harga Khusus RFQ' },
+        ],
+        default_procurement_label: 'Hanya Unit Hardware',
+        installation_price: 1500000,
+        installation_label: '+ Paket Instalasi & Setup Server di Lokasi (+Rp 1.500.000)',
+        images: [
+            '/images/detail-server-main.png',
+            '/images/detail-server-t2.png',
+            '/images/detail-server-t3.png',
+        ],
+        specifications: [
+            { label: 'Processor', value: 'Intel Xeon E-2224 3.4GHz' },
+            { label: 'Memory', value: '16GB DDR4 UDIMM' },
+            { label: 'Storage', value: '2× 1TB SATA 7.2K LFF' },
+            { label: 'Network Controller', value: 'HPE Ethernet 1Gb 2-port' },
+            { label: 'Power Supply', value: '350W ATX' },
+            { label: 'Warranty', value: '3 Tahun Parts, Labor, Onsite' },
+        ],
+        datasheet_title: 'Datasheet Resmi HPE ProLiant ML30 Gen10',
+        datasheet_size: 'PDF • 2.4 MB',
+        warranty_title: 'Garansi Resmi HPE Enterprise Indonesia',
+        warranty_desc: 'Garansi 3 Tahun mencakup penggantian suku cadang (Parts), perbaikan (Labor), dan dukungan teknis langsung di lokasi perusahaan Anda (Onsite Next Business Day).',
     },
-    {
-        id: 102,
-        name: 'Paket Jasa Instalasi Jaringan LAN Kantor',
-        slug: 'paket-jasa-instalasi-jaringan-lan-kantor',
-        price: 8500000,
+    2: {
+        id: 2,
+        name: 'Paket Jasa Instalasi Jaringan LAN Kantor (10 Titik Integrasi)',
+        sku: 'PN-SRV-LAN10P',
+        brand: 'Layanan Resmi CV. Putra Nugraha',
+        warranty: 'Garansi Pemeliharaan 6 Bulan',
+        warranty_badge_top: '6 Bulan',
+        warranty_badge_sub: 'GARANSI SERVIS',
+        category: 'Jasa Instalasi & Servis',
+        category_id: 'services',
+        stock: 50,
+        base_price: 8500000,
         unit: 'paket',
         stock_status: 'official_service',
         badge_label: 'Jasa Resmi',
-        tags: ['B2B', 'Faktur Pajak'],
-        image_url: '/images/product-lan-services.png',
+        tax_badge: 'B2B • Faktur Pajak Resmi',
+        tier_prices: [
+            { min: 1, max: 2, price: 8500000, label: '1 - 2 Paket: Rp 8.500.000' },
+            { min: 3, max: 5, price: 8100000, label: '3 - 5 Paket: Rp 8.100.000' },
+            { min: 6, max: null, price: null, label: '≥ 6 Paket (Proyek): Harga Khusus RFQ' },
+        ],
+        default_procurement_label: 'Paket Standar Instalasi 10 Titik',
+        installation_price: 750000,
+        installation_label: '+ Uji Sertifikasi Fluke Networks & Dokumentasi As-Built (+Rp 750.000)',
+        images: [
+            '/images/product-lan-services.png',
+            '/images/service-technician-lan.png',
+        ],
+        specifications: [
+            { label: 'Cakupan Pekerjaan', value: 'Penarikan kabel UTP Cat6 10 titik, crimping RJ45, labelling & patch panel' },
+            { label: 'Material Termasuk', value: 'Modular Jack Cat6, Faceplate 10 pcs, Patch Cord 1m & 2m' },
+            { label: 'Pengujian & Sertifikasi', value: 'Fluke Cable Analyzer Continuity & Wiremap Test Report' },
+            { label: 'Estimasi Durasi', value: '2 - 3 Hari Kerja Onsite di Lokasi Klien' },
+            { label: 'Tenaga Ahli', value: 'Teknisi Jaringan Tersertifikasi MTCNA / CCNA' },
+            { label: 'Garansi Purna Jual', value: '6 Bulan Garansi Pemeliharaan & Troubleshooting Onsite' },
+        ],
+        datasheet_title: 'SOP & Scope of Work Instalasi Jaringan LAN Kantor',
+        datasheet_size: 'PDF • 1.8 MB',
+        warranty_title: 'Garansi Servis Resmi CV. Putra Nugraha',
+        warranty_desc: 'Jaminan pemeliharaan purna instalasi selama 6 bulan, penanganan insiden kabel putus atau koneksi drop tanpa biaya tambahan.',
     },
-    {
-        id: 103,
-        name: 'Ubiquiti UniFi AP AC Pro',
-        slug: 'ubiquiti-unifi-ap-ac-pro',
-        price: 2450000,
+    3: {
+        id: 3,
+        name: 'Cisco Catalyst Switch 24-Port Gigabit Managed',
+        sku: 'PN-CSCO-24G',
+        brand: 'Cisco Systems',
+        warranty: 'Garansi Resmi 1 Tahun',
+        warranty_badge_top: '1 Tahun',
+        warranty_badge_sub: 'GARANSI RESMI',
+        category: 'Networking & Router',
+        category_id: 'networking',
+        stock: 8,
+        base_price: 15450000,
+        unit: 'unit',
         stock_status: 'ready_stock',
         badge_label: 'Ready Stock',
-        tags: ['B2B', 'Faktur Pajak'],
-        image_url: '/images/product-ubiquiti-ap.png',
+        tax_badge: 'B2B • S&K Pajak Aktif (Faktur Pajak)',
+        tier_prices: [
+            { min: 1, max: 2, price: 15450000, label: '1 - 2 Unit: Rp 15.450.000' },
+            { min: 3, max: 5, price: 14900000, label: '3 - 5 Unit: Rp 14.900.000' },
+            { min: 6, max: null, price: null, label: '≥ 6 Unit (Proyek): Harga Khusus RFQ' },
+        ],
+        default_procurement_label: 'Hanya Unit Switch Hardware',
+        installation_price: 850000,
+        installation_label: '+ Konfigurasi VLAN, Trunking & Pemasangan Rackmount (+Rp 850.000)',
+        images: [
+            '/images/product-cisco-switch.png',
+        ],
+        specifications: [
+            { label: 'Port Configuration', value: '24x 10/100/1000 Gigabit Ethernet + 4x 1G SFP' },
+            { label: 'Switching Capacity', value: '56 Gbps Full Wire-Speed' },
+            { label: 'Forwarding Rate', value: '41.66 Mpps' },
+            { label: 'Form Factor', value: '1U Rackmount (Include Rack Ear Kit)' },
+            { label: 'Management', value: 'Web UI, CLI via Console, SNMP v1/v2/v3' },
+            { label: 'Garansi', value: '1 Tahun Garansi Resmi Cisco Indonesia' },
+        ],
+        datasheet_title: 'Datasheet Cisco Catalyst 24-Port Managed Switch',
+        datasheet_size: 'PDF • 3.1 MB',
+        warranty_title: 'Garansi Resmi Cisco Enterprise Indonesia',
+        warranty_desc: 'Garansi 1 tahun penggantian unit (RMA hardware) dan akses download update firmware resmi.',
     },
-    {
-        id: 104,
-        name: 'Kabel UTP Cat6 Belden 305m',
-        slug: 'kabel-utp-cat6-belden-305m',
-        price: 3100000,
+    4: {
+        id: 4,
+        name: 'Ubiquiti UniFi AP AC Pro Dual-Band Gigabit Access Point',
+        sku: 'PN-UBNT-UAPACPRO',
+        brand: 'Ubiquiti Networks',
+        warranty: 'Garansi Resmi 1 Tahun',
+        warranty_badge_top: '1 Tahun',
+        warranty_badge_sub: 'GARANSI RESMI',
+        category: 'Networking & Router',
+        category_id: 'networking',
+        stock: 24,
+        base_price: 2450000,
+        unit: 'unit',
         stock_status: 'ready_stock',
         badge_label: 'Ready Stock',
-        tags: ['B2B', 'Faktur Pajak'],
-        image_url: '/images/product-belden-cable.png',
+        tax_badge: 'B2B • Faktur Pajak Resmi',
+        tier_prices: [
+            { min: 1, max: 4, price: 2450000, label: '1 - 4 Unit: Rp 2.450.000' },
+            { min: 5, max: 10, price: 2350000, label: '5 - 10 Unit: Rp 2.350.000' },
+            { min: 11, max: null, price: null, label: '≥ 11 Unit: Harga Khusus RFQ' },
+        ],
+        default_procurement_label: 'Hanya Unit Access Point',
+        installation_price: 350000,
+        installation_label: '+ Setup UniFi Controller & Multi-SSID Guest (+Rp 350.000)',
+        images: [
+            '/images/product-ubiquiti-ap.png',
+        ],
+        specifications: [
+            { label: 'Wi-Fi Standards', value: '802.11 a/b/g/n/ac Dual-Band (3x3 MIMO)' },
+            { label: 'Speed Throughput', value: 'Up to 1300 Mbps (5GHz) + 450 Mbps (2.4GHz)' },
+            { label: 'Ethernet Ports', value: '2x 10/100/1000 Gigabit Ethernet' },
+            { label: 'Power Method', value: '802.3af PoE / 802.3at PoE+' },
+            { label: 'Environment', value: 'Indoor / Outdoor Weatherproof' },
+            { label: 'Garansi', value: '1 Tahun Garansi Resmi Distributor' },
+        ],
+        datasheet_title: 'Datasheet Ubiquiti UniFi AP AC Pro',
+        datasheet_size: 'PDF • 1.5 MB',
+        warranty_title: 'Garansi Resmi Ubiquiti Distributor Indonesia',
+        warranty_desc: 'Garansi ganti unit 1 tahun jika terjadi kerusakan hardware non-human-error.',
     },
-];
+    5: {
+        id: 5,
+        name: 'Kabel UTP Cat6 Belden 305m (1 Roll Original)',
+        sku: 'PN-BLD-7814A',
+        brand: 'Belden Original',
+        warranty: 'Garansi 100% Original',
+        warranty_badge_top: '100%',
+        warranty_badge_sub: 'ORIGINAL',
+        category: 'Aksesoris IT',
+        category_id: 'accessories',
+        stock: 35,
+        base_price: 3100000,
+        unit: 'roll',
+        stock_status: 'ready_stock',
+        badge_label: 'Ready Stock',
+        tax_badge: 'B2B • Faktur Pajak Resmi',
+        tier_prices: [
+            { min: 1, max: 2, price: 3100000, label: '1 - 2 Roll: Rp 3.100.000' },
+            { min: 3, max: 5, price: 2980000, label: '3 - 5 Roll: Rp 2.980.000' },
+            { min: 6, max: null, price: null, label: '≥ 6 Roll: Harga Khusus RFQ' },
+        ],
+        default_procurement_label: 'Hanya Material Roll Kabel',
+        installation_price: 500000,
+        installation_label: '+ Jasa Penarikan Kabel di Jalur Tray / Conduit (+Rp 500.000)',
+        images: [
+            '/images/product-belden-cable.png',
+        ],
+        specifications: [
+            { label: 'Kategori', value: 'UTP Category 6 (Unshielded Twisted Pair)' },
+            { label: 'Panjang per Roll', value: '305 Meter (1.000 Feet)' },
+            { label: 'Ukuran Konduktor', value: '23 AWG Solid Bare Copper' },
+            { label: 'Frekuensi Maksimal', value: 'Up to 250 MHz' },
+            { label: 'Jacket Material', value: 'PVC Flame Retardant' },
+            { label: 'Standardisasi', value: 'ANSI/TIA-568-C.2, ISO/IEC 11801' },
+        ],
+        datasheet_title: 'Spesifikasi Teknis Kabel UTP Cat6 Belden 7814A',
+        datasheet_size: 'PDF • 950 KB',
+        warranty_title: 'Jaminan Keaslian Produk Belden',
+        warranty_desc: 'Sertifikasi keaslian tembaga murni 100% Belden original dengan barcode hologram resmi.',
+    },
+};
+
+// Aliases agar id 101-104 juga berfungsi konsisten
+PRODUCTS_DATABASE[101] = PRODUCTS_DATABASE[3];
+PRODUCTS_DATABASE[102] = PRODUCTS_DATABASE[2];
+PRODUCTS_DATABASE[103] = PRODUCTS_DATABASE[4];
+PRODUCTS_DATABASE[104] = PRODUCTS_DATABASE[5];
 
 export default function ProductDetail({ 
     product: serverProduct, 
@@ -115,14 +252,21 @@ export default function ProductDetail({
     const { props } = usePage();
     const auth = props?.auth;
 
-    const product = serverProduct || DEFAULT_PRODUCT;
-    const relatedProducts = serverRelatedProducts && serverRelatedProducts.length > 0
-        ? serverRelatedProducts
-        : DEFAULT_RELATED_PRODUCTS;
+    // Resolusi produk aktif secara dinamis berdasarkan prop `id` atau `serverProduct`
+    const currentId = Number(id || serverProduct?.id || 1);
+    const defaultProduct = PRODUCTS_DATABASE[currentId] || PRODUCTS_DATABASE[1];
+    const product = serverProduct || defaultProduct;
 
     // Gallery state
     const [activeImage, setActiveImage] = useState(product.images?.[0] || '/images/detail-server-main.png');
     
+    // Auto sync gambar aktif ketika id produk berubah
+    useEffect(() => {
+        if (product.images?.[0]) {
+            setActiveImage(product.images[0]);
+        }
+    }, [product.id]);
+
     // Procurement configuration state
     const [quantity, setQuantity] = useState(1);
     const [includeInstallation, setIncludeInstallation] = useState(false);
@@ -143,20 +287,37 @@ export default function ProductDetail({
         { id: 'procurement', name: 'Paket Pengadaan Kantor', icon: Briefcase },
     ];
 
-    // Hitung harga satuan berdasarkan tier quantity
-    const unitPrice = useMemo(() => {
-        if (quantity >= 6) {
-            return 31000000; // Harga tier estimasi RFQ
-        } else if (quantity >= 3) {
-            return 31750000;
+    // Filter produk pelengkap (rekomendasi) agar produk yang sedang dibuka tidak muncul dobel
+    const relatedProducts = useMemo(() => {
+        if (serverRelatedProducts && serverRelatedProducts.length > 0) {
+            return serverRelatedProducts.filter(p => Number(p.id) !== Number(product.id));
         }
-        return product.base_price;
-    }, [quantity, product.base_price]);
+        return [
+            PRODUCTS_DATABASE[1],
+            PRODUCTS_DATABASE[2],
+            PRODUCTS_DATABASE[3],
+            PRODUCTS_DATABASE[4],
+            PRODUCTS_DATABASE[5],
+        ].filter(p => Number(p.id) !== Number(product.id)).slice(0, 4);
+    }, [serverRelatedProducts, product.id]);
+
+    // Hitung harga satuan berdasarkan tier quantity dinamis
+    const unitPrice = useMemo(() => {
+        if (!product?.tier_prices || product.tier_prices.length === 0) {
+            return product?.base_price || 0;
+        }
+        if (quantity >= 6) {
+            return product.tier_prices[2]?.price || Math.round((product.base_price || 0) * 0.95);
+        } else if (quantity >= 3) {
+            return product.tier_prices[1]?.price || Math.round((product.base_price || 0) * 0.975);
+        }
+        return product.base_price || 0;
+    }, [quantity, product]);
 
     // Hitung total estimasi subtotal
     const subtotal = useMemo(() => {
         const productTotal = unitPrice * quantity;
-        const installationTotal = includeInstallation ? (product.installation_price * quantity) : 0;
+        const installationTotal = includeInstallation ? ((product.installation_price || 0) * quantity) : 0;
         return productTotal + installationTotal;
     }, [unitPrice, quantity, includeInstallation, product.installation_price]);
 
@@ -175,44 +336,46 @@ export default function ProductDetail({
             onSuccess: () => {
                 setIsAdding(false);
                 setIsAdded(true);
+                setCartCount(prev => prev + quantity);
                 setTimeout(() => setIsAdded(false), 2500);
             },
             onError: () => {
                 setIsAdding(false);
                 setIsAdded(true);
+                setCartCount(prev => prev + quantity);
                 setTimeout(() => setIsAdded(false), 2500);
             }
         });
     };
 
     return (
-        <div className="min-h-screen bg-[#070e1e] text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col">
+        <div className="min-h-screen bg-[#0C0D12] text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col">
             <Head title={`${product.name} — CV. Putra Nugraha`} />
 
             {/* ========================================================= */}
             {/* HEADER NAVBAR & CATEGORY SUB-NAV */}
             {/* ========================================================= */}
-            <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-[#07132b]">
-                <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8 h-20">
+            <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-[#12161F]">
+                <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 sm:gap-6 px-4 sm:px-6 lg:px-8 h-16 sm:h-20">
                     
                     {/* Brand Identity / Logo */}
-                    <Link href="/portal" className="flex items-center gap-3 shrink-0">
+                    <Link href="/portal" className="flex items-center gap-2.5 sm:gap-3 shrink-0">
                         <img
                             src="/images/logo-pn.png"
                             alt="Logo CV. Putra Nugraha"
-                            className="h-10 w-10 rounded-lg object-contain"
+                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-contain"
                         />
                         <div className="flex flex-col">
-                            <span className="text-sm font-bold tracking-tight text-white uppercase">
-                                CV. PUTRA NUGRAHA -
+                            <span className="text-xs sm:text-sm font-bold tracking-tight text-white uppercase">
+                                CV. PUTRA NUGRAHA
                             </span>
-                            <span className="text-[11px] font-normal text-slate-400">
+                            <span className="hidden sm:inline text-[11px] font-normal text-slate-400">
                                 Perdagangan Barang dan Jasa
                             </span>
                         </div>
                     </Link>
 
-                    {/* Search Bar */}
+                    {/* Search Bar (Desktop) */}
                     <div className="hidden md:flex flex-1 max-w-xl mx-4">
                         <div className="relative w-full">
                             <input
@@ -230,9 +393,9 @@ export default function ProductDetail({
                     </div>
 
                     {/* Right Actions: Keranjang & Akun */}
-                    <div className="flex items-center gap-6 shrink-0">
+                    <div className="flex items-center gap-4 sm:gap-6 shrink-0">
                         <Link
-                            href="/buyer/orders"
+                            href="/buyer/cart"
                             className="relative flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white transition-colors"
                         >
                             <ShoppingCart className="h-4 w-4 text-slate-300" />
@@ -249,14 +412,14 @@ export default function ProductDetail({
                             <button
                                 type="button"
                                 onClick={() => setAccountMenuOpen(!accountMenuOpen)}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
+                                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
                             >
                                 <User className="h-4 w-4" />
                                 <span>Akun</span>
                             </button>
 
                             {accountMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-800 bg-[#0d1a38] p-2 shadow-2xl space-y-1 text-xs z-50">
+                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-800 bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
                                     <div className="px-3 py-2 border-b border-slate-800">
                                         <div className="font-bold text-white truncate">{auth?.user?.name || 'Klien B2B'}</div>
                                         <div className="text-[10px] text-slate-400 truncate">{auth?.user?.email || 'klien@instansi.co.id'}</div>
@@ -284,10 +447,10 @@ export default function ProductDetail({
 
                 </div>
 
-                {/* Category Sub-nav */}
-                <div className="border-t border-slate-800/80 bg-[#050c1e]">
+                {/* Category Sub-nav dengan Smooth Horizontal Scroll di Mobile */}
+                <div className="border-t border-slate-800/80 bg-[#12161F]">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <nav className="flex items-center justify-between py-3 overflow-x-auto text-xs font-medium text-slate-300 gap-8">
+                        <nav className="flex items-center justify-start md:justify-between py-2.5 sm:py-3 overflow-x-auto text-xs font-medium text-slate-300 gap-6 sm:gap-8 scrollbar-none no-scrollbar whitespace-nowrap">
                             {categories.map((cat) => {
                                 const IconComponent = cat.icon;
                                 return (
@@ -309,18 +472,35 @@ export default function ProductDetail({
             {/* ========================================================= */}
             {/* MAIN CONTENT AREA */}
             {/* ========================================================= */}
-            <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+            <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8 sm:space-y-10">
                 
-                {/* Breadcrumb Navigation */}
-                <nav className="flex items-center gap-2 text-xs text-slate-400">
-                    <Link href="/portal" className="hover:text-blue-400 transition-colors flex items-center gap-1">
+                {/* Responsive Breadcrumb Navigation */}
+                {/* 1. Mobile Version: Clean Back Pill Button (Mencegah teks patah berbaris-baris) */}
+                <div className="flex sm:hidden items-center justify-between gap-2">
+                    <Link 
+                        href="/portal" 
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-200 hover:text-white transition-colors py-1.5 px-3 rounded-lg bg-[#171B26] border border-slate-800"
+                    >
+                        <ArrowLeft className="h-3.5 w-3.5 text-blue-400" />
+                        <span>Kembali ke Portal</span>
+                    </Link>
+                    <span className="text-[11px] text-slate-400 font-medium px-2.5 py-1 rounded-md bg-[#171B26] border border-slate-800 truncate max-w-[150px]">
+                        {product.category || 'Katalog B2B'}
+                    </span>
+                </div>
+
+                {/* 2. Tablet & Desktop Version: Complete Breadcrumb Hierarchy */}
+                <nav className="hidden sm:flex items-center gap-2 text-xs text-slate-400 overflow-hidden whitespace-nowrap">
+                    <Link href="/portal" className="hover:text-blue-400 transition-colors flex items-center gap-1 shrink-0">
                         <ArrowLeft className="h-3.5 w-3.5" />
                         <span>Kembali ke Portal</span>
                     </Link>
-                    <span>/</span>
-                    <span className="text-slate-300">Hardware &amp; Server</span>
-                    <span>/</span>
-                    <span className="text-white font-medium truncate max-w-xs sm:max-w-md">
+                    <span className="text-slate-600">/</span>
+                    <Link href={`/portal?kategori=${product.category_id || 'all'}`} className="text-slate-300 hover:text-white transition-colors shrink-0">
+                        {product.category || 'Katalog B2B'}
+                    </Link>
+                    <span className="text-slate-600">/</span>
+                    <span className="text-white font-medium truncate">
                         {product.name}
                     </span>
                 </nav>
@@ -334,7 +514,7 @@ export default function ProductDetail({
                     <div className="lg:col-span-4 space-y-3.5">
                         
                         {/* Main Image Box (White Rounded Container Sesuai Figma) */}
-                        <div className="w-full h-80 sm:h-96 bg-white rounded-2xl p-6 flex items-center justify-center overflow-hidden shadow-lg border border-slate-700/50">
+                        <div className="w-full h-72 sm:h-96 bg-white rounded-2xl p-6 flex items-center justify-center overflow-hidden shadow-lg border border-slate-700/50">
                             <img
                                 src={activeImage}
                                 alt={product.name}
@@ -343,60 +523,62 @@ export default function ProductDetail({
                         </div>
 
                         {/* Thumbnails Row + Warranty Badge */}
-                        <div className="grid grid-cols-4 gap-2.5">
-                            {/* Thumb 1 */}
-                            <button
-                                type="button"
-                                onClick={() => setActiveImage(product.images?.[0] || '/images/detail-server-main.png')}
-                                className={`h-16 rounded-xl bg-white p-1.5 flex items-center justify-center border-2 transition-all overflow-hidden ${
-                                    activeImage === product.images?.[0] ? 'border-blue-500 shadow-md shadow-blue-500/20' : 'border-transparent opacity-70 hover:opacity-100'
-                                }`}
-                            >
-                                <img
-                                    src={product.images?.[0] || '/images/detail-server-main.png'}
-                                    alt="Front View"
-                                    className="max-h-full max-w-full object-contain"
-                                />
-                            </button>
+                        <div className="grid grid-cols-4 gap-2 sm:gap-2.5">
+                            {product.images && product.images.length > 1 ? (
+                                product.images.slice(0, 3).map((img, idx) => (
+                                    <button
+                                        key={idx}
+                                        type="button"
+                                        onClick={() => setActiveImage(img)}
+                                        className={`h-14 sm:h-16 rounded-xl bg-white p-1.5 flex items-center justify-center border-2 transition-all overflow-hidden ${
+                                            activeImage === img ? 'border-blue-500 shadow-md shadow-blue-500/20' : 'border-transparent opacity-70 hover:opacity-100'
+                                        }`}
+                                    >
+                                        <img
+                                            src={img}
+                                            alt={`${product.name} thumb ${idx + 1}`}
+                                            className="max-h-full max-w-full object-contain"
+                                        />
+                                    </button>
+                                ))
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveImage(product.images?.[0] || activeImage)}
+                                    className="h-14 sm:h-16 rounded-xl bg-white p-1.5 flex items-center justify-center border-2 border-blue-500 shadow-md shadow-blue-500/20 overflow-hidden"
+                                >
+                                    <img
+                                        src={product.images?.[0] || activeImage}
+                                        alt={product.name}
+                                        className="max-h-full max-w-full object-contain"
+                                    />
+                                </button>
+                            )}
 
-                            {/* Thumb 2 */}
-                            <button
-                                type="button"
-                                onClick={() => setActiveImage(product.images?.[1] || '/images/detail-server-t2.png')}
-                                className={`h-16 rounded-xl bg-white p-1.5 flex items-center justify-center border-2 transition-all overflow-hidden ${
-                                    activeImage === product.images?.[1] ? 'border-blue-500 shadow-md shadow-blue-500/20' : 'border-transparent opacity-70 hover:opacity-100'
-                                }`}
-                            >
-                                <img
-                                    src={product.images?.[1] || '/images/detail-server-t2.png'}
-                                    alt="Rear View"
-                                    className="max-h-full max-w-full object-contain"
-                                />
-                            </button>
-
-                            {/* Thumb 3 */}
-                            <button
-                                type="button"
-                                onClick={() => setActiveImage(product.images?.[2] || '/images/detail-server-t3.png')}
-                                className={`h-16 rounded-xl bg-white p-1.5 flex items-center justify-center border-2 transition-all overflow-hidden ${
-                                    activeImage === product.images?.[2] ? 'border-blue-500 shadow-md shadow-blue-500/20' : 'border-transparent opacity-70 hover:opacity-100'
-                                }`}
-                            >
-                                <img
-                                    src={product.images?.[2] || '/images/detail-server-t3.png'}
-                                    alt="Interior View"
-                                    className="max-h-full max-w-full object-contain"
-                                />
-                            </button>
+                            {/* Slot cadangan jika gambar tunggal agar susunan grid 4 kolom tetap rapi */}
+                            {product.images && product.images.length === 1 && (
+                                <>
+                                    <div className="h-14 sm:h-16 rounded-xl border border-slate-800 bg-[#1E2434] p-1 flex flex-col items-center justify-center text-center">
+                                        <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-400 mb-0.5" />
+                                        <span className="text-[9px] sm:text-[10px] font-bold text-white leading-tight">100% Asli</span>
+                                        <span className="text-[7px] sm:text-[8px] text-slate-400 uppercase">Resmi CV</span>
+                                    </div>
+                                    <div className="h-14 sm:h-16 rounded-xl border border-slate-800 bg-[#1E2434] p-1 flex flex-col items-center justify-center text-center">
+                                        <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-400 mb-0.5" />
+                                        <span className="text-[9px] sm:text-[10px] font-bold text-white leading-tight">Faktur Pajak</span>
+                                        <span className="text-[7px] sm:text-[8px] text-blue-400 uppercase">PPN 11%</span>
+                                    </div>
+                                </>
+                            )}
 
                             {/* Slot 4: Warranty Badge Box (Sesuai Desain Figma) */}
-                            <div className="h-16 rounded-xl border border-blue-500/30 bg-[#0d1a38] p-1 flex flex-col items-center justify-center text-center">
-                                <ShieldCheck className="h-4 w-4 text-blue-400 mb-0.5" />
-                                <span className="text-[11px] font-bold text-white leading-tight">
-                                    3 Tahun
+                            <div className="h-14 sm:h-16 rounded-xl border border-blue-500/30 bg-[#1E2434] p-1 flex flex-col items-center justify-center text-center">
+                                <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-400 mb-0.5" />
+                                <span className="text-[10px] sm:text-[11px] font-bold text-white leading-tight">
+                                    {product.warranty_badge_top || '3 Tahun'}
                                 </span>
-                                <span className="text-[8px] font-bold text-blue-400 uppercase tracking-tight">
-                                    GARANSI RESMI
+                                <span className="text-[7px] sm:text-[8px] font-bold text-blue-400 uppercase tracking-tight">
+                                    {product.warranty_badge_sub || 'GARANSI RESMI'}
                                 </span>
                             </div>
                         </div>
@@ -409,19 +591,19 @@ export default function ProductDetail({
 
                     </div>
 
-                    {/* 2. MIDDLE COLUMN: PRODUCT DETAILS & PRICING (5 Cols) */}
+                    {/* 2. MIDDLE COLUMN: PRODUCT SPEC & SELECTION (5 Cols) */}
                     <div className="lg:col-span-5 space-y-4">
                         
                         {/* Status Badges */}
                         <div className="flex items-center gap-2.5 flex-wrap">
-                            <div className="flex items-center gap-1.5">
-                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                                <span className="text-xs font-semibold text-emerald-400">
-                                    Ready Stock
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium badge-sage">
+                                <span className={`h-1.5 w-1.5 rounded-full ${product.stock_status === 'ready_stock' ? 'dot-sage' : 'dot-azure'}`} />
+                                <span>
+                                    {product.badge_label || (product.stock_status === 'ready_stock' ? 'Ready Stock' : 'Jasa Resmi')}
                                 </span>
                             </div>
-                            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#132247] text-blue-300 border border-blue-600/30">
-                                B2B • S&amp;K Pajak Aktif (Faktur Pajak)
+                            <span className="px-2.5 py-1 rounded-md text-xs font-medium badge-azure">
+                                {product.tax_badge || 'B2B • S&K Pajak Aktif (Faktur Pajak)'}
                             </span>
                         </div>
 
@@ -442,7 +624,7 @@ export default function ProductDetail({
                                     {formatRupiah(product.base_price)}
                                 </span>
                                 <span className="text-sm font-normal text-slate-400">
-                                    / unit
+                                    / {product.unit || 'unit'}
                                 </span>
                             </div>
                             <p className="text-xs text-slate-400 mt-1">
@@ -451,75 +633,75 @@ export default function ProductDetail({
                         </div>
 
                         {/* Tiered / Volume Pricing Box (B2B Grosir Sesuai Figma) */}
-                        <div className="rounded-xl border border-slate-800 bg-[#0a162e] p-3 grid grid-cols-3 divide-x divide-slate-800 text-center">
-                            <div className="px-2">
-                                <div className="text-[11px] text-slate-400">1 - 2 Unit:</div>
-                                <div className="text-xs font-bold text-white mt-0.5">Rp 32.500.000</div>
+                        {product.tier_prices && product.tier_prices.length > 0 && (
+                            <div className="rounded-xl border border-slate-800 bg-[#0a162e] p-3 grid grid-cols-3 divide-x divide-slate-800 text-center">
+                                {product.tier_prices.map((tier, idx) => (
+                                    <div key={idx} className="px-2">
+                                        <div className="text-[11px] text-slate-400">{tier.label?.split(':')[0] || `Tier ${idx + 1}`}:</div>
+                                        <div className={`text-xs font-bold mt-0.5 ${tier.price ? 'text-white' : 'text-amber-400'}`}>
+                                            {tier.price ? formatRupiah(tier.price) : (tier.label?.split(':')[1]?.trim() || 'Harga Khusus RFQ')}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                            <div className="px-2">
-                                <div className="text-[11px] text-slate-400">3 - 5 Unit:</div>
-                                <div className="text-xs font-bold text-white mt-0.5">Rp 31.750.000</div>
-                            </div>
-                            <div className="px-2">
-                                <div className="text-[11px] text-slate-400">≥ 6 Unit (Proyek):</div>
-                                <div className="text-xs font-bold text-amber-400 mt-0.5">Harga Khusus RFQ</div>
-                            </div>
-                        </div>
+                        )}
 
                         {/* Procurement Custom Option Selector */}
-                        <div className="pt-2 space-y-2.5">
-                            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                                PILIH KEBUTUHAN PENGADAAN
-                            </label>
-                            
-                            {/* Option 1: Hardware Only */}
-                            <label
-                                onClick={() => setIncludeInstallation(false)}
-                                className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                                    !includeInstallation 
-                                        ? 'border-blue-600 bg-blue-600/10 text-white' 
-                                        : 'border-slate-800 bg-[#0d1830] text-slate-300 hover:border-slate-700'
-                                }`}
-                            >
-                                <input
-                                    type="radio"
-                                    name="procurement_mode"
-                                    checked={!includeInstallation}
-                                    onChange={() => setIncludeInstallation(false)}
-                                    className="text-blue-600 focus:ring-0 bg-transparent border-slate-600"
-                                />
-                                <span className="text-xs font-semibold">
-                                    Hanya Unit Hardware
-                                </span>
-                            </label>
+                        {product.installation_label && (
+                            <div className="pt-2 space-y-2.5">
+                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                                    PILIH KEBUTUHAN PENGADAAN
+                                </label>
+                                
+                                {/* Option 1: Hardware Only / Default Paket */}
+                                <label
+                                    onClick={() => setIncludeInstallation(false)}
+                                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                                        !includeInstallation 
+                                            ? 'border-blue-600 bg-blue-600/10 text-white' 
+                                            : 'border-slate-800 bg-[#171B26] text-slate-300 hover:border-slate-700'
+                                    }`}
+                                >
+                                    <input
+                                        type="radio"
+                                        name="procurement_mode"
+                                        checked={!includeInstallation}
+                                        onChange={() => setIncludeInstallation(false)}
+                                        className="text-blue-600 focus:ring-0 bg-transparent border-slate-600 cursor-pointer"
+                                    />
+                                    <span className="text-xs font-semibold">
+                                        {product.default_procurement_label || 'Hanya Unit Perangkat'}
+                                    </span>
+                                </label>
 
-                            {/* Option 2: Hardware + Onsite Installation */}
-                            <label
-                                onClick={() => setIncludeInstallation(true)}
-                                className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                                    includeInstallation 
-                                        ? 'border-blue-600 bg-blue-600/10 text-white' 
-                                        : 'border-slate-800 bg-[#0d1830] text-slate-300 hover:border-slate-700'
-                                }`}
-                            >
-                                <input
-                                    type="radio"
-                                    name="procurement_mode"
-                                    checked={includeInstallation}
-                                    onChange={() => setIncludeInstallation(true)}
-                                    className="text-blue-600 focus:ring-0 bg-transparent border-slate-600"
-                                />
-                                <span className="text-xs font-semibold">
-                                    + Paket Instalasi &amp; Setup Server di Lokasi (+Rp 1.500.000)
-                                </span>
-                            </label>
-                        </div>
+                                {/* Option 2: Add-on Installation / Servis */}
+                                <label
+                                    onClick={() => setIncludeInstallation(true)}
+                                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                                        includeInstallation 
+                                            ? 'border-blue-600 bg-blue-600/10 text-white' 
+                                            : 'border-slate-800 bg-[#171B26] text-slate-300 hover:border-slate-700'
+                                    }`}
+                                >
+                                    <input
+                                        type="radio"
+                                        name="procurement_mode"
+                                        checked={includeInstallation}
+                                        onChange={() => setIncludeInstallation(true)}
+                                        className="text-blue-600 focus:ring-0 bg-transparent border-slate-600 cursor-pointer"
+                                    />
+                                    <span className="text-xs font-semibold">
+                                        {product.installation_label}
+                                    </span>
+                                </label>
+                            </div>
+                        )}
 
                     </div>
 
                     {/* 3. RIGHT COLUMN: STICKY PROCUREMENT & ORDER BOX (3 Cols) */}
                     <div className="lg:col-span-3">
-                        <div className="rounded-2xl border border-slate-800 bg-[#0d1830] p-5 space-y-5 sticky top-24 shadow-xl">
+                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-5 space-y-5 sticky top-24 shadow-xl">
                             
                             <h3 className="font-bold text-white text-sm">
                                 Atur Pengadaan &amp; Pesanan
@@ -528,9 +710,9 @@ export default function ProductDetail({
                             {/* Quantity Stepper */}
                             <div className="space-y-1.5">
                                 <label className="text-xs text-slate-400">
-                                    Jumlah unit
+                                    Jumlah {product.unit || 'unit'}
                                 </label>
-                                <div className="flex items-center justify-between rounded-lg bg-[#070e1e] border border-slate-800 p-1">
+                                <div className="flex items-center justify-between rounded-lg bg-[#0C0D12] border border-slate-800 p-1">
                                     <button
                                         type="button"
                                         onClick={() => handleQuantityChange(-1)}
@@ -551,8 +733,8 @@ export default function ProductDetail({
                                         <Plus className="h-3.5 w-3.5" />
                                     </button>
                                 </div>
-                                <div className="text-[11px] font-medium text-emerald-400">
-                                    Stok Tersedia: {product.stock} Unit
+                                <div className="text-[11px] font-medium text-[#8cd4b4]">
+                                    Stok Tersedia: {product.stock} {product.unit || 'Unit'}
                                 </div>
                             </div>
 
@@ -572,11 +754,7 @@ export default function ProductDetail({
                                     type="button"
                                     onClick={handleAddToCart}
                                     disabled={isAdding}
-                                    className={`w-full py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] ${
-                                        isAdded 
-                                            ? 'bg-emerald-600 text-white' 
-                                            : 'bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-900/30'
-                                    }`}
+                                    className="w-full py-2.5 rounded-lg text-xs font-semibold btn-primary-bespoke flex items-center justify-center gap-1.5 active:scale-[0.98]"
                                 >
                                     {isAdding ? (
                                         <>
@@ -615,7 +793,7 @@ export default function ProductDetail({
                 <section className="space-y-6 pt-4 border-t border-slate-800/80">
                     
                     {/* Tabs Navigation Header */}
-                    <div className="flex items-center gap-6 sm:gap-8 border-b border-slate-800 text-xs sm:text-sm font-semibold overflow-x-auto">
+                    <div className="flex items-center gap-6 sm:gap-8 border-b border-slate-800 text-xs sm:text-sm font-semibold overflow-x-auto scrollbar-none no-scrollbar">
                         <button 
                             type="button" 
                             onClick={() => setActiveTab('specs')}
@@ -665,12 +843,12 @@ export default function ProductDetail({
 
                     {/* Tab 1: Spesifikasi Teknis Lengkap */}
                     {activeTab === 'specs' && (
-                        <div className="rounded-xl border border-slate-800/80 bg-[#0d1830] overflow-hidden divide-y divide-slate-800/80 text-xs sm:text-sm shadow-md">
+                        <div className="rounded-xl border border-slate-800/80 bg-[#171B26] overflow-hidden divide-y divide-slate-800/80 text-xs sm:text-sm shadow-md">
                             {(product.specifications || []).map((item, idx) => (
                                 <div 
                                     key={item.label} 
                                     className={`grid grid-cols-1 sm:grid-cols-12 px-5 sm:px-6 py-3.5 sm:py-4 transition-colors ${
-                                        idx % 2 === 0 ? 'bg-[#0d1830]' : 'bg-[#0a152e]/60'
+                                        idx % 2 === 0 ? 'bg-[#171B26]' : 'bg-[#171B26]/60'
                                     }`}
                                 >
                                     <span className="sm:col-span-4 font-semibold text-slate-300">
@@ -686,18 +864,18 @@ export default function ProductDetail({
 
                     {/* Tab 2: Unduh Brosur / Datasheet PDF */}
                     {activeTab === 'datasheet' && (
-                        <div className="rounded-xl border border-slate-800/80 bg-[#0d1830] p-6 sm:p-8 space-y-4">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-xl bg-[#070e1e] border border-slate-800">
+                        <div className="rounded-xl border border-slate-800/80 bg-[#171B26] p-5 sm:p-8 space-y-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-xl bg-[#0C0D12] border border-slate-800">
                                 <div className="flex items-start gap-3.5">
                                     <div className="p-3 rounded-lg bg-blue-600/10 text-blue-400 border border-blue-500/20 shrink-0">
                                         <FileText className="h-6 w-6" />
                                     </div>
                                     <div>
                                         <h4 className="text-sm font-bold text-white">
-                                            Datasheet Resmi HPE ProLiant ML30 Gen10
+                                            {product.datasheet_title || `Datasheet Resmi ${product.name}`}
                                         </h4>
                                         <p className="text-xs text-slate-400 mt-0.5">
-                                            Format: PDF • Ukuran: 2.4 MB • Versi Bahasa Indonesia &amp; Inggris
+                                            Format: {product.datasheet_size || 'PDF • 2.4 MB'} • Versi Bahasa Indonesia &amp; Inggris
                                         </p>
                                         <p className="text-[11px] text-slate-500 mt-2 max-w-lg leading-relaxed">
                                             Dokumen spesifikasi teknis lengkap dari produsen untuk kelengkapan administrasi pengadaan barang B2B, audit, atau lampiran proposal tender.
@@ -706,7 +884,7 @@ export default function ProductDetail({
                                 </div>
                                 <a
                                     href="/images/hero-datacenter-clean.jpg"
-                                    download="Datasheet-HPE-ProLiant-ML30-Gen10.pdf"
+                                    download={`${product.name.replace(/\s+/g, '-').slice(0, 30)}.pdf`}
                                     className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-md transition shrink-0"
                                 >
                                     <Download className="h-4 w-4" />
@@ -718,24 +896,24 @@ export default function ProductDetail({
 
                     {/* Tab 3: Info Garansi & Layanan Servis */}
                     {activeTab === 'warranty' && (
-                        <div className="rounded-xl border border-slate-800/80 bg-[#0d1830] p-6 space-y-5 text-xs sm:text-sm">
+                        <div className="rounded-xl border border-slate-800/80 bg-[#171B26] p-5 sm:p-6 space-y-5 text-xs sm:text-sm">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="p-4 rounded-xl bg-[#070e1e] border border-slate-800 space-y-2">
+                                <div className="p-4 rounded-xl bg-[#0C0D12] border border-slate-800 space-y-2">
                                     <div className="flex items-center gap-2 text-blue-400 font-bold">
                                         <ShieldCheck className="h-5 w-5" />
-                                        <span>Garansi Resmi HPE Indonesia</span>
+                                        <span>{product.warranty_title || `Garansi Resmi ${product.brand}`}</span>
                                     </div>
                                     <p className="text-slate-400 text-xs leading-relaxed">
-                                        Garansi 3 Tahun mencakup penggantian suku cadang (Parts), perbaikan (Labor), dan dukungan teknis langsung di lokasi perusahaan Anda (Onsite Next Business Day).
+                                        {product.warranty_desc || `${product.warranty} mencakup jaminan kualitas operasional, kelengkapan administrasi faktur pajak, dan pendampingan klaim suku cadang.`}
                                     </p>
                                 </div>
-                                <div className="p-4 rounded-xl bg-[#070e1e] border border-slate-800 space-y-2">
+                                <div className="p-4 rounded-xl bg-[#0C0D12] border border-slate-800 space-y-2">
                                     <div className="flex items-center gap-2 text-emerald-400 font-bold">
                                         <Wrench className="h-5 w-5" />
                                         <span>Layanan Servis CV. Putra Nugraha</span>
                                     </div>
                                     <p className="text-slate-400 text-xs leading-relaxed">
-                                        Pendampingan setup awal RAID, instalasi OS Server, serta trouble-ticketing prioritas untuk klien kontrak B2B.
+                                        Pendampingan setup awal perangkat, instalasi on-site oleh teknisi tersertifikasi, serta trouble-ticketing prioritas untuk klien kontrak pengadaan B2B.
                                     </p>
                                 </div>
                             </div>
@@ -748,22 +926,25 @@ export default function ProductDetail({
                 {/* SECTION 3: PRODUK PELENGKAP INFRASTRUKTUR SERVER      */}
                 {/* ===================================================== */}
                 <section className="space-y-6 pt-6 border-t border-slate-800/80">
-                    <div>
-                        <h2 className="font-display text-xl sm:text-2xl font-bold text-white tracking-tight">
-                            Produk &amp; Layanan Pelengkap Infrastruktur Server
-                        </h2>
-                        <p className="mt-1 text-xs sm:text-sm text-slate-400">
-                            Perangkat jaringan dan aksesori pendukung operasional server perusahaan.
-                        </p>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h2 className="font-display text-lg sm:text-xl font-bold text-white tracking-tight">
+                                Produk &amp; Layanan Pelengkap Infrastruktur Server
+                            </h2>
+                            <p className="text-xs text-slate-400 mt-0.5">
+                                Perangkat pendukung integrasi jaringan dan instalasi siap pesan.
+                            </p>
+                        </div>
                     </div>
 
-                    {/* Grid 4 Kartu Produk Pelengkap Sesuai Mockup */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-                        {relatedProducts.map((relProduct) => (
-                            <ProductCard
-                                key={relProduct.id}
-                                product={relProduct}
-                                onAddToCart={() => setCartCount(prev => prev + 1)}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                        {relatedProducts.map((p) => (
+                            <ProductCard 
+                                key={p.id} 
+                                product={p}
+                                onAddToCart={() => {
+                                    setCartCount(prev => prev + 1);
+                                }}
                             />
                         ))}
                     </div>
@@ -772,13 +953,13 @@ export default function ProductDetail({
             </main>
 
             {/* ========================================================= */}
-            {/* FOOTER PORTAL B2B                                         */}
+            {/* FOOTER B2B CORPORATE 4 KOLOM                              */}
             {/* ========================================================= */}
-            <footer className="border-t border-slate-800/80 bg-[#050c1e] mt-20">
+            <footer className="mt-16 border-t border-slate-800/80 bg-[#12161F] text-slate-400 text-xs">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-
-                        {/* Col 1: Brand & Desc */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        
+                        {/* Col 1: Brand & Profil Perusahaan */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-3">
                                 <img
@@ -787,7 +968,7 @@ export default function ProductDetail({
                                     className="h-9 w-9 rounded-lg object-contain"
                                 />
                                 <div className="flex flex-col">
-                                    <span className="text-xs font-bold uppercase tracking-tight text-white">
+                                    <span className="text-xs font-bold tracking-tight text-white uppercase">
                                         CV. PUTRA NUGRAHA -
                                     </span>
                                     <span className="text-[10px] text-slate-400">
@@ -806,34 +987,44 @@ export default function ProductDetail({
                                 Panduan Pengadaan B2B
                             </h4>
                             <ul className="space-y-2 text-xs">
-                                {[
-                                    { label: 'Cara Belanja & Pengajuan RFQ', href: '/buyer/rfq/create' },
-                                    { label: 'Ketentuan Faktur Pajak', href: '#' },
-                                    { label: 'Pembayaran & Pengiriman', href: '#' },
-                                    { label: 'Garansi & Layanan Purnajual', href: '#' },
-                                ].map((link) => (
-                                    <li key={link.label}>
-                                        <Link
-                                            href={link.href}
-                                            className="text-slate-400 hover:text-white transition-colors"
-                                        >
-                                            {link.label}
-                                        </Link>
-                                    </li>
-                                ))}
+                                <li>
+                                    <Link href="/panduan/cara-belanja" className="text-slate-400 hover:text-white transition">
+                                        Cara Belanja &amp; Pengajuan RFQ
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/panduan/faktur-pajak" className="text-slate-400 hover:text-white transition">
+                                        Ketentuan Faktur Pajak
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/panduan/pembayaran" className="text-slate-400 hover:text-white transition">
+                                        Pembayaran &amp; Pengiriman
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/panduan/garansi" className="text-slate-400 hover:text-white transition">
+                                        Garansi &amp; Layanan Purnajual
+                                    </Link>
+                                </li>
                             </ul>
                         </div>
 
-                        {/* Col 3: Layanan Pelanggan */}
+                        {/* Col 3: Layanan Pelanggan & WhatsApp Hotline */}
                         <div className="space-y-3">
                             <h4 className="text-xs font-bold text-white uppercase tracking-wider">
                                 Layanan Pelanggan
                             </h4>
-                            <div className="flex items-center gap-2">
-                                <Phone className="h-4 w-4 text-blue-400 shrink-0" />
-                                <span className="text-sm font-bold text-white">
+                            <div className="flex items-center gap-2 text-white font-bold text-sm">
+                                <Phone className="h-4 w-4 text-emerald-400" />
+                                <a 
+                                    href="https://wa.me/6281320777874" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="hover:text-emerald-400 transition"
+                                >
                                     (+62) 813-2077-7874
-                                </span>
+                                </a>
                             </div>
                             <p className="text-xs text-slate-400 leading-relaxed">
                                 Hubungi tim kami untuk konsultasi produk, penawaran, dan status pengadaan.
@@ -880,16 +1071,16 @@ export default function ProductDetail({
             </footer>
 
             {/* ========================================================= */}
-            {/* FLOATING WHATSAPP BUTTON (Sesuai Mockup)                  */}
+            {/* FLOATING WHATSAPP BUTTON (Responsif & Rapi di Mobile)     */}
             {/* ========================================================= */}
             <a
                 href="https://wa.me/6281320777874"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Konsultasi Pengadaan via WhatsApp"
-                className="fixed bottom-6 right-6 z-50 flex items-center justify-center h-13 w-13 p-3.5 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-white shadow-2xl shadow-emerald-950/60 transition-transform duration-200 hover:scale-110 active:scale-95"
+                className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center justify-center h-11 w-11 sm:h-13 sm:w-13 p-2.5 sm:p-3.5 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-white shadow-2xl shadow-emerald-950/60 transition-transform duration-200 hover:scale-110 active:scale-95"
             >
-                <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current">
+                <svg viewBox="0 0 24 24" className="h-5 w-5 sm:h-6 sm:w-6 fill-current">
                     <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
                 </svg>
             </a>
@@ -897,4 +1088,3 @@ export default function ProductDetail({
         </div>
     );
 }
-

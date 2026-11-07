@@ -68,13 +68,33 @@ Route::prefix('buyer')->name('buyer.')->group(function () {
         return Inertia::render('Buyer/Quotations/Index');
     })->name('quotations.index');
 
+    Route::get('/rfq/create', function () {
+        return Inertia::render('Buyer/Quotations/Index');
+    })->name('rfq.create');
+
     Route::get('/orders', function () {
         return Inertia::render('Buyer/Orders/Index');
     })->name('orders.index');
 
+    Route::get('/cart', function () {
+        return Inertia::render('Buyer/Cart/Index');
+    })->name('cart.index');
+
+    Route::get('/checkout', function () {
+        return Inertia::render('Buyer/Checkout/Index');
+    })->name('checkout.index');
+
     Route::get('/invoices', function () {
         return Inertia::render('Buyer/Invoices/Index');
     })->name('invoices.index');
+
+    Route::get('/services', function () {
+        return Inertia::render('Buyer/Services/Index');
+    })->name('services.index');
+
+    Route::get('/profile', function () {
+        return Inertia::render('Buyer/Profile/Index');
+    })->name('profile.index');
 
     Route::get('/products/{id}', function ($id) {
         return Inertia::render('Buyer/Products/Show', [
@@ -85,9 +105,21 @@ Route::prefix('buyer')->name('buyer.')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Seller Zone (Dashboard, Catalog Management, Price Negotiation, Orders, Legality)
+| Admin & Seller Zone (Dashboard Operasional, RFQ, Orders, e-Faktur, dsb.)
 |--------------------------------------------------------------------------
 */
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', function () {
+        return redirect()->route('seller.dashboard');
+    });
+    Route::get('/dashboard', function () {
+        return Inertia::render('Seller/Dashboard');
+    })->name('dashboard');
+    Route::get('/orders', function () {
+        return Inertia::render('Seller/Orders/Index');
+    })->name('orders.index');
+});
+
 Route::prefix('seller')->name('seller.')->group(function () {
     Route::get('/dashboard', function () {
         return Inertia::render('Seller/Dashboard');
@@ -108,6 +140,18 @@ Route::prefix('seller')->name('seller.')->group(function () {
     Route::get('/legality', function () {
         return Inertia::render('Seller/Legality/Index');
     })->name('legality.index');
+
+    Route::get('/services', function () {
+        return Inertia::render('Seller/Services/Index');
+    })->name('services.index');
+
+    Route::get('/clients', function () {
+        return Inertia::render('Seller/Clients/Index');
+    })->name('clients.index');
+
+    Route::get('/settings', function () {
+        return Inertia::render('Seller/Settings/Index');
+    })->name('settings.index');
 });
 
 /*

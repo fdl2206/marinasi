@@ -1,4 +1,4 @@
-import MainLayout from '@/Layouts/MainLayout';
+﻿import MainLayout from '@/Layouts/MainLayout';
 import { Link } from '@inertiajs/react';
 import { 
     ArrowRight, 
@@ -135,7 +135,7 @@ export default function Home() {
             </section>
 
             {/* SECTION 2: TENTANG KAMI */}
-            <section id="tentang-kami" className="scroll-mt-20 py-16 sm:py-24 border-t border-slate-800/80 bg-[#050b1a]">
+            <section id="tentang-kami" className="scroll-mt-20 py-16 sm:py-24 border-t border-slate-800/80 bg-[#0C0D12]">
                 <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 space-y-12">
                     
                     {/* Section Header */}
@@ -169,7 +169,7 @@ export default function Home() {
 
                         {/* Quick Fact / Credibility Snapshot */}
                         <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="p-5 rounded-xl border border-slate-800/90 bg-[#0c1833]/90 space-y-2">
+                            <div className="p-5 rounded-xl border border-slate-800/90 bg-[#171B26]/90 space-y-2">
                                 <div className="h-9 w-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
                                     <Building2 className="h-5 w-5" />
                                 </div>
@@ -179,7 +179,7 @@ export default function Home() {
                                 </p>
                             </div>
 
-                            <div className="p-5 rounded-xl border border-slate-800/90 bg-[#0c1833]/90 space-y-2">
+                            <div className="p-5 rounded-xl border border-slate-800/90 bg-[#171B26]/90 space-y-2">
                                 <div className="h-9 w-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
                                     <ShieldCheck className="h-5 w-5" />
                                 </div>
@@ -189,7 +189,7 @@ export default function Home() {
                                 </p>
                             </div>
 
-                            <div className="p-5 rounded-xl border border-slate-800/90 bg-[#0c1833]/90 space-y-2">
+                            <div className="p-5 rounded-xl border border-slate-800/90 bg-[#171B26]/90 space-y-2">
                                 <div className="h-9 w-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
                                     <FileCheck className="h-5 w-5" />
                                 </div>
@@ -199,7 +199,7 @@ export default function Home() {
                                 </p>
                             </div>
 
-                            <div className="p-5 rounded-xl border border-slate-800/90 bg-[#0c1833]/90 space-y-2">
+                            <div className="p-5 rounded-xl border border-slate-800/90 bg-[#171B26]/90 space-y-2">
                                 <div className="h-9 w-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
                                     <Wrench className="h-5 w-5" />
                                 </div>
@@ -216,7 +216,7 @@ export default function Home() {
             </section>
 
             {/* SECTION 3: LAYANAN & PRODUK */}
-            <section id="layanan" className="scroll-mt-20 py-16 sm:py-24 border-t border-slate-800/80 bg-[#060e20]">
+            <section id="layanan" className="scroll-mt-20 py-16 sm:py-24 border-t border-slate-800/80 bg-[#0C0D12]">
                 <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 space-y-12">
                     
                     {/* Section Header: 2 Columns */}
@@ -246,7 +246,7 @@ export default function Home() {
                                         e.preventDefault();
                                         document.querySelector('#kontak')?.scrollIntoView({ behavior: 'smooth' });
                                     }}
-                                    className="group relative rounded-2xl border border-slate-800/90 bg-[#0d1830]/90 hover:bg-[#112040] p-6 sm:p-7 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-950/40"
+                                    className="group relative rounded-2xl border border-slate-800/90 bg-[#171B26]/90 hover:bg-[#1E2434] p-6 sm:p-7 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-950/40"
                                 >
                                     <div className="space-y-4">
                                         <div className="h-11 w-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-200">
@@ -301,7 +301,7 @@ export default function Home() {
                             return (
                                 <div
                                     key={index}
-                                    className="rounded-2xl border border-slate-800/90 bg-[#0d1830]/80 p-7 sm:p-8 flex flex-col justify-between space-y-6 hover:border-slate-700 transition-colors"
+                                    className="rounded-2xl border border-slate-800/90 bg-[#171B26]/80 p-7 sm:p-8 flex flex-col justify-between space-y-6 hover:border-slate-700 transition-colors"
                                 >
                                     <div className="space-y-4">
                                         <div className="h-12 w-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Eye, EyeOff, Building2, Store } from 'lucide-react';
 
@@ -27,11 +27,11 @@ export default function Login({ status, canResetPassword }) {
     };
 
     return (
-        <div className="min-h-screen bg-[#07132b] text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col justify-between">
+        <div className="min-h-screen bg-[#12161F] text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col justify-between">
             <Head title={role === 'buyer' ? 'Masuk Klien B2B' : 'Masuk Rekanan & Mitra B2B'} />
 
             {/* TOP HEADER */}
-            <header className="w-full border-b border-slate-800/80 bg-[#07132b]/95 backdrop-blur-md sticky top-0 z-50">
+            <header className="w-full border-b border-slate-800/80 bg-[#12161F]/95 backdrop-blur-md sticky top-0 z-50">
                 <div className="mx-auto flex max-w-7xl items-center justify-between px-6 sm:px-8 h-20">
                     {/* Brand Identity / Logo */}
                     <Link href="/" className="flex items-center gap-3">
@@ -95,10 +95,10 @@ export default function Login({ status, canResetPassword }) {
 
                     {/* RIGHT COLUMN: Form Card */}
                     <div className="lg:col-span-5 flex justify-center lg:justify-end">
-                        <div className="w-full max-w-md rounded-2xl border border-slate-800/90 bg-[#0d1830]/90 p-7 sm:p-10 shadow-2xl space-y-6">
+                        <div className="w-full max-w-md rounded-2xl border border-slate-800/90 bg-[#171B26]/90 p-7 sm:p-10 shadow-2xl space-y-6">
                             
                             {/* Segmented Role Switcher */}
-                            <div className="grid grid-cols-2 p-1 rounded-xl bg-[#081226] border border-slate-800 text-xs font-semibold">
+                            <div className="grid grid-cols-2 p-1 rounded-xl bg-[#12161F] border border-slate-800 text-xs font-semibold">
                                 <button
                                     type="button"
                                     onClick={() => handleRoleSwitch('buyer')}
@@ -159,7 +159,7 @@ export default function Login({ status, canResetPassword }) {
                                         placeholder={role === 'buyer' ? 'nama@perusahaan.co.id' : 'rekanan@putranugraha.com'}
                                         autoComplete="username"
                                         onChange={(e) => setData('email', e.target.value)}
-                                        className="w-full rounded-xl border border-slate-700/80 bg-[#081226] px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
+                                        className="w-full rounded-xl border border-slate-700/80 bg-[#12161F] px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
                                         required
                                     />
                                     {errors.email && <p className="text-xs text-rose-400 mt-1">{errors.email}</p>}
@@ -178,7 +178,7 @@ export default function Login({ status, canResetPassword }) {
                                             value={data.password}
                                             autoComplete="current-password"
                                             onChange={(e) => setData('password', e.target.value)}
-                                            className="w-full rounded-xl border border-slate-700/80 bg-[#081226] px-4 py-3 pr-11 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
+                                            className="w-full rounded-xl border border-slate-700/80 bg-[#12161F] px-4 py-3 pr-11 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
                                             required
                                         />
                                         <button
@@ -200,7 +200,7 @@ export default function Login({ status, canResetPassword }) {
                                             name="remember"
                                             checked={data.remember}
                                             onChange={(e) => setData('remember', e.target.checked)}
-                                            className="rounded border-slate-700 bg-[#081226] text-blue-600 focus:ring-blue-500/30"
+                                            className="rounded border-slate-700 bg-[#12161F] text-blue-600 focus:ring-blue-500/30"
                                         />
                                         <span>Ingat Saya</span>
                                     </label>
@@ -274,7 +274,7 @@ export default function Login({ status, canResetPassword }) {
             </main>
 
             {/* BOTTOM INFO FOOTER BAR */}
-            <footer className="w-full border-t border-slate-800/80 bg-[#050b1a] py-6">
+            <footer className="w-full border-t border-slate-800/80 bg-[#0C0D12] py-6">
                 <div className="max-w-7xl mx-auto px-6 sm:px-8 text-xs text-slate-400 text-center sm:text-left">
                     <p>
                         Jl. Cisangka Kavling 2, RT 03, RW 05 Kel. Pasir Wangi Kec. Ujung Berung | Telp: (+62) 813-2077-7874

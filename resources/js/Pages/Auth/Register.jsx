@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -26,11 +26,11 @@ export default function Register() {
     };
 
     return (
-        <div className="min-h-screen bg-[#07132b] text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col">
+        <div className="min-h-screen bg-[#12161F] text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col">
             <Head title="Pendaftaran Akun Klien & Rekanan B2B" />
 
             {/* TOP HEADER */}
-            <header className="w-full border-b border-slate-800/80 bg-[#07132b]/95 backdrop-blur-md sticky top-0 z-50">
+            <header className="w-full border-b border-slate-800/80 bg-[#12161F]/95 backdrop-blur-md sticky top-0 z-50">
                 <div className="mx-auto flex max-w-7xl items-center justify-between px-6 sm:px-8 h-20">
                     {/* Brand Identity / Logo */}
                     <Link href="/" className="flex items-center gap-3">
@@ -69,7 +69,7 @@ export default function Register() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
                     
                     {/* LEFT COLUMN: Keuntungan Mendaftar Akun Klien */}
-                    <div className="lg:col-span-5 rounded-2xl border border-slate-800/90 bg-[#0d1830]/90 p-7 sm:p-8 flex flex-col justify-between space-y-8">
+                    <div className="lg:col-span-5 rounded-2xl border border-slate-800/90 bg-[#171B26]/90 p-7 sm:p-8 flex flex-col justify-between space-y-8">
                         <div className="space-y-6">
                             {/* Pill Badge */}
                             <div>
@@ -142,7 +142,7 @@ export default function Register() {
                     </div>
 
                     {/* RIGHT COLUMN: Pendaftaran Akun Klien & Rekanan Form */}
-                    <div className="lg:col-span-7 rounded-2xl border border-slate-800/90 bg-[#0d1830]/90 p-7 sm:p-10 shadow-2xl space-y-7">
+                    <div className="lg:col-span-7 rounded-2xl border border-slate-800/90 bg-[#171B26]/90 p-7 sm:p-10 shadow-2xl space-y-7">
                         <div>
                             <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                                 Pendaftaran Akun Klien &amp; Rekanan B2B
@@ -169,7 +169,7 @@ export default function Register() {
                                         value={data.name}
                                         placeholder="Contoh: Budi Santoso"
                                         onChange={(e) => setData('name', e.target.value)}
-                                        className="w-full rounded-xl border border-slate-700/80 bg-[#081226] px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
+                                        className="w-full rounded-xl border border-slate-700/80 bg-[#12161F] px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
                                         required
                                     />
                                     {errors.name && <p className="text-xs text-rose-400 mt-1">{errors.name}</p>}
@@ -188,7 +188,7 @@ export default function Register() {
                                             value={data.email}
                                             placeholder="nama@perusahaan.co.id"
                                             onChange={(e) => setData('email', e.target.value)}
-                                            className="w-full rounded-xl border border-slate-700/80 bg-[#081226] px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
+                                            className="w-full rounded-xl border border-slate-700/80 bg-[#12161F] px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
                                             required
                                         />
                                         {errors.email && <p className="text-xs text-rose-400 mt-1">{errors.email}</p>}
@@ -205,7 +205,7 @@ export default function Register() {
                                             value={data.phone}
                                             placeholder="08xx-xxxx-xxxx"
                                             onChange={(e) => setData('phone', e.target.value)}
-                                            className="w-full rounded-xl border border-slate-700/80 bg-[#081226] px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
+                                            className="w-full rounded-xl border border-slate-700/80 bg-[#12161F] px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
                                         />
                                     </div>
                                 </div>
@@ -229,7 +229,7 @@ export default function Register() {
                                         value={data.company_name}
                                         placeholder="PT / CV / Instansi..."
                                         onChange={(e) => setData('company_name', e.target.value)}
-                                        className="w-full rounded-xl border border-slate-700/80 bg-[#081226] px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
+                                        className="w-full rounded-xl border border-slate-700/80 bg-[#12161F] px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
                                     />
                                 </div>
 
@@ -245,7 +245,7 @@ export default function Register() {
                                         value={data.company_address}
                                         placeholder="Alamat kantor..."
                                         onChange={(e) => setData('company_address', e.target.value)}
-                                        className="w-full rounded-xl border border-slate-700/80 bg-[#081226] px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
+                                        className="w-full rounded-xl border border-slate-700/80 bg-[#12161F] px-4 py-3 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
                                     />
                                 </div>
                             </div>
@@ -269,7 +269,7 @@ export default function Register() {
                                                 name="password"
                                                 value={data.password}
                                                 onChange={(e) => setData('password', e.target.value)}
-                                                className="w-full rounded-xl border border-slate-700/80 bg-[#081226] px-4 py-3 pr-11 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
+                                                className="w-full rounded-xl border border-slate-700/80 bg-[#12161F] px-4 py-3 pr-11 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
                                                 required
                                             />
                                             <button
@@ -295,7 +295,7 @@ export default function Register() {
                                                 name="password_confirmation"
                                                 value={data.password_confirmation}
                                                 onChange={(e) => setData('password_confirmation', e.target.value)}
-                                                className="w-full rounded-xl border border-slate-700/80 bg-[#081226] px-4 py-3 pr-11 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
+                                                className="w-full rounded-xl border border-slate-700/80 bg-[#12161F] px-4 py-3 pr-11 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
                                                 required
                                             />
                                             <button
@@ -321,7 +321,7 @@ export default function Register() {
                                         name="terms"
                                         checked={data.terms}
                                         onChange={(e) => setData('terms', e.target.checked)}
-                                        className="mt-0.5 rounded border-slate-700 bg-[#081226] text-blue-600 focus:ring-blue-500/30"
+                                        className="mt-0.5 rounded border-slate-700 bg-[#12161F] text-blue-600 focus:ring-blue-500/30"
                                         required
                                     />
                                     <span className="text-xs text-slate-300 leading-relaxed">

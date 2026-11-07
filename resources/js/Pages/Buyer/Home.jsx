@@ -44,7 +44,7 @@ const DEFAULT_PRODUCTS = [
     {
         id: 2,
         name: 'Paket Jasa Instalasi Jaringan LAN Kantor',
-        slug: 'paket-jasa-instalasi-jaringan-lan-kantor-1',
+        slug: 'paket-jasa-instalasi-jaringan-lan-kantor',
         price: 8500000,
         unit: 'paket',
         stock_status: 'official_service',
@@ -55,39 +55,39 @@ const DEFAULT_PRODUCTS = [
     },
     {
         id: 3,
-        name: 'Paket Jasa Instalasi Jaringan LAN Kantor',
-        slug: 'paket-jasa-instalasi-jaringan-lan-kantor-2',
-        price: 8500000,
-        unit: 'paket',
-        stock_status: 'official_service',
-        badge_label: 'Jasa Resmi',
+        name: 'Cisco Catalyst Switch 24-Port Gigabit',
+        slug: 'cisco-catalyst-switch-24-port',
+        price: 15450000,
+        unit: null,
+        stock_status: 'ready_stock',
+        badge_label: 'Ready Stock',
         tags: ['B2B', 'Faktur Pajak'],
-        image_url: '/images/product-lan-services.png',
-        category_id: 'services',
+        image_url: '/images/product-cisco-switch.png',
+        category_id: 'networking',
     },
     {
         id: 4,
-        name: 'Paket Jasa Instalasi Jaringan LAN Kantor',
-        slug: 'paket-jasa-instalasi-jaringan-lan-kantor-3',
-        price: 8500000,
-        unit: 'paket',
-        stock_status: 'official_service',
-        badge_label: 'Jasa Resmi',
+        name: 'Ubiquiti UniFi AP AC Pro Dual-Band',
+        slug: 'ubiquiti-unifi-ap-ac-pro',
+        price: 2450000,
+        unit: null,
+        stock_status: 'ready_stock',
+        badge_label: 'Ready Stock',
         tags: ['B2B', 'Faktur Pajak'],
-        image_url: '/images/product-lan-services.png',
-        category_id: 'services',
+        image_url: '/images/product-ubiquiti-ap.png',
+        category_id: 'networking',
     },
     {
         id: 5,
-        name: 'Paket Jasa Instalasi Jaringan LAN Kantor',
-        slug: 'paket-jasa-instalasi-jaringan-lan-kantor-4',
-        price: 8500000,
-        unit: 'paket',
-        stock_status: 'official_service',
-        badge_label: 'Jasa Resmi',
+        name: 'Kabel UTP Cat6 Belden 305m (1 Roll)',
+        slug: 'kabel-utp-cat6-belden-305m',
+        price: 3100000,
+        unit: 'roll',
+        stock_status: 'ready_stock',
+        badge_label: 'Ready Stock',
         tags: ['B2B', 'Faktur Pajak'],
-        image_url: '/images/product-lan-services.png',
-        category_id: 'services',
+        image_url: '/images/product-belden-cable.png',
+        category_id: 'accessories',
     },
 ];
 
@@ -188,29 +188,29 @@ export default function BuyerHome({
     };
 
     return (
-        <div className="min-h-screen bg-[#070e1e] text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col">
+        <div className="min-h-screen bg-[#0C0D12] text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col">
             <Head title="Portal Pengadaan B2B — CV. Putra Nugraha" />
 
             {/* ========================================================= */}
             {/* HEADER NAVBAR & CATEGORY SUB-NAV */}
             {/* ========================================================= */}
-            <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-[#07132b]">
+            <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-[#12161F]">
                 
                 {/* Main Top Bar */}
-                <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8 h-20">
+                <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 sm:gap-6 px-4 sm:px-6 lg:px-8 h-16 sm:h-20">
                     
                     {/* Brand Identity / Logo */}
-                    <Link href="/portal" className="flex items-center gap-3 shrink-0">
+                    <Link href="/portal" className="flex items-center gap-2.5 sm:gap-3 shrink-0">
                         <img
                             src="/images/logo-pn.png"
                             alt="Logo CV. Putra Nugraha"
-                            className="h-10 w-10 rounded-lg object-contain"
+                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-contain"
                         />
                         <div className="flex flex-col">
-                            <span className="text-sm font-bold tracking-tight text-white uppercase">
-                                CV. PUTRA NUGRAHA -
+                            <span className="text-xs sm:text-sm font-bold tracking-tight text-white uppercase">
+                                CV. PUTRA NUGRAHA
                             </span>
-                            <span className="text-[11px] font-normal text-slate-400">
+                            <span className="hidden sm:inline text-[11px] font-normal text-slate-400">
                                 Perdagangan Barang dan Jasa
                             </span>
                         </div>
@@ -238,9 +238,9 @@ export default function BuyerHome({
                     </form>
 
                     {/* Right Actions: Keranjang & Akun */}
-                    <div className="flex items-center gap-6 shrink-0">
+                    <div className="flex items-center gap-4 sm:gap-6 shrink-0">
                         <Link
-                            href="/buyer/orders"
+                            href="/buyer/cart"
                             className="relative flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white transition-colors"
                         >
                             <ShoppingCart className="h-4 w-4 text-slate-300" />
@@ -257,7 +257,7 @@ export default function BuyerHome({
                             <button
                                 type="button"
                                 onClick={() => setAccountMenuOpen(!accountMenuOpen)}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
+                                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
                             >
                                 <User className="h-4 w-4" />
                                 <span>Akun</span>
@@ -265,7 +265,7 @@ export default function BuyerHome({
 
                             {/* Dropdown Menu */}
                             {accountMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-800 bg-[#0d1a38] p-2 shadow-2xl space-y-1 text-xs z-50">
+                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-800 bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
                                     <div className="px-3 py-2 border-b border-slate-800">
                                         <div className="font-bold text-white truncate">{auth?.user?.name || 'Klien B2B'}</div>
                                         <div className="text-[10px] text-slate-400 truncate">{auth?.user?.email || 'klien@instansi.co.id'}</div>
@@ -276,6 +276,16 @@ export default function BuyerHome({
                                     >
                                         <LayoutDashboard className="h-3.5 w-3.5 text-blue-400" />
                                         <span>Dashboard Pengadaan</span>
+                                    </Link>
+                                    <Link
+                                        href="/admin/dashboard"
+                                        className="flex items-center justify-between px-3 py-2 rounded-lg text-amber-400 hover:bg-white/[0.06] hover:text-amber-300 transition"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <ShieldCheck className="h-3.5 w-3.5 text-amber-400" />
+                                            <span>Portal Admin Back-Office</span>
+                                        </div>
+                                        <ArrowRight className="h-3 w-3 text-amber-500/60" />
                                     </Link>
                                     <Link
                                         href="/logout"
@@ -294,9 +304,9 @@ export default function BuyerHome({
                 </div>
 
                 {/* Category Sub-nav Bar */}
-                <div className="border-t border-slate-800/80 bg-[#050c1e]">
+                <div className="border-t border-slate-800/80 bg-[#12161F]">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <nav className="flex items-center justify-between py-3 overflow-x-auto text-xs font-medium text-slate-300 gap-8">
+                        <nav className="flex items-center justify-start md:justify-between py-2.5 sm:py-3 overflow-x-auto text-xs font-medium text-slate-300 gap-6 sm:gap-8 scrollbar-none no-scrollbar whitespace-nowrap">
                             {categories.map((cat) => {
                                 const IconComponent = cat.icon;
                                 return (
@@ -412,7 +422,7 @@ export default function BuyerHome({
                             <button
                                 type="button"
                                 onClick={() => setFilterMenuOpen(!filterMenuOpen)}
-                                className="flex items-center gap-2 px-3.5 py-2 rounded-lg border border-slate-700 bg-[#0d1830] hover:border-blue-500/60 text-slate-200 text-xs font-semibold shadow-sm transition-colors"
+                                className="flex items-center gap-2 px-3.5 py-2 rounded-lg border border-slate-700 bg-[#171B26] hover:border-blue-500/60 text-slate-200 text-xs font-semibold shadow-sm transition-colors"
                             >
                                 <SlidersHorizontal className="h-3.5 w-3.5 text-slate-400" />
                                 <span>Sort / Filter</span>
@@ -421,7 +431,7 @@ export default function BuyerHome({
 
                             {/* Dropdown Options */}
                             {filterMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-48 rounded-xl border border-slate-800 bg-[#0d1a38] p-1.5 shadow-2xl space-y-1 text-xs z-40">
+                                <div className="absolute right-0 mt-2 w-48 rounded-xl border border-slate-800 bg-[#1E2434] p-1.5 shadow-2xl space-y-1 text-xs z-40">
                                     <div className="px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                                         Urutkan Produk
                                     </div>
@@ -461,7 +471,7 @@ export default function BuyerHome({
             {/* ========================================================= */}
             {/* SECTION 3: 4 PILAR KEUNGGULAN B2B                        */}
             {/* ========================================================= */}
-            <section className="border-t border-slate-800/80 bg-[#07132b] mt-16">
+            <section className="border-t border-slate-800/80 bg-[#12161F] mt-16">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
                         {TRUST_FEATURES.map((item) => {
@@ -489,7 +499,7 @@ export default function BuyerHome({
             {/* ========================================================= */}
             {/* SECTION 4: FOOTER PORTAL B2B                             */}
             {/* ========================================================= */}
-            <footer className="border-t border-slate-800/80 bg-[#050c1e]">
+            <footer className="border-t border-slate-800/80 bg-[#12161F]">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
 

@@ -1,32 +1,55 @@
 import SellerLayout from '@/Layouts/SellerLayout';
-import { Link } from '@inertiajs/react';
-import { PackageCheck, Plus, Search, Edit3, Trash2 } from 'lucide-react';
+import { Head, Link } from '@inertiajs/react';
+import { PackageCheck, Plus, ArrowLeft } from 'lucide-react';
 
 export default function SellerCatalogIndex() {
     return (
-        <SellerLayout title="Katalog & Manajemen Stok">
-            <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <SellerLayout title="Katalog Produk & Stok">
+            <Head title="Katalog Produk & Stok — CV. Putra Nugraha Internal" />
+
+            <div className="space-y-6 max-w-4xl">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
                     <div>
-                        <h1 className="text-2xl font-bold text-white">Manajemen Katalog Produk & Stok</h1>
-                        <p className="text-slate-400 text-xs mt-1">Tambah, edit, dan atur ketersediaan stok produk pada etalase B2B.</p>
+                        <div className="text-xs text-slate-400 font-medium">
+                            CV. PUTRA NUGRAHA - Perdagangan Barang dan Jasa
+                        </div>
+                        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-0.5">
+                            Katalog Produk &amp; Manajemen Stok
+                        </h1>
+                        <p className="text-xs text-slate-400 mt-1">
+                            Tambah, edit, dan atur ketersediaan stok produk pada etalase B2B dan e-katalog pengadaan.
+                        </p>
                     </div>
-                    <button
-                        type="button"
-                        className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow hover:bg-blue-500 transition"
-                    >
-                        <Plus className="h-4 w-4" />
-                        Tambah Item Baru
-                    </button>
                 </div>
 
-                <div className="rounded-2xl border border-navy-800 bg-navy-900/60 p-6">
-                    <div className="p-8 text-center space-y-3">
-                        <PackageCheck className="h-12 w-12 text-blue-400/60 mx-auto" />
-                        <h3 className="text-base font-bold text-white">Inventaris Produk E-Catalog</h3>
-                        <p className="text-xs text-slate-400 max-w-md mx-auto">
-                            Daftar komoditas siap tayang, pengaturan harga bertingkat (tiered pricing), dan batas minimum pemesanan (MOQ) dapat dikonfigurasi melalui panel ini.
+                {/* Content / Placeholder */}
+                <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-8 sm:p-12 text-center space-y-4 shadow-xl">
+                    <div className="h-16 w-16 rounded-2xl bg-[#12161F] border border-slate-700/80 text-[#9bb8f5] flex items-center justify-center mx-auto shadow-inner">
+                        <PackageCheck className="h-8 w-8" />
+                    </div>
+
+                    <div className="space-y-1.5 max-w-md mx-auto">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium badge-azure">
+                            <span className="h-1.5 w-1.5 rounded-full dot-azure shrink-0" />
+                            <span>Menunggu Spesifikasi Desain UI/UX</span>
+                        </span>
+                        <h3 className="text-base sm:text-lg font-bold text-white pt-1">
+                            Modul Katalog Produk Sedang Disiapkan
+                        </h3>
+                        <p className="text-xs text-slate-400 leading-relaxed">
+                            Halaman manajemen inventaris lengkap sedang dalam tahap perancangan visual. Ringkasan kontrol cepat stok gudang tetap aktif di halaman Ringkasan Operasional.
                         </p>
+                    </div>
+
+                    <div className="pt-2 flex items-center justify-center gap-3">
+                        <Link
+                            href="/seller/dashboard"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl btn-primary-bespoke text-xs font-medium transition"
+                        >
+                            <ArrowLeft className="h-3.5 w-3.5" />
+                            <span>Kembali ke Ringkasan Operasional</span>
+                        </Link>
                     </div>
                 </div>
             </div>

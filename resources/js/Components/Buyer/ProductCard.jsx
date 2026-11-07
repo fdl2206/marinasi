@@ -42,8 +42,8 @@ export default function ProductCard({ product, onAddToCart }) {
     // Deteksi badge status dan dot color
     const isReadyStock = product.stock_status === 'ready_stock' || product.badge_label?.toLowerCase().includes('ready');
     const badgeText = product.badge_label || (isReadyStock ? 'Ready Stock' : 'Jasa Resmi');
-    const dotColor = isReadyStock ? 'bg-emerald-400' : 'bg-blue-400';
-    const badgeColor = isReadyStock ? 'text-emerald-400' : 'text-blue-400';
+    const dotColor = isReadyStock ? 'dot-sage' : 'dot-azure';
+    const badgeColor = isReadyStock ? 'text-[#8cd4b4]' : 'text-[#9bb8f5]';
 
     const tags = Array.isArray(product.tags) && product.tags.length > 0 
         ? product.tags 
@@ -85,7 +85,7 @@ export default function ProductCard({ product, onAddToCart }) {
     };
 
     return (
-        <div className="group flex flex-col rounded-2xl border border-slate-800 bg-[#0d1830] p-3 sm:p-3.5 hover:border-blue-600/60 hover:shadow-xl hover:shadow-blue-950/30 transition-all duration-200">
+        <div className="group flex flex-col rounded-2xl border border-slate-800 bg-[#171B26] p-3 sm:p-3.5 hover:border-blue-600/60 hover:shadow-xl hover:shadow-blue-950/30 transition-all duration-200">
             
             {/* 1. Thumbnail Container (White Rounded Box seperti di Desain Figma) */}
             <Link 
@@ -136,7 +136,7 @@ export default function ProductCard({ product, onAddToCart }) {
                     {tags.map((tag) => (
                         <span
                             key={tag}
-                            className="px-2 py-0.5 rounded text-[10px] font-medium bg-[#132247] text-blue-300 border border-blue-600/30"
+                            className="px-2 py-0.5 rounded text-[10px] font-medium badge-azure"
                         >
                             {tag}
                         </span>
@@ -148,11 +148,7 @@ export default function ProductCard({ product, onAddToCart }) {
                     type="button"
                     onClick={handleAddToCart}
                     disabled={isAdding}
-                    className={`mt-4 w-full py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] ${
-                        isAdded
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-900/20'
-                    } disabled:opacity-70`}
+                    className="mt-4 w-full py-2.5 rounded-lg text-xs font-semibold btn-primary-bespoke flex items-center justify-center gap-1.5 active:scale-[0.98] disabled:opacity-70"
                 >
                     {isAdding ? (
                         <>
