@@ -19,16 +19,17 @@ import {
     CheckCircle2, 
     Phone, 
     MapPin, 
-    Plus,
-    FileCheck2,
-    ShieldCheck,
-    Save,
-    Edit3,
-    FileSpreadsheet,
-    Mail,
-    Building,
-    CreditCard
+    Plus, 
+    FileCheck2, 
+    ShieldCheck, 
+    Save, 
+    Edit3, 
+    FileSpreadsheet, 
+    Mail, 
+    Building, 
+    CreditCard 
 } from 'lucide-react';
+import ThemeToggle from '@/Components/Common/ThemeToggle';
 
 /**
  * Data mock profil perusahaan, legalitas perpajakan & alamat B2B
@@ -121,27 +122,28 @@ export default function ProfileIndex({
     };
 
     return (
-        <div className="min-h-screen bg-[#0C0D12] text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#0C0D12] text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col transition-colors duration-150">
             <Head title="Profil Perusahaan & Alamat — CV. Putra Nugraha" />
 
             {/* ========================================================= */}
             {/* HEADER NAVBAR                                             */}
             {/* ========================================================= */}
-            <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-[#12161F]">
-                <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 sm:gap-6 px-4 sm:px-6 lg:px-8 h-16 sm:h-20">
+            <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-[#12161F] backdrop-blur transition-colors duration-150">
+                <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-6 px-3 sm:px-6 lg:px-8 h-16 sm:h-20">
                     
                     {/* Brand Identity / Logo */}
-                    <Link href="/portal" className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                    <Link href="/portal" className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
                         <img
                             src="/images/logo-pn.png"
                             alt="Logo CV. Putra Nugraha"
-                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-contain"
+                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-contain shrink-0"
                         />
-                        <div className="flex flex-col">
-                            <span className="text-xs sm:text-sm font-bold tracking-tight text-white uppercase">
-                                CV. PUTRA NUGRAHA -
+                        <div className="flex flex-col min-w-0">
+                            <span className="text-xs sm:text-sm font-bold tracking-tight text-slate-900 dark:text-white uppercase truncate">
+                                <span className="sm:hidden">CV. PN</span>
+                                <span className="hidden sm:inline">CV. PUTRA NUGRAHA -</span>
                             </span>
-                            <span className="hidden sm:inline text-[11px] font-normal text-slate-400">
+                            <span className="hidden sm:inline text-[11px] font-normal text-slate-500 dark:text-slate-400">
                                 Perdagangan Barang dan Jasa
                             </span>
                         </div>
@@ -155,23 +157,24 @@ export default function ProfileIndex({
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Cari produk hardware, perangkat jaringan, atau layanan servis..."
-                                style={{ color: '#0f172a' }}
-                                className="w-full h-10 rounded-lg bg-white border border-transparent pl-4 pr-11 text-xs !text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                                className="w-full h-10 rounded-lg bg-slate-100 dark:bg-white border border-slate-200 dark:border-transparent pl-4 pr-11 text-xs text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
                             />
-                            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-500">
+                            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                                 <Search className="h-4 w-4" />
                             </div>
                         </div>
                     </div>
 
-                    {/* Right Actions: Keranjang & Akun */}
-                    <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+                    {/* Right Actions: Theme Toggle, Keranjang & Akun */}
+                    <div className="flex items-center gap-1.5 sm:gap-5 shrink-0">
+                        <ThemeToggle />
+
                         <Link
                             href="/buyer/cart"
-                            className="relative flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white transition-colors"
+                            className="relative flex items-center gap-1.5 sm:gap-2 p-2 sm:p-0 text-xs font-medium text-slate-700 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white transition-colors"
                         >
-                            <ShoppingCart className="h-4 w-4 text-slate-300" />
-                            <span>Keranjang</span>
+                            <ShoppingCart className="h-4 w-4 text-slate-500 dark:text-slate-300" />
+                            <span className="hidden sm:inline">Keranjang</span>
                             {cartCount > 0 && (
                                 <span className="flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-blue-600 text-[10px] font-bold text-white">
                                     {cartCount}
@@ -184,44 +187,44 @@ export default function ProfileIndex({
                             <button
                                 type="button"
                                 onClick={() => setAccountMenuOpen(!accountMenuOpen)}
-                                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
+                                className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
                             >
                                 <User className="h-4 w-4" />
-                                <span>Akun</span>
+                                <span className="hidden sm:inline">Akun</span>
                             </button>
 
                             {accountMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-800 bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
-                                    <div className="px-3 py-2 border-b border-slate-800">
-                                        <div className="font-bold text-white truncate">{company.company_name}</div>
-                                        <div className="text-[10px] text-slate-400 truncate">budi.santoso@majujayatekno.co.id</div>
+                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
+                                    <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
+                                        <div className="font-bold text-slate-900 dark:text-white truncate">{company.company_name}</div>
+                                        <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">budi.santoso@majujayatekno.co.id</div>
                                     </div>
                                     <Link
                                         href="/buyer/dashboard"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-white/[0.06] hover:text-white transition"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
                                     >
-                                        <LayoutDashboard className="h-3.5 w-3.5 text-blue-400" />
+                                        <LayoutDashboard className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                         <span>Dashboard Pengadaan</span>
                                     </Link>
                                     <Link
                                         href="/buyer/profile"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-white/[0.06] hover:text-white transition"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
                                     >
-                                        <Building2 className="h-3.5 w-3.5 text-blue-400" />
+                                        <Building2 className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                         <span>Profil Perusahaan</span>
                                     </Link>
                                     <Link
                                         href="/portal"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-white/[0.06] hover:text-white transition"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
                                     >
-                                        <Package className="h-3.5 w-3.5 text-blue-400" />
+                                        <Package className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                         <span>Katalog Pengadaan B2B</span>
                                     </Link>
                                     <Link
                                         href="/logout"
                                         method="post"
                                         as="button"
-                                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-rose-400 hover:bg-rose-500/10 transition text-left"
+                                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition text-left"
                                     >
                                         <LogOut className="h-3.5 w-3.5" />
                                         <span>Keluar (Logout)</span>
@@ -247,30 +250,30 @@ export default function ProfileIndex({
                     <aside className="lg:col-span-3 space-y-5">
                         
                         {/* 1. Akun Perusahaan Card */}
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-lg">
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-sm">
                             <div className="flex items-start gap-3">
-                                <div className="p-2.5 rounded-xl bg-blue-600/10 text-blue-400 shrink-0 mt-0.5 border border-blue-500/20">
+                                <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5 border border-blue-500/20">
                                     <Building2 className="h-5 w-5" />
                                 </div>
                                 <div className="space-y-1 min-w-0">
-                                    <h2 className="text-sm font-bold text-white leading-tight truncate">
+                                    <h2 className="text-sm font-bold text-slate-900 dark:text-white leading-tight truncate">
                                         {company.company_name}
                                     </h2>
-                                    <p className="text-xs text-slate-400">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
                                         PIC: Budi Santoso
                                     </p>
                                 </div>
                             </div>
 
                             {/* Verification Pill */}
-                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-950/60 border border-blue-500/30 text-blue-400 text-[10px] font-semibold w-full">
-                                <CheckCircle2 className="h-3 w-3 shrink-0 text-blue-400" />
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-500/30 text-blue-700 dark:text-blue-400 text-[10px] font-semibold w-full">
+                                <CheckCircle2 className="h-3 w-3 shrink-0 text-blue-600 dark:text-blue-400" />
                                 <span className="truncate">{company.tax_status}</span>
                             </div>
                         </div>
 
                         {/* 2. Sidebar Navigation Items */}
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-2 space-y-1 shadow-lg">
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-2 space-y-1 shadow-sm">
                             {sidebarMenuItems.map((item) => {
                                 const IconComponent = item.icon;
                                 const isActive = item.id === 'company';
@@ -281,7 +284,7 @@ export default function ProfileIndex({
                                         className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all text-left ${
                                             isActive
                                                 ? 'bg-blue-600 text-white shadow-md shadow-blue-900/30'
-                                                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                                                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
                                         }`}
                                     >
                                         <IconComponent className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
@@ -297,7 +300,7 @@ export default function ProfileIndex({
                                 href="/logout"
                                 method="post"
                                 as="button"
-                                className="flex items-center gap-2 text-xs font-medium text-slate-400 hover:text-rose-400 transition-colors"
+                                className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
                             >
                                 <LogOut className="h-3.5 w-3.5" />
                                 <span>Keluar Akun</span>
@@ -314,10 +317,10 @@ export default function ProfileIndex({
                         {/* 1. Header Bar: Title + Save Button */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>
-                                <h1 className="font-display text-xl sm:text-2xl font-bold text-white tracking-tight">
+                                <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                                     Profil Perusahaan, Legalitas &amp; Alamat
                                 </h1>
-                                <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
                                     Kelola identitas instansi, nomor NPWP untuk penerbitan e-Faktur resmi, data PIC, dan buku alamat kantor.
                                 </p>
                             </div>
@@ -346,14 +349,14 @@ export default function ProfileIndex({
                         </div>
 
                         {/* 2. CARD 1: IDENTITAS & LEGALITAS PERUSAHAAN (NPWP / PKP) */}
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-xl">
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-sm">
                             
-                            <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4">
                                 <div className="space-y-0.5">
-                                    <h2 className="text-sm sm:text-base font-bold text-white">
+                                    <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
                                         Identitas Badan Usaha &amp; Legalitas Pajak
                                     </h2>
-                                    <p className="text-xs text-slate-400">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
                                         Data ini digunakan secara otomatis untuk penerbitan e-Faktur PPN 11% dan Surat Perjanjian Pengadaan.
                                     </p>
                                 </div>
@@ -366,76 +369,76 @@ export default function ProfileIndex({
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-300">
+                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                                         Nama Resmi Perusahaan / Instansi
                                     </label>
                                     <input
                                         type="text"
                                         value={company.company_name}
                                         onChange={(e) => setCompany({ ...company, company_name: e.target.value })}
-                                        className="w-full h-10 rounded-xl bg-[#0C0D12] border border-slate-800 px-3.5 text-xs text-white font-medium focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        className="w-full h-10 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     />
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-300">
+                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                                         Bentuk Badan Usaha
                                     </label>
                                     <input
                                         type="text"
                                         value={company.business_entity}
                                         onChange={(e) => setCompany({ ...company, business_entity: e.target.value })}
-                                        className="w-full h-10 rounded-xl bg-[#0C0D12] border border-slate-800 px-3.5 text-xs text-white font-medium focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        className="w-full h-10 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     />
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-300">
+                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                                         Nomor Pokok Wajib Pajak (NPWP 16 Digit)
                                     </label>
                                     <input
                                         type="text"
                                         value={company.npwp_number}
                                         onChange={(e) => setCompany({ ...company, npwp_number: e.target.value })}
-                                        className="w-full h-10 rounded-xl bg-[#0C0D12] border border-slate-800 px-3.5 text-xs font-mono text-emerald-400 font-bold focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        className="w-full h-10 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 text-xs font-mono text-emerald-600 dark:text-emerald-400 font-bold focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     />
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-300">
+                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                                         Nomor Induk Berusaha (NIB)
                                     </label>
                                     <input
                                         type="text"
                                         value={company.nib_number}
                                         onChange={(e) => setCompany({ ...company, nib_number: e.target.value })}
-                                        className="w-full h-10 rounded-xl bg-[#0C0D12] border border-slate-800 px-3.5 text-xs text-slate-300 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        className="w-full h-10 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 text-xs text-slate-800 dark:text-slate-300 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     />
                                 </div>
 
                                 <div className="md:col-span-2 space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-300">
+                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                                         Alamat Terdaftar pada NPWP / SPPKP
                                     </label>
                                     <textarea
                                         rows={2}
                                         value={company.npwp_address}
                                         onChange={(e) => setCompany({ ...company, npwp_address: e.target.value })}
-                                        className="w-full rounded-xl bg-[#0C0D12] border border-slate-800 p-3 text-xs text-slate-200 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 leading-relaxed"
+                                        className="w-full rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 p-3 text-xs text-slate-900 dark:text-slate-200 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 leading-relaxed"
                                     />
                                 </div>
 
                             </div>
 
                             {/* Dokumen Terunggah */}
-                            <div className="p-3.5 rounded-xl bg-[#0C0D12] border border-slate-800 flex items-center justify-between text-xs">
+                            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-blue-600/10 text-blue-400 border border-blue-500/20">
+                                    <div className="p-2 rounded-lg bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
                                         <FileCheck2 className="h-4 w-4" />
                                     </div>
                                     <div>
-                                        <div className="font-semibold text-white">{company.sppkp_file}</div>
-                                        <div className="text-[10px] text-[#8cd4b4] font-medium">Terverifikasi Otentik oleh Tim Legal CV. Putra Nugraha</div>
+                                        <div className="font-semibold text-slate-900 dark:text-white">{company.sppkp_file}</div>
+                                        <div className="text-[10px] text-emerald-600 dark:text-[#8cd4b4] font-medium">Terverifikasi Otentik oleh Tim Legal CV. Putra Nugraha</div>
                                     </div>
                                 </div>
                                 <button
@@ -450,14 +453,14 @@ export default function ProfileIndex({
                         </div>
 
                         {/* 3. CARD 2: PENANGGUNG JAWAB PENGADAAN (PIC) */}
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-xl">
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-sm">
                             
-                            <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4">
                                 <div className="space-y-0.5">
-                                    <h2 className="text-sm sm:text-base font-bold text-white">
+                                    <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
                                         Kontak Penanggung Jawab (Person In Charge - PIC)
                                     </h2>
-                                    <p className="text-xs text-slate-400">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
                                         Tim kami akan menghubungi PIC ini untuk konfirmasi teknis penawaran dan tanda terima logistik.
                                     </p>
                                 </div>
@@ -465,7 +468,7 @@ export default function ProfileIndex({
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {pics.map((pic, idx) => (
-                                    <div key={pic.id} className="p-4 rounded-xl bg-[#0C0D12] border border-slate-800 space-y-3">
+                                    <div key={pic.id} className="p-4 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 space-y-3">
                                         <div className="flex items-center justify-between">
                                             <span className="text-[10px] font-medium px-2 py-0.5 rounded badge-azure">
                                                 {pic.tag}
@@ -474,21 +477,21 @@ export default function ProfileIndex({
                                         </div>
 
                                         <div className="space-y-1">
-                                            <h3 className="font-bold text-white text-sm">
+                                            <h3 className="font-bold text-slate-900 dark:text-white text-sm">
                                                 {pic.name}
                                             </h3>
-                                            <p className="text-xs text-slate-400">
+                                            <p className="text-xs text-slate-500 dark:text-slate-400">
                                                 {pic.role}
                                             </p>
                                         </div>
 
-                                        <div className="pt-2 border-t border-slate-800/80 space-y-1.5 text-xs text-slate-300">
+                                        <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 space-y-1.5 text-xs text-slate-700 dark:text-slate-300">
                                             <div className="flex items-center gap-2">
-                                                <Mail className="h-3.5 w-3.5 text-blue-400 shrink-0" />
+                                                <Mail className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
                                                 <span className="truncate">{pic.email}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <Phone className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                                                <Phone className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                                                 <span>{pic.phone}</span>
                                             </div>
                                         </div>
@@ -499,14 +502,14 @@ export default function ProfileIndex({
                         </div>
 
                         {/* 4. CARD 3: BUKU ALAMAT KANTOR & PENGIRIMAN LOGISTIK */}
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-xl">
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-sm">
                             
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800/80 pb-4">
                                 <div className="space-y-0.5">
-                                    <h2 className="text-sm sm:text-base font-bold text-white">
+                                    <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
                                         Buku Alamat Pengiriman &amp; Lokasi On-Site
                                     </h2>
-                                    <p className="text-xs text-slate-400">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
                                         Pilih alamat tujuan pengiriman barang fisik atau lokasi pelaksanaan instalasi server/jaringan.
                                     </p>
                                 </div>
@@ -514,7 +517,7 @@ export default function ProfileIndex({
                                 <button
                                     type="button"
                                     onClick={() => alert('Membuka modal tambah alamat pengiriman baru...')}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 text-xs font-bold transition self-start sm:self-auto"
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-xs font-bold transition self-start sm:self-auto"
                                 >
                                     <Plus className="h-3.5 w-3.5" />
                                     <span>Tambah Alamat Baru</span>
@@ -525,12 +528,12 @@ export default function ProfileIndex({
                                 {addresses.map((addr) => (
                                     <div
                                         key={addr.id}
-                                        className="p-4 rounded-xl bg-[#0C0D12] border border-slate-800 space-y-2 hover:border-slate-700 transition"
+                                        className="p-4 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition"
                                     >
                                         <div className="flex items-center justify-between gap-2 flex-wrap">
                                             <div className="flex items-center gap-2">
-                                                <MapPin className="h-4 w-4 text-blue-400 shrink-0" />
-                                                <h3 className="font-bold text-white text-xs sm:text-sm">
+                                                <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                                                <h3 className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">
                                                     {addr.label}
                                                 </h3>
                                                 {addr.is_default && (
@@ -543,23 +546,23 @@ export default function ProfileIndex({
                                                 <button
                                                     type="button"
                                                     onClick={() => alert(`Mengedit alamat: ${addr.label}`)}
-                                                    className="text-xs text-blue-400 hover:text-blue-300 font-semibold"
+                                                    className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-500 font-semibold"
                                                 >
                                                     Edit
                                                 </button>
                                             </div>
                                         </div>
 
-                                        <div className="text-xs text-slate-300 font-medium">
+                                        <div className="text-xs text-slate-700 dark:text-slate-300 font-medium">
                                             Penerima: {addr.recipient} • Telp: {addr.phone}
                                         </div>
 
-                                        <p className="text-xs text-slate-400 leading-relaxed">
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                             {addr.full_address}
                                         </p>
 
                                         {addr.notes && (
-                                            <div className="text-[11px] text-slate-500 pt-1">
+                                            <div className="text-[11px] text-slate-400 dark:text-slate-500 pt-1">
                                                 Catatan: {addr.notes}
                                             </div>
                                         )}
@@ -570,21 +573,21 @@ export default function ProfileIndex({
                         </div>
 
                         {/* 5. CARD 4: KETENTUAN KONTRAK & TERMS OF PAYMENT (TOP) */}
-                        <div className="p-5 rounded-2xl border border-slate-800 bg-[#171B26] space-y-3 shadow-md">
-                            <div className="flex items-center gap-2.5 text-blue-400 font-bold text-xs uppercase tracking-wider">
+                        <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] space-y-3 shadow-sm">
+                            <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400 font-bold text-xs uppercase tracking-wider">
                                 <CreditCard className="h-4 w-4" />
                                 <span>Ketentuan Transaksi &amp; Termin Pembayaran (TOP)</span>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs pt-1">
-                                <div className="p-3.5 rounded-xl bg-[#0C0D12] border border-slate-800 space-y-1">
-                                    <div className="text-[11px] text-slate-400">Fasilitas Termin Pembayaran:</div>
-                                    <div className="font-bold text-white text-xs sm:text-sm">{company.top_terms}</div>
-                                    <div className="text-[10px] text-emerald-400 font-medium">{company.top_status}</div>
+                                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 space-y-1">
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400">Fasilitas Termin Pembayaran:</div>
+                                    <div className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">{company.top_terms}</div>
+                                    <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">{company.top_status}</div>
                                 </div>
-                                <div className="p-3.5 rounded-xl bg-[#0C0D12] border border-slate-800 space-y-1">
-                                    <div className="text-[11px] text-slate-400">Rekening Resmi Pembayaran:</div>
-                                    <div className="font-bold text-white text-xs sm:text-sm">Bank Mandiri &amp; BCA (a.n CV. Putra Nugraha)</div>
+                                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 space-y-1">
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400">Rekening Resmi Pembayaran:</div>
+                                    <div className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">Bank Mandiri &amp; BCA (a.n CV. Putra Nugraha)</div>
                                     <div className="text-[10px] text-slate-400">Virtual Account otomatis terverifikasi</div>
                                 </div>
                             </div>
@@ -599,7 +602,7 @@ export default function ProfileIndex({
             {/* ========================================================= */}
             {/* FOOTER B2B CORPORATE 4 KOLOM                              */}
             {/* ========================================================= */}
-            <footer className="mt-16 border-t border-slate-800/80 bg-[#12161F] text-slate-400 text-xs">
+            <footer className="mt-16 border-t border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#12161F] text-slate-500 dark:text-slate-400 text-xs transition-colors duration-150">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         
@@ -612,42 +615,42 @@ export default function ProfileIndex({
                                     className="h-9 w-9 rounded-lg object-contain"
                                 />
                                 <div className="flex flex-col">
-                                    <span className="text-xs font-bold tracking-tight text-white uppercase">
+                                    <span className="text-xs font-bold tracking-tight text-slate-900 dark:text-white uppercase">
                                         CV. PUTRA NUGRAHA -
                                     </span>
-                                    <span className="text-[10px] text-slate-400">
+                                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
                                         Perdagangan Barang dan Jasa
                                     </span>
                                 </div>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Pengadaan perangkat IT dan layanan profesional untuk mendukung kebutuhan perusahaan Anda.
                             </p>
                         </div>
 
                         {/* Col 2 */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Panduan Pengadaan B2B
                             </h4>
                             <ul className="space-y-2 text-xs">
                                 <li>
-                                    <Link href="/panduan/cara-belanja" className="text-slate-400 hover:text-white transition">
+                                    <Link href="/panduan/cara-belanja" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                                         Cara Belanja &amp; Pengajuan RFQ
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href="/panduan/faktur-pajak" className="text-slate-400 hover:text-white transition">
+                                    <Link href="/panduan/faktur-pajak" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                                         Ketentuan Faktur Pajak
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href="/panduan/pembayaran" className="text-slate-400 hover:text-white transition">
+                                    <Link href="/panduan/pembayaran" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                                         Pembayaran &amp; Pengiriman
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href="/panduan/garansi" className="text-slate-400 hover:text-white transition">
+                                    <Link href="/panduan/garansi" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                                         Garansi &amp; Layanan Purnajual
                                     </Link>
                                 </li>
@@ -656,21 +659,21 @@ export default function ProfileIndex({
 
                         {/* Col 3 */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Layanan Pelanggan
                             </h4>
-                            <div className="flex items-center gap-2 text-white font-bold text-sm">
-                                <Phone className="h-4 w-4 text-emerald-400" />
+                            <div className="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-sm">
+                                <Phone className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                                 <a 
                                     href="https://wa.me/6281320777874" 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="hover:text-emerald-400 transition"
+                                    className="hover:text-emerald-600 dark:hover:text-emerald-400 transition"
                                 >
                                     (+62) 813-2077-7874
                                 </a>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Hubungi tim kami untuk konsultasi produk, penawaran, dan status pengadaan.
                             </p>
                             <div>
@@ -678,7 +681,7 @@ export default function ProfileIndex({
                                     href="https://wa.me/6281320777874"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
                                 >
                                     <span>Konsultasikan kebutuhan Anda</span>
                                     <ArrowRight className="h-3 w-3" />
@@ -688,16 +691,16 @@ export default function ProfileIndex({
 
                         {/* Col 4 */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Alamat Kantor
                             </h4>
                             <div className="flex items-start gap-2.5">
-                                <MapPin className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
-                                <p className="text-xs text-slate-400 leading-relaxed">
+                                <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                     Jl. Cinangka Kavling 2, RT 03, RW 05 Kel. Pasir Wangi Kec. Ujung Berung
                                 </p>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Melayani kebutuhan barang dan jasa IT perusahaan.
                             </p>
                         </div>
@@ -706,7 +709,7 @@ export default function ProfileIndex({
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="border-t border-slate-800/80">
+                <div className="border-t border-slate-200 dark:border-slate-800/80">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
                         <p>© 2026 CV. Putra Nugraha. All Right Reserved.</p>
                         <p className="hidden sm:block">Perdagangan Barang dan Jasa</p>

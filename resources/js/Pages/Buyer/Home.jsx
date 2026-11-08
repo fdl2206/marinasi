@@ -23,6 +23,7 @@ import {
     ArrowRight 
 } from 'lucide-react';
 import ProductCard from '@/Components/Buyer/ProductCard';
+import ThemeToggle from '@/Components/Common/ThemeToggle';
 
 /**
  * Default catalog products yang merepresentasikan struktur data Eloquent Product Model:
@@ -188,29 +189,30 @@ export default function BuyerHome({
     };
 
     return (
-        <div className="min-h-screen bg-[#0C0D12] text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#0C0D12] text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col transition-colors duration-150">
             <Head title="Portal Pengadaan B2B — CV. Putra Nugraha" />
 
             {/* ========================================================= */}
             {/* HEADER NAVBAR & CATEGORY SUB-NAV */}
             {/* ========================================================= */}
-            <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-[#12161F]">
+            <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-[#12161F] backdrop-blur transition-colors duration-150">
                 
                 {/* Main Top Bar */}
-                <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 sm:gap-6 px-4 sm:px-6 lg:px-8 h-16 sm:h-20">
+                <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-6 px-3 sm:px-6 lg:px-8 h-16 sm:h-20">
                     
                     {/* Brand Identity / Logo */}
-                    <Link href="/portal" className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                    <Link href="/portal" className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
                         <img
                             src="/images/logo-pn.png"
                             alt="Logo CV. Putra Nugraha"
-                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-contain"
+                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-contain shrink-0"
                         />
-                        <div className="flex flex-col">
-                            <span className="text-xs sm:text-sm font-bold tracking-tight text-white uppercase">
-                                CV. PUTRA NUGRAHA
+                        <div className="flex flex-col min-w-0">
+                            <span className="text-xs sm:text-sm font-bold tracking-tight text-slate-900 dark:text-white uppercase truncate">
+                                <span className="sm:hidden">CV. PN</span>
+                                <span className="hidden sm:inline">CV. PUTRA NUGRAHA</span>
                             </span>
-                            <span className="hidden sm:inline text-[11px] font-normal text-slate-400">
+                            <span className="hidden sm:inline text-[11px] font-normal text-slate-500 dark:text-slate-400">
                                 Perdagangan Barang dan Jasa
                             </span>
                         </div>
@@ -224,27 +226,28 @@ export default function BuyerHome({
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Cari produk hardware, perangkat jaringan, atau layanan servis..."
-                                style={{ color: '#0f172a' }}
-                                className="w-full h-10 rounded-lg bg-white border border-transparent pl-4 pr-11 text-xs !text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                                className="w-full h-10 rounded-lg bg-slate-100 dark:bg-white border border-slate-200 dark:border-transparent pl-4 pr-11 text-xs text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
                             />
                             <button
                                 type="submit"
                                 aria-label="Search"
-                                className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center text-slate-500 hover:text-blue-600 transition"
+                                className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center text-slate-400 dark:text-slate-500 hover:text-blue-600 transition"
                             >
                                 <Search className="h-4 w-4" />
                             </button>
                         </div>
                     </form>
 
-                    {/* Right Actions: Keranjang & Akun */}
-                    <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+                    {/* Right Actions: Theme Toggle, Keranjang & Akun */}
+                    <div className="flex items-center gap-1.5 sm:gap-5 shrink-0">
+                        <ThemeToggle />
+
                         <Link
                             href="/buyer/cart"
-                            className="relative flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white transition-colors"
+                            className="relative flex items-center gap-1.5 sm:gap-2 p-2 sm:p-0 text-xs font-medium text-slate-700 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white transition-colors"
                         >
-                            <ShoppingCart className="h-4 w-4 text-slate-300" />
-                            <span>Keranjang</span>
+                            <ShoppingCart className="h-4 w-4 text-slate-500 dark:text-slate-300" />
+                            <span className="hidden sm:inline">Keranjang</span>
                             {cartCount > 0 && (
                                 <span className="flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-blue-600 text-[10px] font-bold text-white">
                                     {cartCount}
@@ -257,32 +260,32 @@ export default function BuyerHome({
                             <button
                                 type="button"
                                 onClick={() => setAccountMenuOpen(!accountMenuOpen)}
-                                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
+                                className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
                             >
                                 <User className="h-4 w-4" />
-                                <span>Akun</span>
+                                <span className="hidden sm:inline">Akun</span>
                             </button>
 
                             {/* Dropdown Menu */}
                             {accountMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-800 bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
-                                    <div className="px-3 py-2 border-b border-slate-800">
-                                        <div className="font-bold text-white truncate">{auth?.user?.name || 'Klien B2B'}</div>
-                                        <div className="text-[10px] text-slate-400 truncate">{auth?.user?.email || 'klien@instansi.co.id'}</div>
+                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
+                                    <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
+                                        <div className="font-bold text-slate-900 dark:text-white truncate">{auth?.user?.name || 'Klien B2B'}</div>
+                                        <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{auth?.user?.email || 'klien@instansi.co.id'}</div>
                                     </div>
                                     <Link
                                         href="/buyer/dashboard"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-white/[0.06] hover:text-white transition"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
                                     >
-                                        <LayoutDashboard className="h-3.5 w-3.5 text-blue-400" />
+                                        <LayoutDashboard className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                         <span>Dashboard Pengadaan</span>
                                     </Link>
                                     <Link
                                         href="/admin/dashboard"
-                                        className="flex items-center justify-between px-3 py-2 rounded-lg text-amber-400 hover:bg-white/[0.06] hover:text-amber-300 transition"
+                                        className="flex items-center justify-between px-3 py-2 rounded-lg text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-white/[0.06] hover:text-amber-700 dark:hover:text-amber-300 transition"
                                     >
                                         <div className="flex items-center gap-2">
-                                            <ShieldCheck className="h-3.5 w-3.5 text-amber-400" />
+                                            <ShieldCheck className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                                             <span>Portal Admin Back-Office</span>
                                         </div>
                                         <ArrowRight className="h-3 w-3 text-amber-500/60" />
@@ -291,7 +294,7 @@ export default function BuyerHome({
                                         href="/logout"
                                         method="post"
                                         as="button"
-                                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-rose-400 hover:bg-rose-500/10 transition text-left"
+                                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition text-left"
                                     >
                                         <LogOut className="h-3.5 w-3.5" />
                                         <span>Keluar (Logout)</span>
@@ -304,18 +307,18 @@ export default function BuyerHome({
                 </div>
 
                 {/* Category Sub-nav Bar */}
-                <div className="border-t border-slate-800/80 bg-[#12161F]">
+                <div className="border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-[#12161F] transition-colors">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <nav className="flex items-center justify-start md:justify-between py-2.5 sm:py-3 overflow-x-auto text-xs font-medium text-slate-300 gap-6 sm:gap-8 scrollbar-none no-scrollbar whitespace-nowrap">
+                        <nav className="flex items-center justify-start md:justify-between py-2.5 sm:py-3 overflow-x-auto text-xs font-medium text-slate-600 dark:text-slate-300 gap-6 sm:gap-8 scrollbar-none no-scrollbar whitespace-nowrap">
                             {categories.map((cat) => {
                                 const IconComponent = cat.icon;
                                 return (
                                     <Link
                                         key={cat.id}
                                         href={`/portal?kategori=${cat.id}`}
-                                        className="shrink-0 flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
+                                        className="shrink-0 flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-white transition-colors"
                                     >
-                                        <IconComponent className="h-4 w-4 text-slate-400" />
+                                        <IconComponent className="h-4 w-4 text-slate-500 dark:text-slate-400" />
                                         <span>{cat.name}</span>
                                     </Link>
                                 );
@@ -339,10 +342,9 @@ export default function BuyerHome({
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Cari produk hardware atau layanan..."
-                            style={{ color: '#0f172a' }}
-                            className="w-full rounded-lg bg-white border border-transparent pl-4 pr-10 py-2.5 text-xs !text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full rounded-lg bg-slate-100 dark:bg-white border border-slate-200 dark:border-transparent pl-4 pr-10 py-2.5 text-xs text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
                         />
-                        <button type="submit" className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500">
+                        <button type="submit" className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">
                             <Search className="h-4 w-4" />
                         </button>
                     </div>
@@ -409,10 +411,10 @@ export default function BuyerHome({
                     {/* Header Bar Section: Title & Sort/Filter Button */}
                     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                         <div>
-                            <h2 className="font-display text-xl sm:text-2xl font-bold text-white tracking-tight">
+                            <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                                 Katalog B2B Terpopuler &amp; Pengadaan Tercepat
                             </h2>
-                            <p className="mt-1 text-xs sm:text-sm text-slate-400">
+                            <p className="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                                 Produk dan layanan IT pilihan untuk kebutuhan operasional perusahaan.
                             </p>
                         </div>
@@ -422,17 +424,17 @@ export default function BuyerHome({
                             <button
                                 type="button"
                                 onClick={() => setFilterMenuOpen(!filterMenuOpen)}
-                                className="flex items-center gap-2 px-3.5 py-2 rounded-lg border border-slate-700 bg-[#171B26] hover:border-blue-500/60 text-slate-200 text-xs font-semibold shadow-sm transition-colors"
+                                className="flex items-center gap-2 px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#171B26] hover:border-blue-500/60 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition-colors"
                             >
-                                <SlidersHorizontal className="h-3.5 w-3.5 text-slate-400" />
+                                <SlidersHorizontal className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
                                 <span>Sort / Filter</span>
-                                <ChevronDown className={`h-3 w-3 text-slate-400 transition-transform ${filterMenuOpen ? 'rotate-180' : ''}`} />
+                                <ChevronDown className={`h-3 w-3 text-slate-500 dark:text-slate-400 transition-transform ${filterMenuOpen ? 'rotate-180' : ''}`} />
                             </button>
 
                             {/* Dropdown Options */}
                             {filterMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-48 rounded-xl border border-slate-800 bg-[#1E2434] p-1.5 shadow-2xl space-y-1 text-xs z-40">
-                                    <div className="px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                <div className="absolute right-0 mt-2 w-48 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1E2434] p-1.5 shadow-2xl space-y-1 text-xs z-40">
+                                    <div className="px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                                         Urutkan Produk
                                     </div>
                                     {SORT_OPTIONS.map((opt) => (
@@ -440,11 +442,11 @@ export default function BuyerHome({
                                             key={opt.key}
                                             type="button"
                                             onClick={() => handleSelectSort(opt.key)}
-                                            className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-slate-200 hover:bg-blue-600/20 hover:text-white transition text-left"
+                                            className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-blue-600/20 dark:hover:text-white transition text-left"
                                         >
                                             <span>{opt.label}</span>
                                             {selectedSort === opt.key && (
-                                                <Check className="h-3.5 w-3.5 text-blue-400" />
+                                                <Check className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                             )}
                                         </button>
                                     ))}
@@ -471,21 +473,21 @@ export default function BuyerHome({
             {/* ========================================================= */}
             {/* SECTION 3: 4 PILAR KEUNGGULAN B2B                        */}
             {/* ========================================================= */}
-            <section className="border-t border-slate-800/80 bg-[#12161F] mt-16">
+            <section className="border-t border-slate-200 dark:border-slate-800/80 bg-slate-100 dark:bg-[#12161F] mt-16 transition-colors duration-150">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
                         {TRUST_FEATURES.map((item) => {
                             const IconComponent = item.icon;
                             return (
                                 <div key={item.title} className="flex items-start gap-3.5">
-                                    <div className="p-2 rounded-xl bg-blue-600/10 text-blue-400 border border-blue-500/20 shrink-0">
+                                    <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0">
                                         <IconComponent className="h-5 w-5" />
                                     </div>
                                     <div>
-                                        <h4 className="text-sm font-bold text-white tracking-tight">
+                                        <h4 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight">
                                             {item.title}
                                         </h4>
-                                        <p className="mt-1 text-xs text-slate-400 leading-relaxed">
+                                        <p className="mt-1 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                                             {item.desc}
                                         </p>
                                     </div>
@@ -499,7 +501,7 @@ export default function BuyerHome({
             {/* ========================================================= */}
             {/* SECTION 4: FOOTER PORTAL B2B                             */}
             {/* ========================================================= */}
-            <footer className="border-t border-slate-800/80 bg-[#12161F]">
+            <footer className="border-t border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#12161F] text-slate-500 dark:text-slate-400 text-xs transition-colors duration-150">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
 
@@ -512,22 +514,22 @@ export default function BuyerHome({
                                     className="h-9 w-9 rounded-lg object-contain"
                                 />
                                 <div className="flex flex-col">
-                                    <span className="text-xs font-bold uppercase tracking-tight text-white">
+                                    <span className="text-xs font-bold uppercase tracking-tight text-slate-900 dark:text-white">
                                         CV. PUTRA NUGRAHA -
                                     </span>
-                                    <span className="text-[10px] text-slate-400">
+                                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
                                         Perdagangan Barang dan Jasa
                                     </span>
                                 </div>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Pengadaan perangkat IT dan layanan profesional untuk mendukung kebutuhan perusahaan Anda.
                             </p>
                         </div>
 
                         {/* Col 2: Panduan Pengadaan B2B */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Panduan Pengadaan B2B
                             </h4>
                             <ul className="space-y-2 text-xs">
@@ -540,7 +542,7 @@ export default function BuyerHome({
                                     <li key={link.label}>
                                         <Link
                                             href={link.href}
-                                            className="text-slate-400 hover:text-white transition-colors"
+                                            className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                                         >
                                             {link.label}
                                         </Link>
@@ -551,16 +553,16 @@ export default function BuyerHome({
 
                         {/* Col 3: Layanan Pelanggan */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Layanan Pelanggan
                             </h4>
                             <div className="flex items-center gap-2">
-                                <Phone className="h-4 w-4 text-blue-400 shrink-0" />
-                                <span className="text-sm font-bold text-white">
+                                <Phone className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                                <span className="text-sm font-bold text-slate-900 dark:text-white">
                                     (+62) 813-2077-7874
                                 </span>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Hubungi tim kami untuk konsultasi produk, penawaran, dan status pengadaan.
                             </p>
                             <div>
@@ -568,7 +570,7 @@ export default function BuyerHome({
                                     href="https://wa.me/6281320777874"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
                                 >
                                     <span>Konsultasikan kebutuhan Anda</span>
                                     <ArrowRight className="h-3 w-3" />
@@ -578,16 +580,16 @@ export default function BuyerHome({
 
                         {/* Col 4: Alamat Kantor */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Alamat Kantor
                             </h4>
                             <div className="flex items-start gap-2.5">
-                                <MapPin className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
-                                <p className="text-xs text-slate-400 leading-relaxed">
+                                <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                     Jl. Cinangka Kavling 2, RT 03, RW 05 Kel. Pasir Wangi Kec. Ujung Berung
                                 </p>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Melayani kebutuhan barang dan jasa IT perusahaan.
                             </p>
                         </div>
@@ -596,8 +598,8 @@ export default function BuyerHome({
                 </div>
 
                 {/* Bottom Bar / Copyright */}
-                <div className="border-t border-slate-800/80">
-                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+                <div className="border-t border-slate-200 dark:border-slate-800/80">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-500">
                         <p>© 2026 CV. Putra Nugraha. All Right Reserved.</p>
                         <p className="hidden sm:block">Perdagangan Barang dan Jasa</p>
                     </div>

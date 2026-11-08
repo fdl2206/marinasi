@@ -17,16 +17,14 @@ export default function ForgotPassword({ status }) {
 
     return (
         <GuestLayout>
-            <Head title="Forgot Password" />
+            <Head title="Lupa Kata Sandi — CV. Putra Nugraha" />
 
-            <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-                Forgot your password? No problem. Just let us know your email
-                address and we will email you a password reset link that will
-                allow you to choose a new one.
+            <div className="mb-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Lupa kata sandi Anda? Masukkan alamat email akun terdaftar Anda, dan kami akan mengirimkan tautan pengaturan ulang kata sandi.
             </div>
 
             {status && (
-                <div className="mb-4 text-sm font-medium text-green-600 dark:text-green-400">
+                <div className="mb-4 text-sm font-medium text-emerald-600 dark:text-emerald-400">
                     {status}
                 </div>
             )}

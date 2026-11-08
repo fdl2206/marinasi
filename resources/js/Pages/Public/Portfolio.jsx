@@ -274,15 +274,15 @@ export default function Portfolio() {
         <MainLayout title="Portofolio Rekam Jejak Pengadaan & BAST">
             <Head title="Portofolio Rekam Jejak Kontrak & BAST — CV. Putra Nugraha" />
 
-            <div className="bg-[#0C0D12] min-h-screen text-slate-100 font-sans pb-24">
+            <div className="bg-slate-50 dark:bg-[#0C0D12] min-h-screen text-slate-900 dark:text-slate-100 font-sans pb-24 transition-colors duration-150">
                 {/* ========================================================= */}
                 {/* HERO / HEADER SECTION                                     */}
                 {/* ========================================================= */}
-                <section className="relative overflow-hidden pt-12 pb-14 sm:pt-16 sm:pb-20 border-b border-slate-800/80 bg-gradient-to-b from-[#12161F] to-[#0C0D12]">
+                <section className="relative overflow-hidden pt-12 pb-14 sm:pt-16 sm:pb-20 border-b border-slate-200 dark:border-slate-800/80 bg-gradient-to-b from-slate-100 to-slate-50 dark:from-[#12161F] dark:to-[#0C0D12] transition-colors duration-150">
                     {/* Subtle ambient light */}
                     <div 
                         aria-hidden="true" 
-                        className="absolute top-0 right-1/4 w-[450px] h-[450px] bg-blue-600/10 rounded-full blur-[140px] pointer-events-none" 
+                        className="absolute top-0 right-1/4 w-[450px] h-[450px] bg-blue-500/10 dark:bg-blue-600/10 rounded-full blur-[140px] pointer-events-none" 
                     />
 
                     <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 relative">
@@ -292,29 +292,29 @@ export default function Portfolio() {
                                 <span>REKAM JEJAK &amp; PORTOFOLIO KONTRAK</span>
                             </div>
 
-                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-[1.18]">
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.18]">
                                 Portofolio Pengadaan &amp; Implementasi IT
                             </h1>
 
-                            <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+                            <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
                                 Bukti nyata komitmen CV. Putra Nugraha dalam menyediakan solusi perangkat keras, infrastruktur jaringan terstruktur, dan layanan teknis enterprise. Seluruh pekerjaan diselesaikan 100% dengan Berita Acara Serah Terima (BAST) dan kepatuhan faktur pajak resmi.
                             </p>
                         </div>
 
                         {/* STATS COUNTER GRID */}
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-10 pt-8 border-t border-slate-800/80">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-10 pt-8 border-t border-slate-200 dark:border-slate-800/80">
                             {stats.map((stat, idx) => (
                                 <div 
                                     key={idx}
-                                    className="p-4 sm:p-5 rounded-2xl border border-slate-800/80 bg-[#171B26]/60 backdrop-blur-sm"
+                                    className="p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#171B26]/60 backdrop-blur-sm shadow-sm dark:shadow-none"
                                 >
-                                    <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                                    <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                                         {stat.value}
                                     </div>
-                                    <div className="text-xs font-semibold text-slate-200 mt-1">
+                                    <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-1">
                                         {stat.label}
                                     </div>
-                                    <div className="text-[11px] text-slate-400 mt-0.5">
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                                         {stat.description}
                                     </div>
                                 </div>
@@ -327,7 +327,7 @@ export default function Portfolio() {
                 {/* FILTER CONTROLS & SEARCH                                  */}
                 {/* ========================================================= */}
                 <section className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pt-10 sm:pt-12">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800/80">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800/80">
                         {/* Category Tab Pills */}
                         <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
                             {categories.map((cat) => {
@@ -339,8 +339,8 @@ export default function Portfolio() {
                                         onClick={() => setSelectedCategory(cat)}
                                         className={`px-3.5 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
                                             isActive
-                                                ? 'bg-[#1E293B] text-white border border-slate-600 shadow-sm'
-                                                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent'
+                                                ? 'bg-blue-600 text-white shadow-sm dark:bg-[#1E293B] dark:text-white dark:border-slate-600'
+                                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/50 border border-transparent'
                                         }`}
                                     >
                                         {cat}
@@ -357,13 +357,13 @@ export default function Portfolio() {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Cari instansi, perangkat, SPK..."
-                                className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#171B26] border border-slate-700/80 text-white placeholder-slate-400 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                                className="w-full pl-9 pr-4 py-2 rounded-xl bg-white dark:bg-[#171B26] border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white placeholder-slate-400 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition"
                             />
                             {searchQuery && (
                                 <button
                                     type="button"
                                     onClick={() => setSearchQuery('')}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 dark:hover:text-white"
                                 >
                                     <X className="h-3.5 w-3.5" />
                                 </button>
@@ -372,14 +372,14 @@ export default function Portfolio() {
                     </div>
 
                     {/* Active Filter Indicator */}
-                    <div className="pt-4 flex items-center justify-between text-xs text-slate-400">
+                    <div className="pt-4 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                         <div>
-                            Menampilkan <span className="font-semibold text-white">{filteredProjects.length}</span> proyek pengadaan
+                            Menampilkan <span className="font-semibold text-slate-900 dark:text-white">{filteredProjects.length}</span> proyek pengadaan
                             {selectedCategory !== 'Semua' && (
-                                <span> dalam kategori <span className="text-[#9bb8f5]">"{selectedCategory}"</span></span>
+                                <span> dalam kategori <span className="font-medium text-blue-600 dark:text-[#9bb8f5]">"{selectedCategory}"</span></span>
                             )}
                             {searchQuery && (
-                                <span> dengan kata kunci <span className="text-[#9bb8f5]">"{searchQuery}"</span></span>
+                                <span> dengan kata kunci <span className="font-medium text-blue-600 dark:text-[#9bb8f5]">"{searchQuery}"</span></span>
                             )}
                         </div>
                     </div>
@@ -390,10 +390,10 @@ export default function Portfolio() {
                 {/* ========================================================= */}
                 <section className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pt-6">
                     {filteredProjects.length === 0 ? (
-                        <div className="py-20 text-center rounded-2xl border border-slate-800 bg-[#171B26] p-8 space-y-3">
-                            <FileText className="h-10 w-10 text-slate-500 mx-auto" />
-                            <h3 className="text-sm font-semibold text-white">Tidak ada proyek yang cocok</h3>
-                            <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                        <div className="py-20 text-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-8 space-y-3 shadow-sm">
+                            <FileText className="h-10 w-10 text-slate-400 mx-auto" />
+                            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Tidak ada proyek yang cocok</h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
                                 Coba sesuaikan kata kunci pencarian atau pilih kategori tab yang lain.
                             </p>
                             <button
@@ -412,11 +412,11 @@ export default function Portfolio() {
                             {filteredProjects.map((project) => (
                                 <article
                                     key={project.id}
-                                    className="group rounded-2xl border border-slate-800 bg-[#171B26] overflow-hidden flex flex-col justify-between hover:border-slate-700 transition-all duration-300 hover:shadow-2xl shadow-lg"
+                                    className="group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] overflow-hidden flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 shadow-sm hover:shadow-xl dark:shadow-lg dark:hover:shadow-2xl"
                                 >
                                     <div>
                                         {/* Card Image Thumbnail */}
-                                        <div className="relative aspect-[16/10] overflow-hidden bg-slate-900 border-b border-slate-800/80">
+                                        <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800/80">
                                             <img
                                                 src={project.image}
                                                 alt={project.title}
@@ -428,7 +428,7 @@ export default function Portfolio() {
                                                 <span className="px-2.5 py-1 rounded-md text-[10px] font-semibold tracking-wide badge-azure backdrop-blur-md">
                                                     {project.sector}
                                                 </span>
-                                                <span className="px-2 py-0.5 rounded-md text-[10px] font-mono text-slate-300 bg-slate-900/80 border border-slate-700/60 backdrop-blur-md">
+                                                <span className="px-2 py-0.5 rounded-md text-[10px] font-mono text-slate-800 dark:text-slate-300 bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700/60 backdrop-blur-md">
                                                     {project.year}
                                                 </span>
                                             </div>
@@ -445,30 +445,30 @@ export default function Portfolio() {
                                         {/* Card Body */}
                                         <div className="p-5 space-y-3">
                                             {/* Client Name */}
-                                            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#9bb8f5]">
+                                            <div className="flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-[#9bb8f5]">
                                                 <Building2 className="h-3.5 w-3.5 shrink-0" />
                                                 <span className="truncate">{project.client}</span>
                                             </div>
 
                                             {/* Project Title */}
-                                            <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-blue-400 transition-colors leading-snug line-clamp-2">
+                                            <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-snug line-clamp-2">
                                                 {project.title}
                                             </h3>
 
                                             {/* Short Summary */}
-                                            <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">
+                                            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2">
                                                 {project.summary}
                                             </p>
 
                                             {/* Contract Value & BAST Reference */}
-                                            <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                                            <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
                                                 <div>
-                                                    <div className="text-[10px] text-slate-400">Nilai Kontrak</div>
-                                                    <div className="font-bold text-slate-200">{project.contractValue}</div>
+                                                    <div className="text-[10px] text-slate-500 dark:text-slate-400">Nilai Kontrak</div>
+                                                    <div className="font-bold text-slate-900 dark:text-slate-200">{project.contractValue}</div>
                                                 </div>
                                                 <div className="text-right">
-                                                    <div className="text-[10px] text-slate-400">Ref. Dokumen</div>
-                                                    <div className="font-mono text-[11px] text-slate-300 truncate max-w-[130px]">
+                                                    <div className="text-[10px] text-slate-500 dark:text-slate-400">Ref. Dokumen</div>
+                                                    <div className="font-mono text-[11px] text-slate-700 dark:text-slate-300 truncate max-w-[130px]">
                                                         {project.bastNumber}
                                                     </div>
                                                 </div>
@@ -481,10 +481,10 @@ export default function Portfolio() {
                                         <button
                                             type="button"
                                             onClick={() => setActiveModalProject(project)}
-                                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl btn-secondary-bespoke text-xs font-medium transition active:scale-95 group/btn"
+                                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-medium transition active:scale-95 group/btn shadow-sm"
                                         >
                                             <span>Lihat Ringkasan Proyek &amp; BAST</span>
-                                            <ArrowUpRight className="h-3.5 w-3.5 text-slate-400 group-hover/btn:text-white transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
+                                            <ArrowUpRight className="h-3.5 w-3.5 text-slate-500 group-hover/btn:text-slate-900 dark:group-hover/btn:text-white transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
                                         </button>
                                     </div>
                                 </article>
@@ -497,56 +497,56 @@ export default function Portfolio() {
                 {/* COMPLIANCE & TENDER STANDARDS SECTION                     */}
                 {/* ========================================================= */}
                 <section className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 mt-16 sm:mt-24">
-                    <div className="rounded-3xl border border-slate-800 bg-[#12161F] p-8 sm:p-12 space-y-8">
+                    <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] p-8 sm:p-12 space-y-8 shadow-sm">
                         <div className="max-w-2xl space-y-2">
-                            <span className="text-xs font-semibold uppercase tracking-wider text-[#9bb8f5]">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-[#9bb8f5]">
                                 STANDAR TENDER &amp; KEPATUHAN PENGADAAN
                             </span>
-                            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                                 Mengapa Instansi Mempercayakan Pengadaan Kepada Kami
                             </h2>
-                            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                                 Kelancaran tender dan pengadaan tidak hanya bergantung pada barang yang berkualitas, namun juga keabsahan administrasi perpajakan dan dokumen legalitas hukum yang dapat dipertanggungjawabkan kepada auditor.
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                            <div className="p-5 rounded-2xl border border-slate-800/80 bg-[#171B26] space-y-2.5">
-                                <div className="h-10 w-10 rounded-xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-center text-[#9bb8f5]">
+                            <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-[#171B26] space-y-2.5">
+                                <div className="h-10 w-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-[#9bb8f5]">
                                     <ShieldCheck className="h-5 w-5" />
                                 </div>
-                                <h4 className="text-sm font-bold text-white">Legalitas Lengkap (CV)</h4>
-                                <p className="text-xs text-slate-400 leading-relaxed">
+                                <h4 className="text-sm font-bold text-slate-900 dark:text-white">Legalitas Lengkap (CV)</h4>
+                                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                                     NIB terverifikasi OSS, NPWP aktif, dan status Pengusaha Kena Pajak (PKP) resmi terdaftar.
                                 </p>
                             </div>
 
-                            <div className="p-5 rounded-2xl border border-slate-800/80 bg-[#171B26] space-y-2.5">
-                                <div className="h-10 w-10 rounded-xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-center text-[#92d8b8]">
+                            <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-[#171B26] space-y-2.5">
+                                <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-[#92d8b8]">
                                     <FileCheck2 className="h-5 w-5" />
                                 </div>
-                                <h4 className="text-sm font-bold text-white">e-Faktur &amp; BAST Sah</h4>
-                                <p className="text-xs text-slate-400 leading-relaxed">
+                                <h4 className="text-sm font-bold text-slate-900 dark:text-white">e-Faktur &amp; BAST Sah</h4>
+                                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                                     Penerbitan Faktur Pajak PPN 11% otomatis terintegrasi DJP dan berkas BAST tanda tangan basah / digital.
                                 </p>
                             </div>
 
-                            <div className="p-5 rounded-2xl border border-slate-800/80 bg-[#171B26] space-y-2.5">
-                                <div className="h-10 w-10 rounded-xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-center text-[#e8a36e]">
+                            <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-[#171B26] space-y-2.5">
+                                <div className="h-10 w-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 dark:text-[#e8a36e]">
                                     <Clock className="h-5 w-5" />
                                 </div>
-                                <h4 className="text-sm font-bold text-white">Termin Pembayaran PO</h4>
-                                <p className="text-xs text-slate-400 leading-relaxed">
+                                <h4 className="text-sm font-bold text-slate-900 dark:text-white">Termin Pembayaran PO</h4>
+                                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                                     Fleksibilitas pembayaran tempo 14–30 hari kalender bagi mitra instansi dan perusahaan terverifikasi.
                                 </p>
                             </div>
 
-                            <div className="p-5 rounded-2xl border border-slate-800/80 bg-[#171B26] space-y-2.5">
-                                <div className="h-10 w-10 rounded-xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-center text-[#9bb8f5]">
+                            <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-[#171B26] space-y-2.5">
+                                <div className="h-10 w-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-[#9bb8f5]">
                                     <Award className="h-5 w-5" />
                                 </div>
-                                <h4 className="text-sm font-bold text-white">Garansi &amp; Tim On-Site</h4>
-                                <p className="text-xs text-slate-400 leading-relaxed">
+                                <h4 className="text-sm font-bold text-slate-900 dark:text-white">Garansi &amp; Tim On-Site</h4>
+                                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                                     Perangkat original dengan garansi distributor resmi, didukung teknisi lokal bersertifikat untuk support cepat.
                                 </p>
                             </div>
@@ -558,15 +558,15 @@ export default function Portfolio() {
                 {/* BOTTOM CALL-TO-ACTION                                     */}
                 {/* ========================================================= */}
                 <section className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 mt-16 sm:mt-24">
-                    <div className="rounded-3xl border border-slate-800 bg-gradient-to-r from-[#171B26] to-[#12161F] p-8 sm:p-12 flex flex-col md:flex-row md:items-center justify-between gap-8 shadow-2xl">
+                    <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-gradient-to-r from-blue-50 via-white to-slate-50 dark:from-[#171B26] dark:to-[#12161F] p-8 sm:p-12 flex flex-col md:flex-row md:items-center justify-between gap-8 shadow-md dark:shadow-2xl">
                         <div className="max-w-xl space-y-3">
-                            <span className="text-xs font-semibold uppercase tracking-wider text-[#92d8b8]">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-[#92d8b8]">
                                 KONSULTASI PENGADAAN &amp; SPH CEPAT
                             </span>
-                            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                                 Rencanakan Pengadaan IT Bersama CV. Putra Nugraha
                             </h2>
-                            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                                 Butuh estimasi harga (RAB/BoQ), surat penawaran harga resmi (SPH), atau ketersediaan unit untuk tender instansi? Tim pengadaan kami siap menerbitkan respon dalam waktu 1x24 jam kerja.
                             </p>
                         </div>
@@ -582,7 +582,7 @@ export default function Portfolio() {
 
                             <Link
                                 href="/katalog"
-                                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl btn-secondary-bespoke text-xs font-semibold transition active:scale-95"
+                                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white text-xs font-semibold transition active:scale-95 shadow-sm"
                             >
                                 <span>Lihat Katalog Produk B2B</span>
                                 <ArrowRight className="h-4 w-4" />
@@ -605,19 +605,19 @@ export default function Portfolio() {
                     {/* Backdrop with Fade-In Animation */}
                     <div 
                         onClick={() => setActiveModalProject(null)}
-                        className="fixed inset-0 bg-slate-950/80 backdrop-blur-md animate-modal-backdrop" 
+                        className="fixed inset-0 bg-slate-950/70 backdrop-blur-md animate-modal-backdrop" 
                     />
 
                     {/* Modal Window with Smooth Scale/Pop-In Animation */}
-                    <div className="relative w-full max-w-3xl rounded-2xl border border-slate-700/80 bg-[#171B26] shadow-2xl overflow-hidden z-10 animate-modal my-8">
+                    <div className="relative w-full max-w-3xl rounded-2xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-[#171B26] shadow-2xl overflow-hidden z-10 animate-modal my-8">
                         {/* Modal Header */}
-                        <div className="flex items-start justify-between p-6 border-b border-slate-800 bg-[#12161F]">
+                        <div className="flex items-start justify-between p-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#12161F]">
                             <div className="space-y-1.5 pr-6">
                                 <div className="flex flex-wrap items-center gap-2">
                                     <span className="px-2.5 py-0.5 rounded-md text-[10px] font-semibold badge-azure">
                                         {activeModalProject.sector}
                                     </span>
-                                    <span className="px-2 py-0.5 rounded-md text-[10px] font-mono text-slate-300 bg-slate-800 border border-slate-700/60">
+                                    <span className="px-2 py-0.5 rounded-md text-[10px] font-mono text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60">
                                         Tahun {activeModalProject.year}
                                     </span>
                                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-medium badge-sage">
@@ -625,21 +625,21 @@ export default function Portfolio() {
                                         <span>BAST Terbit &amp; Disahkan</span>
                                     </span>
                                 </div>
-                                <h3 id="modal-project-title" className="text-base sm:text-xl font-bold text-white pt-1">
+                                <h3 id="modal-project-title" className="text-base sm:text-xl font-bold text-slate-900 dark:text-white pt-1">
                                     {activeModalProject.title}
                                 </h3>
-                                <div className="flex items-center gap-1.5 text-xs text-[#9bb8f5] font-medium">
+                                <div className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-[#9bb8f5] font-medium">
                                     <Building2 className="h-3.5 w-3.5" />
                                     <span>{activeModalProject.client}</span>
-                                    <span className="text-slate-500">•</span>
-                                    <span className="text-slate-400">{activeModalProject.location}</span>
+                                    <span className="text-slate-400 dark:text-slate-500">•</span>
+                                    <span className="text-slate-500 dark:text-slate-400">{activeModalProject.location}</span>
                                 </div>
                             </div>
 
                             <button
                                 type="button"
                                 onClick={() => setActiveModalProject(null)}
-                                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition shrink-0"
+                                className="p-2 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-200/80 dark:hover:text-white dark:hover:bg-slate-800/80 transition shrink-0"
                                 aria-label="Tutup Detail Proyek"
                             >
                                 <X className="h-5 w-5" />
@@ -647,41 +647,41 @@ export default function Portfolio() {
                         </div>
 
                         {/* Modal Scrollable Body */}
-                        <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto text-xs text-slate-300">
+                        <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto text-xs text-slate-600 dark:text-slate-300">
                             {/* Project Photo / Banner Preview */}
-                            <div className="relative rounded-xl overflow-hidden border border-slate-800 aspect-[21/9] bg-slate-900">
+                            <div className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 aspect-[21/9] bg-slate-900">
                                 <img
                                     src={activeModalProject.image}
                                     alt={activeModalProject.title}
                                     className="w-full h-full object-cover"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#171B26]/90 via-transparent to-transparent" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                                 <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-xs">
-                                    <span className="text-slate-300 font-medium">Nilai Kontrak Pekerjaan</span>
+                                    <span className="text-slate-200 font-medium">Nilai Kontrak Pekerjaan</span>
                                     <span className="text-base font-extrabold text-white">{activeModalProject.contractValue}</span>
                                 </div>
                             </div>
 
                             {/* Uraian Lengkap */}
                             <div className="space-y-1.5">
-                                <h4 className="text-xs font-bold text-white uppercase tracking-wider text-slate-400">
+                                <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                     Deskripsi &amp; Lingkup Pekerjaan
                                 </h4>
-                                <p className="leading-relaxed text-slate-300 text-xs sm:text-[13px]">
+                                <p className="leading-relaxed text-slate-600 dark:text-slate-300 text-xs sm:text-[13px]">
                                     {activeModalProject.fullDescription}
                                 </p>
                             </div>
 
                             {/* Deliverables / Item Pengadaan */}
                             <div className="space-y-2">
-                                <h4 className="text-xs font-bold text-white uppercase tracking-wider text-slate-400">
+                                <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                     Daftar Komoditas &amp; Deliverables Fisik
                                 </h4>
-                                <div className="rounded-xl border border-slate-800 bg-[#12161F] p-4 space-y-2">
+                                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#12161F] p-4 space-y-2">
                                     {activeModalProject.deliverables.map((item, i) => (
                                         <div key={i} className="flex items-start gap-2.5">
-                                            <CheckCircle2 className="h-4 w-4 text-[#92d8b8] shrink-0 mt-0.5" />
-                                            <span className="text-slate-200">{item}</span>
+                                            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-[#92d8b8] shrink-0 mt-0.5" />
+                                            <span className="text-slate-800 dark:text-slate-200">{item}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -689,17 +689,17 @@ export default function Portfolio() {
 
                             {/* Verified Documents Checklist */}
                             <div className="space-y-2">
-                                <h4 className="text-xs font-bold text-white uppercase tracking-wider text-slate-400">
+                                <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                     Verifikasi Dokumen &amp; Legalitas Administrasi
                                 </h4>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                     {activeModalProject.documents.map((doc, idx) => (
                                         <div 
                                             key={idx}
-                                            className="p-3 rounded-xl border border-slate-800/80 bg-[#12161F] flex items-center gap-2.5"
+                                            className="p-3 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-[#12161F] flex items-center gap-2.5"
                                         >
-                                            <FileCheck2 className="h-4 w-4 text-[#9bb8f5] shrink-0" />
-                                            <span className="text-[11px] text-slate-300 font-mono leading-tight">
+                                            <FileCheck2 className="h-4 w-4 text-blue-600 dark:text-[#9bb8f5] shrink-0" />
+                                            <span className="text-[11px] text-slate-700 dark:text-slate-300 font-mono leading-tight">
                                                 {doc}
                                             </span>
                                         </div>
@@ -708,38 +708,38 @@ export default function Portfolio() {
                             </div>
 
                             {/* Ringkasan Durasi & Lokasi */}
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-800">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-200 dark:border-slate-800">
                                 <div>
-                                    <div className="text-[10px] text-slate-400">Durasi Pelaksanaan</div>
-                                    <div className="font-semibold text-white mt-0.5">{activeModalProject.duration}</div>
+                                    <div className="text-[10px] text-slate-500 dark:text-slate-400">Durasi Pelaksanaan</div>
+                                    <div className="font-semibold text-slate-900 dark:text-white mt-0.5">{activeModalProject.duration}</div>
                                 </div>
                                 <div>
-                                    <div className="text-[10px] text-slate-400">Lokasi Serah Terima</div>
-                                    <div className="font-semibold text-white mt-0.5">{activeModalProject.location}</div>
+                                    <div className="text-[10px] text-slate-500 dark:text-slate-400">Lokasi Serah Terima</div>
+                                    <div className="font-semibold text-slate-900 dark:text-white mt-0.5">{activeModalProject.location}</div>
                                 </div>
                                 <div>
-                                    <div className="text-[10px] text-slate-400">Status Validasi Pajak</div>
-                                    <div className="font-semibold text-[#92d8b8] mt-0.5">e-Faktur Valid DJP</div>
+                                    <div className="text-[10px] text-slate-500 dark:text-slate-400">Status Validasi Pajak</div>
+                                    <div className="font-semibold text-emerald-600 dark:text-[#92d8b8] mt-0.5">e-Faktur Valid DJP</div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="p-4 sm:p-5 border-t border-slate-800 bg-[#12161F] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                            <span className="text-[11px] text-slate-400 font-mono">
+                        <div className="p-4 sm:p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#12161F] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                                 Dokumen Referensi: {activeModalProject.bastNumber}
                             </span>
                             <div className="flex items-center gap-2.5 justify-end">
                                 <button
                                     type="button"
                                     onClick={() => setActiveModalProject(null)}
-                                    className="px-4 py-2 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition"
+                                    className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-medium transition shadow-sm"
                                 >
                                     Tutup
                                 </button>
                                 <Link
                                     href="/#kontak"
-                                    className="px-4 py-2 rounded-xl btn-primary-bespoke text-xs font-semibold transition active:scale-95 inline-flex items-center gap-1.5"
+                                    className="px-4 py-2 rounded-xl btn-primary-bespoke text-xs font-semibold transition active:scale-95 inline-flex items-center gap-1.5 shadow"
                                 >
                                     <span>Konsultasi Proyek Serupa</span>
                                     <ArrowRight className="h-3.5 w-3.5" />

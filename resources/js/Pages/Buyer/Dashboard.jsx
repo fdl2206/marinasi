@@ -31,6 +31,7 @@ import {
     Boxes
 } from 'lucide-react';
 import { formatRupiah } from '@/Components/Buyer/ProductCard';
+import ThemeToggle from '@/Components/Common/ThemeToggle';
 
 /**
  * Data mock default untuk profil klien B2B dan statistik pengadaan
@@ -186,27 +187,28 @@ export default function BuyerDashboard({
     }, [initialTransactions, selectedFilter]);
 
     return (
-        <div className="min-h-screen bg-[#0C0D12] text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#0C0D12] text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col transition-colors duration-150">
             <Head title="Dashboard Klien B2B — CV. Putra Nugraha" />
 
             {/* ========================================================= */}
             {/* HEADER NAVBAR                                             */}
             {/* ========================================================= */}
-            <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-[#12161F]">
-                <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 sm:gap-6 px-4 sm:px-6 lg:px-8 h-16 sm:h-20">
+            <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-[#12161F] backdrop-blur transition-colors duration-150">
+                <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-6 px-3 sm:px-6 lg:px-8 h-16 sm:h-20">
                     
                     {/* Brand Identity / Logo */}
-                    <Link href="/portal" className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                    <Link href="/portal" className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
                         <img
                             src="/images/logo-pn.png"
                             alt="Logo CV. Putra Nugraha"
-                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-contain"
+                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-contain shrink-0"
                         />
-                        <div className="flex flex-col">
-                            <span className="text-xs sm:text-sm font-bold tracking-tight text-white uppercase">
-                                CV. PUTRA NUGRAHA -
+                        <div className="flex flex-col min-w-0">
+                            <span className="text-xs sm:text-sm font-bold tracking-tight text-slate-900 dark:text-white uppercase truncate">
+                                <span className="sm:hidden">CV. PN</span>
+                                <span className="hidden sm:inline">CV. PUTRA NUGRAHA -</span>
                             </span>
-                            <span className="text-[11px] font-normal text-slate-400">
+                            <span className="hidden sm:inline text-[11px] font-normal text-slate-500 dark:text-slate-400">
                                 Perdagangan Barang dan Jasa
                             </span>
                         </div>
@@ -220,23 +222,24 @@ export default function BuyerDashboard({
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Cari produk hardware, perangkat jaringan, atau layanan servis..."
-                                style={{ color: '#0f172a' }}
-                                className="w-full h-10 rounded-lg bg-white border border-transparent pl-4 pr-11 text-xs !text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                                className="w-full h-10 rounded-lg bg-slate-100 dark:bg-white border border-slate-200 dark:border-transparent pl-4 pr-11 text-xs text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
                             />
-                            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-500">
+                            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                                 <Search className="h-4 w-4" />
                             </div>
                         </div>
                     </div>
 
-                    {/* Right Actions: Keranjang & Akun */}
-                    <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+                    {/* Right Actions: Theme Toggle, Keranjang & Akun */}
+                    <div className="flex items-center gap-1.5 sm:gap-5 shrink-0">
+                        <ThemeToggle />
+
                         <Link
                             href="/buyer/cart"
-                            className="relative flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white transition-colors"
+                            className="relative flex items-center gap-1.5 sm:gap-2 p-2 sm:p-0 text-xs font-medium text-slate-700 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white transition-colors"
                         >
-                            <ShoppingCart className="h-4 w-4 text-slate-300" />
-                            <span>Keranjang</span>
+                            <ShoppingCart className="h-4 w-4 text-slate-500 dark:text-slate-300" />
+                            <span className="hidden sm:inline">Keranjang</span>
                             {cartCount > 0 && (
                                 <span className="flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-blue-600 text-[10px] font-bold text-white">
                                     {cartCount}
@@ -249,38 +252,38 @@ export default function BuyerDashboard({
                             <button
                                 type="button"
                                 onClick={() => setAccountMenuOpen(!accountMenuOpen)}
-                                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
+                                className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
                             >
                                 <User className="h-4 w-4" />
-                                <span>Akun</span>
+                                <span className="hidden sm:inline">Akun</span>
                             </button>
 
                             {accountMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-800 bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
-                                    <div className="px-3 py-2 border-b border-slate-800">
-                                        <div className="font-bold text-white truncate">{client.company_name}</div>
-                                        <div className="text-[10px] text-slate-400 truncate">{client.email}</div>
+                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
+                                    <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
+                                        <div className="font-bold text-slate-900 dark:text-white truncate">{client.company_name}</div>
+                                        <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{client.email}</div>
                                     </div>
                                     <Link
                                         href="/buyer/dashboard"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-white/[0.06] hover:text-white transition"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
                                     >
-                                        <LayoutDashboard className="h-3.5 w-3.5 text-blue-400" />
+                                        <LayoutDashboard className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                         <span>Dashboard Pengadaan</span>
                                     </Link>
                                     <Link
                                         href="/portal"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-white/[0.06] hover:text-white transition"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
                                     >
-                                        <Package className="h-3.5 w-3.5 text-blue-400" />
+                                        <Package className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                         <span>Katalog Pengadaan B2B</span>
                                     </Link>
                                     <Link
                                         href="/admin/dashboard"
-                                        className="flex items-center justify-between px-3 py-2 rounded-lg text-amber-400 hover:bg-white/[0.06] hover:text-amber-300 transition"
+                                        className="flex items-center justify-between px-3 py-2 rounded-lg text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-white/[0.06] hover:text-amber-700 dark:hover:text-amber-300 transition"
                                     >
                                         <div className="flex items-center gap-2">
-                                            <ShieldCheck className="h-3.5 w-3.5 text-amber-400" />
+                                            <ShieldCheck className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                                             <span>Portal Admin Back-Office</span>
                                         </div>
                                         <ArrowRight className="h-3 w-3 text-amber-500/60" />
@@ -289,7 +292,7 @@ export default function BuyerDashboard({
                                         href="/logout"
                                         method="post"
                                         as="button"
-                                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-rose-400 hover:bg-rose-500/10 transition text-left"
+                                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition text-left"
                                     >
                                         <LogOut className="h-3.5 w-3.5" />
                                         <span>Keluar (Logout)</span>
@@ -315,30 +318,30 @@ export default function BuyerDashboard({
                     <aside className="lg:col-span-3 space-y-5">
                         
                         {/* 1. Akun Perusahaan Card */}
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-4 sm:p-5 space-y-3.5 shadow-lg">
-                            <div className="flex items-center gap-2 text-slate-400 text-[11px] font-bold uppercase tracking-wider">
-                                <Building2 className="h-3.5 w-3.5 text-blue-400" />
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 space-y-3.5 shadow-sm">
+                            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-wider">
+                                <Building2 className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                 <span>Akun Perusahaan</span>
                             </div>
 
                             <div className="space-y-1">
-                                <h2 className="text-sm sm:text-base font-bold text-white leading-tight">
+                                <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-tight">
                                     {client.company_name}
                                 </h2>
-                                <p className="text-xs text-slate-400">
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
                                     PIC: {client.pic_name} ({client.pic_role})
                                 </p>
                             </div>
 
                             {/* Verification Pill */}
-                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold">
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-semibold">
                                 <CheckCircle2 className="h-3 w-3 shrink-0" />
                                 <span>{client.tax_status}</span>
                             </div>
                         </div>
 
                         {/* 2. Sidebar Navigation Items */}
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-2 space-y-1 shadow-lg">
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-2 space-y-1 shadow-sm">
                             {sidebarMenuItems.map((item) => {
                                 const IconComponent = item.icon;
                                 const isActive = item.id === 'overview';
@@ -349,10 +352,10 @@ export default function BuyerDashboard({
                                         className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all text-left ${
                                             isActive
                                                 ? 'bg-blue-600 text-white shadow-md shadow-blue-900/30'
-                                                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                                                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
                                         }`}
                                     >
-                                        <IconComponent className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                                        <IconComponent className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
                                         <span className="truncate">{item.label}</span>
                                     </Link>
                                 );
@@ -365,7 +368,7 @@ export default function BuyerDashboard({
                                 href="/logout"
                                 method="post"
                                 as="button"
-                                className="flex items-center gap-2 text-xs font-medium text-slate-400 hover:text-rose-400 transition-colors"
+                                className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
                             >
                                 <LogOut className="h-3.5 w-3.5" />
                                 <span>Keluar Akun</span>
@@ -382,17 +385,17 @@ export default function BuyerDashboard({
                         {/* Header: Title + Date Badge */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div>
-                                <h1 className="font-display text-xl sm:text-2xl font-bold text-white tracking-tight">
+                                <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                                     Dashboard Klien B2B
                                 </h1>
-                                <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+                                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">
                                     Selamat datang, {client.pic_name}. Pantau pengadaan dan dokumen perusahaan Anda.
                                 </p>
                             </div>
 
                             {/* Date Badge Sesuai Mockup */}
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#171B26] border border-slate-800 text-xs font-medium text-slate-300 self-start sm:self-auto shrink-0">
-                                <Calendar className="h-3.5 w-3.5 text-blue-400" />
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-[#171B26] border border-slate-200 dark:border-slate-800 text-xs font-medium text-slate-700 dark:text-slate-300 self-start sm:self-auto shrink-0 shadow-sm">
+                                <Calendar className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                 <span>31 Oktober 2026</span>
                             </div>
                         </div>
@@ -403,17 +406,17 @@ export default function BuyerDashboard({
                             {/* Card 1: Pesanan Aktif & Dikirim */}
                             <Link 
                                 href="/buyer/orders"
-                                className="group block rounded-2xl border border-slate-800 bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-md hover:border-blue-600/60 hover:shadow-lg transition cursor-pointer"
+                                className="group block rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-sm hover:border-blue-600/60 hover:shadow-md transition cursor-pointer"
                             >
-                                <div className="flex items-center justify-between text-slate-400 group-hover:text-blue-400 transition">
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition">
                                     <span className="text-xs font-medium">Pesanan Aktif &amp; Dikirim</span>
                                     <Truck className="h-4 w-4" />
                                 </div>
                                 <div>
-                                    <div className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                                    <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                                         {metrics.active_orders_count} Pesanan
                                     </div>
-                                    <div className="text-[11px] text-slate-400 mt-1">
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                                         {metrics.active_orders_sub}
                                     </div>
                                 </div>
@@ -422,17 +425,17 @@ export default function BuyerDashboard({
                             {/* Card 2: Pengajuan RFQ / SPH */}
                             <Link 
                                 href="/buyer/quotations"
-                                className="group block rounded-2xl border border-slate-800 bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-md hover:border-blue-600/60 hover:shadow-lg transition cursor-pointer"
+                                className="group block rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-sm hover:border-blue-600/60 hover:shadow-md transition cursor-pointer"
                             >
-                                <div className="flex items-center justify-between text-slate-400 group-hover:text-blue-400 transition">
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition">
                                     <span className="text-xs font-medium">Pengajuan RFQ / SPH</span>
                                     <FileSpreadsheet className="h-4 w-4" />
                                 </div>
                                 <div>
-                                    <div className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                                    <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                                         {metrics.pending_rfq_count} Menunggu
                                     </div>
-                                    <div className="text-[11px] text-slate-400 mt-1">
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                                         {metrics.pending_rfq_sub}
                                     </div>
                                 </div>
@@ -441,17 +444,17 @@ export default function BuyerDashboard({
                             {/* Card 3: Faktur Pajak Tersedia */}
                             <Link 
                                 href="/buyer/invoices"
-                                className="group block rounded-2xl border border-slate-800 bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-md hover:border-blue-600/60 hover:shadow-lg transition cursor-pointer"
+                                className="group block rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-sm hover:border-blue-600/60 hover:shadow-md transition cursor-pointer"
                             >
-                                <div className="flex items-center justify-between text-slate-400 group-hover:text-blue-400 transition">
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition">
                                     <span className="text-xs font-medium">Faktur Pajak Tersedia</span>
                                     <Receipt className="h-4 w-4" />
                                 </div>
                                 <div>
-                                    <div className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                                    <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                                         {metrics.available_invoices_count} Dokumen
                                     </div>
-                                    <div className="text-[11px] text-slate-400 mt-1">
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                                         {metrics.available_invoices_sub}
                                     </div>
                                 </div>
@@ -460,17 +463,17 @@ export default function BuyerDashboard({
                             {/* Card 4: Total Pengadaan Tahun Ini */}
                             <Link 
                                 href="/buyer/orders"
-                                className="group block rounded-2xl border border-slate-800 bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-md hover:border-blue-600/60 hover:shadow-lg transition cursor-pointer"
+                                className="group block rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-sm hover:border-blue-600/60 hover:shadow-md transition cursor-pointer"
                             >
-                                <div className="flex items-center justify-between text-slate-400 group-hover:text-blue-400 transition">
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition">
                                     <span className="text-xs font-medium">Total Pengadaan Tahun Ini</span>
                                     <TrendingUp className="h-4 w-4" />
                                 </div>
                                 <div>
-                                    <div className="text-lg sm:text-xl font-extrabold text-white tracking-tight truncate">
+                                    <div className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight truncate">
                                         {formatRupiah(metrics.yearly_spend)}
                                     </div>
-                                    <div className="text-[11px] text-slate-400 mt-1">
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                                         {metrics.yearly_spend_sub}
                                     </div>
                                 </div>
@@ -479,15 +482,15 @@ export default function BuyerDashboard({
                         </div>
 
                         {/* SECTION 2: PELACAKAN PENGADAAN & JADWAL TEKNISI AKTIF */}
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-5 sm:p-6 space-y-6 shadow-xl">
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-6 shadow-sm">
                             
                             {/* Card Header */}
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
                                 <div>
-                                    <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">
+                                    <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">
                                         Pelacakan Pengadaan &amp; Jadwal Teknisi Aktif
                                     </h2>
-                                    <p className="text-xs text-slate-400 font-mono mt-0.5">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">
                                         {activeOrder.invoice_number}
                                     </p>
                                 </div>
@@ -498,63 +501,112 @@ export default function BuyerDashboard({
                                 </span>
                             </div>
 
-                            {/* Horizontal Progress Stepper 4 Tahap */}
-                            <div className="py-2 overflow-x-auto scrollbar-none no-scrollbar">
+                            {/* Mobile Progress Stepper (md:hidden) */}
+                            <div className="md:hidden py-2 space-y-3">
+                                <div className="space-y-2.5">
+                                    {/* Step 1 */}
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-7 w-7 rounded-full bg-emerald-100 dark:bg-[#1b3327] border border-emerald-500/50 text-emerald-700 dark:text-[#8cd4b4] flex items-center justify-center font-bold text-xs shrink-0">
+                                            <Check className="h-3.5 w-3.5" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-xs font-semibold text-slate-800 dark:text-slate-200">PO &amp; Pembayaran Terverifikasi</div>
+                                            <div className="text-[10px] text-emerald-600 dark:text-[#8cd4b4] font-medium">Selesai</div>
+                                        </div>
+                                    </div>
+
+                                    {/* Step 2 */}
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-7 w-7 rounded-full bg-emerald-100 dark:bg-[#1b3327] border border-emerald-500/50 text-emerald-700 dark:text-[#8cd4b4] flex items-center justify-center font-bold text-xs shrink-0">
+                                            <Check className="h-3.5 w-3.5" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-xs font-semibold text-slate-800 dark:text-slate-200">Persiapan Unit &amp; QC Server</div>
+                                            <div className="text-[10px] text-emerald-600 dark:text-[#8cd4b4] font-medium">Selesai</div>
+                                        </div>
+                                    </div>
+
+                                    {/* Step 3 (Active) */}
+                                    <div className="flex items-center gap-3 p-2 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/60 dark:border-blue-800/40">
+                                        <div className="h-7 w-7 rounded-full bg-[#3651dc] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-md shadow-blue-500/30">
+                                            <Truck className="h-3.5 w-3.5" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-xs font-bold text-slate-900 dark:text-white">Pengiriman &amp; Instalasi Teknisi</div>
+                                            <div className="text-[10px] text-blue-600 dark:text-[#9bb8f5] font-semibold">Sedang berlangsung</div>
+                                        </div>
+                                    </div>
+
+                                    {/* Step 4 */}
+                                    <div className="flex items-center gap-3 opacity-60">
+                                        <div className="h-7 w-7 rounded-full bg-slate-100 dark:bg-[#0C0D12] border border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-500 flex items-center justify-center font-bold text-xs shrink-0">
+                                            <Clock className="h-3 w-3" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-xs font-medium text-slate-500 dark:text-slate-400">Serah Terima &amp; BAST</div>
+                                            <div className="text-[10px] text-slate-400">Tahap berikutnya</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Desktop Horizontal Progress Stepper (hidden md:block) */}
+                            <div className="hidden md:block py-2 overflow-x-auto scrollbar-none no-scrollbar">
                                 <div className="min-w-[620px] flex items-center justify-between relative px-4">
                                     
                                     {/* Connecting Progress Line (Behind step nodes) */}
-                                    <div className="absolute left-10 right-10 top-4 h-0.5 bg-slate-800 z-0">
+                                    <div className="absolute left-10 right-10 top-4 h-0.5 bg-slate-200 dark:bg-slate-800 z-0">
                                         <div className="h-full bg-[#76C19F] w-[68%]" />
                                     </div>
 
                                     {/* Step 1: PO & Pembayaran Verifikasi */}
                                     <div className="relative z-10 flex flex-col items-center text-center max-w-[130px] space-y-2">
-                                        <div className="h-8 w-8 rounded-full bg-[#1b3327] border border-[#76C19F]/50 text-[#8cd4b4] flex items-center justify-center font-bold text-xs ring-4 ring-[#171B26]">
+                                        <div className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-[#1b3327] border border-emerald-500/50 text-emerald-700 dark:text-[#8cd4b4] flex items-center justify-center font-bold text-xs ring-4 ring-white dark:ring-[#171B26]">
                                             <Check className="h-4 w-4" />
                                         </div>
-                                        <span className="text-[11px] font-semibold text-slate-200 leading-tight">
+                                        <span className="text-[11px] font-semibold text-slate-800 dark:text-slate-200 leading-tight">
                                             PO &amp; Pembayaran Terverifikasi
                                         </span>
-                                        <span className="text-[10px] text-[#8cd4b4] font-medium">
+                                        <span className="text-[10px] text-emerald-600 dark:text-[#8cd4b4] font-medium">
                                             Selesai
                                         </span>
                                     </div>
 
                                     {/* Step 2: Persiapan Unit & QC Server */}
                                     <div className="relative z-10 flex flex-col items-center text-center max-w-[130px] space-y-2">
-                                        <div className="h-8 w-8 rounded-full bg-[#1b3327] border border-[#76C19F]/50 text-[#8cd4b4] flex items-center justify-center font-bold text-xs ring-4 ring-[#171B26]">
+                                        <div className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-[#1b3327] border border-emerald-500/50 text-emerald-700 dark:text-[#8cd4b4] flex items-center justify-center font-bold text-xs ring-4 ring-white dark:ring-[#171B26]">
                                             <Check className="h-4 w-4" />
                                         </div>
-                                        <span className="text-[11px] font-semibold text-slate-200 leading-tight">
+                                        <span className="text-[11px] font-semibold text-slate-800 dark:text-slate-200 leading-tight">
                                             Persiapan Unit &amp; QC Server
                                         </span>
-                                        <span className="text-[10px] text-[#8cd4b4] font-medium">
+                                        <span className="text-[10px] text-emerald-600 dark:text-[#8cd4b4] font-medium">
                                             Selesai
                                         </span>
                                     </div>
 
                                     {/* Step 3: Pengiriman & Instalasi Teknisi (Active) */}
                                     <div className="relative z-10 flex flex-col items-center text-center max-w-[140px] space-y-2">
-                                        <div className="h-8 w-8 rounded-full bg-[#3651dc] border border-white/20 text-white flex items-center justify-center font-bold text-xs ring-4 ring-[#171B26] shadow-lg shadow-black/40">
+                                        <div className="h-8 w-8 rounded-full bg-[#3651dc] border border-white/20 text-white flex items-center justify-center font-bold text-xs ring-4 ring-white dark:ring-[#171B26] shadow-lg shadow-blue-500/20">
                                             <Truck className="h-4 w-4" />
                                         </div>
-                                        <span className="text-[11px] font-bold text-white leading-tight">
+                                        <span className="text-[11px] font-bold text-slate-900 dark:text-white leading-tight">
                                             Pengiriman &amp; Instalasi Teknisi
                                         </span>
-                                        <span className="text-[10px] text-[#9bb8f5] font-semibold">
+                                        <span className="text-[10px] text-blue-600 dark:text-[#9bb8f5] font-semibold">
                                             Sedang berlangsung
                                         </span>
                                     </div>
 
                                     {/* Step 4: Serah Terima */}
                                     <div className="relative z-10 flex flex-col items-center text-center max-w-[120px] space-y-2">
-                                        <div className="h-8 w-8 rounded-full bg-[#0C0D12] border-2 border-slate-700 text-slate-400 flex items-center justify-center font-bold text-xs ring-4 ring-[#171B26]">
+                                        <div className="h-8 w-8 rounded-full bg-slate-100 dark:bg-[#0C0D12] border-2 border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-500 flex items-center justify-center font-bold text-xs ring-4 ring-white dark:ring-[#171B26]">
                                             <Clock className="h-3.5 w-3.5" />
                                         </div>
-                                        <span className="text-[11px] font-medium text-slate-400 leading-tight">
+                                        <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 leading-tight">
                                             Serah Terima
                                         </span>
-                                        <span className="text-[10px] text-slate-500">
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-500">
                                             Tahap berikutnya
                                         </span>
                                     </div>
@@ -563,11 +615,11 @@ export default function BuyerDashboard({
                             </div>
 
                             {/* Order Detail Strip Note */}
-                            <div className="p-3.5 rounded-xl bg-[#0C0D12] border border-slate-800 flex items-start gap-3">
-                                <div className="p-1.5 rounded-lg bg-[#3651dc]/10 text-[#9bb8f5] shrink-0 mt-0.5">
+                            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 flex items-start gap-3">
+                                <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-[#9bb8f5] shrink-0 mt-0.5">
                                     <Layers className="h-4 w-4" />
                                 </div>
-                                <p className="text-xs text-slate-300 leading-relaxed">
+                                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
                                     {activeOrder.items_summary}
                                 </p>
                             </div>
@@ -575,32 +627,32 @@ export default function BuyerDashboard({
                         </div>
 
                         {/* SECTION 3: RIWAYAT TRANSAKSI & UNDUH DOKUMEN RESMI B2B */}
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-5 sm:p-6 space-y-6 shadow-xl">
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-6 shadow-sm">
                             
                             {/* Section Header */}
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 <div>
-                                    <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">
+                                    <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">
                                         Riwayat Transaksi &amp; Unduh Dokumen Resmi B2B
                                     </h2>
-                                    <p className="text-xs text-slate-400 mt-0.5">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                                         Kelola pesanan, penawaran harga, dan dokumen perpajakan dalam satu tempat.
                                     </p>
                                 </div>
-                                <span className="text-xs text-slate-400 self-start sm:self-auto font-medium">
+                                <span className="text-xs text-slate-500 dark:text-slate-400 self-start sm:self-auto font-medium">
                                     {filteredTransactions.length} transaksi terbaru
                                 </span>
                             </div>
 
                             {/* Filter Tabs Pills */}
-                            <div className="flex items-center gap-2 border-b border-slate-800/80 pb-3 overflow-x-auto scrollbar-none no-scrollbar">
+                            <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800/80 pb-3 overflow-x-auto scrollbar-none no-scrollbar">
                                 <button
                                     type="button"
                                     onClick={() => setSelectedFilter('all')}
                                     className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
                                         selectedFilter === 'all'
                                             ? 'btn-primary-bespoke'
-                                            : 'bg-slate-800/60 text-slate-300 hover:text-white hover:bg-slate-800'
+                                            : 'bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800'
                                     }`}
                                 >
                                     Semua
@@ -611,7 +663,7 @@ export default function BuyerDashboard({
                                     className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
                                         selectedFilter === 'hardware'
                                             ? 'btn-primary-bespoke'
-                                            : 'bg-slate-800/60 text-slate-300 hover:text-white hover:bg-slate-800'
+                                            : 'bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800'
                                     }`}
                                 >
                                     Barang Hardware
@@ -622,18 +674,101 @@ export default function BuyerDashboard({
                                     className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
                                         selectedFilter === 'services'
                                             ? 'btn-primary-bespoke'
-                                            : 'bg-slate-800/60 text-slate-300 hover:text-white hover:bg-slate-800'
+                                            : 'bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800'
                                     }`}
                                 >
                                     Jasa &amp; Servis
                                 </button>
                             </div>
 
-                            {/* Responsive Table */}
-                            <div className="overflow-x-auto rounded-xl border border-slate-800 bg-[#171B26]/50">
+                            {/* Mobile Transactions List (md:hidden) */}
+                            <div className="md:hidden space-y-3">
+                                {filteredTransactions.map((trx) => (
+                                    <div
+                                        key={trx.id}
+                                        className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#12161F] space-y-3"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <div className="font-mono font-bold text-slate-900 dark:text-white text-xs">{trx.code}</div>
+                                                <div className="text-[10px] text-slate-500 dark:text-slate-400">{trx.date} &bull; {trx.type_label}</div>
+                                            </div>
+                                            {trx.status_variant === 'blue' && (
+                                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-medium badge-azure">
+                                                    <span className="h-1.5 w-1.5 rounded-full dot-azure shrink-0" />
+                                                    <span>{trx.status}</span>
+                                                </span>
+                                            )}
+                                            {trx.status_variant === 'green' && (
+                                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-medium badge-sage">
+                                                    <span className="h-1.5 w-1.5 rounded-full dot-sage shrink-0" />
+                                                    <span>{trx.status}</span>
+                                                </span>
+                                            )}
+                                            {trx.status_variant === 'amber' && (
+                                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-medium badge-ochre">
+                                                    <span className="h-1.5 w-1.5 rounded-full dot-ochre shrink-0" />
+                                                    <span>{trx.status}</span>
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="text-xs text-slate-800 dark:text-slate-200 font-medium">
+                                            {trx.items}
+                                        </div>
+
+                                        <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800/80">
+                                            <div>
+                                                <div className="text-[10px] text-slate-500 dark:text-slate-400">Total (Termasuk PPN)</div>
+                                                <div className="text-sm font-bold text-slate-900 dark:text-white">
+                                                    {formatRupiah(trx.total)}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 flex items-center gap-1.5 flex-wrap">
+                                            {trx.actions.map((act, actIdx) => {
+                                                const ActionIcon = act.icon;
+                                                const isInternal = act.url && act.url.startsWith('/');
+                                                const buttonStyle = `inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all shadow-sm ${
+                                                    act.variant === 'amber'
+                                                        ? 'btn-ochre-bespoke'
+                                                        : act.variant === 'blue'
+                                                        ? 'btn-primary-bespoke'
+                                                        : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700'
+                                                }`;
+
+                                                if (isInternal) {
+                                                    return (
+                                                        <Link key={actIdx} href={act.url} className={buttonStyle}>
+                                                            <ActionIcon className="h-3 w-3" />
+                                                            <span>{act.label}</span>
+                                                        </Link>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <a
+                                                        key={actIdx}
+                                                        href="/images/hero-datacenter-clean.jpg"
+                                                        download={`${trx.code}-${act.label.replace(/\s+/g, '-')}.pdf`}
+                                                        className={buttonStyle}
+                                                    >
+                                                        <ActionIcon className="h-3 w-3" />
+                                                        <span>{act.label}</span>
+                                                    </a>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Desktop Responsive Table (hidden md:block) */}
+                            <div className="hidden md:block overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26]/50">
                                 <table className="w-full text-left text-xs border-collapse">
                                     <thead>
-                                        <tr className="border-b border-slate-800 bg-[#0C0D12]/80 text-[11px] font-bold text-slate-400">
+                                        <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0C0D12]/80 text-[11px] font-bold text-slate-600 dark:text-slate-400">
                                             <th className="py-3 px-4">No. Invoice / PO</th>
                                             <th className="py-3 px-3">Tanggal</th>
                                             <th className="py-3 px-4">Daftar Produk &amp; Layanan</th>
@@ -642,30 +777,30 @@ export default function BuyerDashboard({
                                             <th className="py-3 px-4 text-right sm:text-left">Dokumen B2B (Unduh PDF)</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-800/80">
+                                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80">
                                         {filteredTransactions.map((trx) => (
-                                            <tr key={trx.id} className="hover:bg-slate-800/30 transition-colors">
+                                            <tr key={trx.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                                 
                                                 {/* No. Invoice */}
                                                 <td className="py-4 px-4 font-mono">
-                                                    <div className="font-bold text-white text-xs">{trx.code}</div>
-                                                    <div className="text-[10px] text-slate-400 uppercase tracking-wider">{trx.type_label}</div>
+                                                    <div className="font-bold text-slate-900 dark:text-white text-xs">{trx.code}</div>
+                                                    <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider">{trx.type_label}</div>
                                                 </td>
 
                                                 {/* Tanggal */}
-                                                <td className="py-4 px-3 text-slate-300 whitespace-nowrap">
+                                                <td className="py-4 px-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">
                                                     {trx.date}
                                                 </td>
 
                                                 {/* Daftar Produk & Layanan */}
-                                                <td className="py-4 px-4 text-white font-medium max-w-xs">
+                                                <td className="py-4 px-4 text-slate-900 dark:text-white font-medium max-w-xs">
                                                     <div className="truncate" title={trx.items}>
                                                         {trx.items}
                                                     </div>
                                                 </td>
 
                                                 {/* Total */}
-                                                <td className="py-4 px-4 font-bold text-white whitespace-nowrap">
+                                                <td className="py-4 px-4 font-bold text-slate-900 dark:text-white whitespace-nowrap">
                                                     {formatRupiah(trx.total)}
                                                 </td>
 
@@ -702,7 +837,7 @@ export default function BuyerDashboard({
                                                                     ? 'btn-ochre-bespoke'
                                                                     : act.variant === 'blue'
                                                                     ? 'btn-primary-bespoke'
-                                                                    : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                                                                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700'
                                                             }`;
 
                                                             if (isInternal) {
@@ -740,8 +875,8 @@ export default function BuyerDashboard({
                             </div>
 
                             {/* Section Footer Guarantee Note */}
-                            <div className="flex items-center gap-2 text-xs text-slate-400 pt-1">
-                                <ShieldCheck className="h-4 w-4 text-blue-400 shrink-0" />
+                            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 pt-1">
+                                <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0" />
                                 <span>Dokumen resmi diterbitkan oleh CV. Putra Nugraha • Format PDF</span>
                             </div>
 
@@ -756,7 +891,7 @@ export default function BuyerDashboard({
             {/* ========================================================= */}
             {/* FOOTER B2B CORPORATE 4 KOLOM                              */}
             {/* ========================================================= */}
-            <footer className="mt-16 border-t border-slate-800/80 bg-[#12161F] text-slate-400 text-xs">
+            <footer className="mt-16 border-t border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#12161F] text-slate-500 dark:text-slate-400 text-xs transition-colors duration-150">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         
@@ -769,42 +904,42 @@ export default function BuyerDashboard({
                                     className="h-9 w-9 rounded-lg object-contain"
                                 />
                                 <div className="flex flex-col">
-                                    <span className="text-xs font-bold tracking-tight text-white uppercase">
+                                    <span className="text-xs font-bold tracking-tight text-slate-900 dark:text-white uppercase">
                                         CV. PUTRA NUGRAHA -
                                     </span>
-                                    <span className="text-[10px] text-slate-400">
+                                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
                                         Perdagangan Barang dan Jasa
                                     </span>
                                 </div>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Pengadaan perangkat IT dan layanan profesional untuk mendukung kebutuhan perusahaan Anda.
                             </p>
                         </div>
 
                         {/* Col 2: Panduan Pengadaan */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Panduan Pengadaan B2B
                             </h4>
                             <ul className="space-y-2 text-xs">
                                 <li>
-                                    <Link href="/panduan/cara-belanja" className="text-slate-400 hover:text-white transition">
+                                    <Link href="/panduan/cara-belanja" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                                         Cara Belanja &amp; Pengajuan RFQ
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href="/panduan/faktur-pajak" className="text-slate-400 hover:text-white transition">
+                                    <Link href="/panduan/faktur-pajak" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                                         Ketentuan Faktur Pajak
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href="/panduan/pembayaran" className="text-slate-400 hover:text-white transition">
+                                    <Link href="/panduan/pembayaran" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                                         Pembayaran &amp; Pengiriman
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href="/panduan/garansi" className="text-slate-400 hover:text-white transition">
+                                    <Link href="/panduan/garansi" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                                         Garansi &amp; Layanan Purnajual
                                     </Link>
                                 </li>
@@ -813,21 +948,21 @@ export default function BuyerDashboard({
 
                         {/* Col 3: Layanan Pelanggan */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Layanan Pelanggan
                             </h4>
-                            <div className="flex items-center gap-2 text-white font-bold text-sm">
-                                <Phone className="h-4 w-4 text-emerald-400" />
+                            <div className="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-sm">
+                                <Phone className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                                 <a 
                                     href="https://wa.me/6281320777874" 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="hover:text-emerald-400 transition"
+                                    className="hover:text-emerald-600 dark:hover:text-emerald-400 transition"
                                 >
                                     (+62) 813-2077-7874
                                 </a>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Hubungi tim kami untuk konsultasi produk, penawaran, dan status pengadaan.
                             </p>
                             <div>
@@ -835,7 +970,7 @@ export default function BuyerDashboard({
                                     href="https://wa.me/6281320777874"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
                                 >
                                     <span>Konsultasikan kebutuhan Anda</span>
                                     <ArrowRight className="h-3 w-3" />
@@ -845,16 +980,16 @@ export default function BuyerDashboard({
 
                         {/* Col 4: Alamat Kantor */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Alamat Kantor
                             </h4>
                             <div className="flex items-start gap-2.5">
-                                <MapPin className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
-                                <p className="text-xs text-slate-400 leading-relaxed">
+                                <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                     Jl. Cinangka Kavling 2, RT 03, RW 05 Kel. Pasir Wangi Kec. Ujung Berung
                                 </p>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Melayani kebutuhan barang dan jasa IT perusahaan.
                             </p>
                         </div>
@@ -863,8 +998,8 @@ export default function BuyerDashboard({
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="border-t border-slate-800/80">
-                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+                <div className="border-t border-slate-200 dark:border-slate-800/80">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-500">
                         <p>© 2026 CV. Putra Nugraha. All Right Reserved.</p>
                         <p className="hidden sm:block">Perdagangan Barang dan Jasa</p>
                     </div>
