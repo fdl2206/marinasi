@@ -4,14 +4,24 @@
 
 html {
     scroll-behavior: smooth;
+    max-width: 100%;
+    overflow-x: clip;
+}
+
+html.dark {
     background-color: #0C0D12;
     color: #f8fafc;
 }
 
+html:not(.dark) {
+    background-color: #f8fafc;
+    color: #0f172a;
+}
+
 body {
-    background-color: #0C0D12;
-    color: #f8fafc;
     min-height: 100vh;
+    max-width: 100%;
+    overflow-x: clip;
 }
 
 /* ========================================================= */
@@ -116,7 +126,11 @@ textarea,
 }
 
 .mobile-nav-overlay {
-    background-color: #0C0D12 !important;
+    background-color: #ffffff;
+}
+
+.dark .mobile-nav-overlay {
+    background-color: #0C0D12;
 }
 
 .animate-mobile-link {

@@ -223,8 +223,8 @@ export default function SellerOrdersIndex() {
             {/* FLOATING TOAST NOTIFICATION                               */}
             {/* ========================================================= */}
             {toastMessage && (
-                <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-[#171B26] border border-[#76C19F]/30 text-slate-100 font-medium text-xs shadow-2xl animate-modal">
-                    <CheckCircle2 className="h-4 w-4 text-[#76C19F] shrink-0" />
+                <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-white dark:bg-[#171B26] border border-emerald-500/30 dark:border-[#76C19F]/30 text-slate-900 dark:text-slate-100 font-medium text-xs shadow-2xl animate-modal">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500 dark:text-[#76C19F] shrink-0" />
                     <span>{toastMessage}</span>
                 </div>
             )}
@@ -234,13 +234,13 @@ export default function SellerOrdersIndex() {
             {/* ========================================================= */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
                 <div>
-                    <div className="text-xs text-slate-400 font-medium">
+                    <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                         CV. PUTRA NUGRAHA - Perdagangan Barang dan Jasa
                     </div>
-                    <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-0.5">
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-0.5">
                         Riwayat Pesanan &amp; Pengelolaan Pengiriman B2B
                     </h1>
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                         Pantau status pesanan korporat, verifikasi dokumen Purchase Order (PO), dan cetak surat jalan gudang.
                     </p>
                 </div>
@@ -249,7 +249,7 @@ export default function SellerOrdersIndex() {
                 <button
                     type="button"
                     onClick={() => showToast('Mengekspor rekap 18 transaksi pesanan B2B ke format Excel (.XLSX)...')}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#171B26] border border-slate-700/80 hover:bg-slate-800 text-slate-200 text-xs font-semibold shadow-sm transition active:scale-95 shrink-0"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-[#171B26] border border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition active:scale-95 shrink-0"
                 >
                     <Download className="h-3.5 w-3.5 text-slate-400" />
                     <span>Unduh Laporan Transaksi (Excel)</span>
@@ -262,56 +262,56 @@ export default function SellerOrdersIndex() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
                 
                 {/* Metric 1: Total Pesanan Aktif */}
-                <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-5 space-y-3 shadow-lg">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 space-y-3 shadow-sm dark:shadow-lg">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-slate-400">
+                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                             Total Pesanan Aktif
                         </span>
                         <div className="text-slate-400">
                             <Package className="h-4 w-4" />
                         </div>
                     </div>
-                    <div className="text-2xl lg:text-3xl font-bold text-white tracking-tight">
+                    <div className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                         5 Transaksi
                     </div>
-                    <div className="text-xs text-slate-400">
+                    <div className="text-xs text-slate-500 dark:text-slate-400">
                         Dalam proses pengiriman &amp; setup
                     </div>
                 </div>
 
                 {/* Metric 2: Siap Kirim / QC Gudang */}
-                <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-5 space-y-3 shadow-lg">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 space-y-3 shadow-sm dark:shadow-lg">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-slate-400">
+                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                             Siap Kirim / QC Gudang
                         </span>
-                        <div className="p-1.5 rounded-lg bg-[#4361EE]/10 border border-[#4361EE]/20 text-[#9bb8f5]">
+                        <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-[#4361EE]/10 border border-blue-200 dark:border-[#4361EE]/20 text-blue-600 dark:text-[#9bb8f5]">
                             <Box className="h-4 w-4" />
                         </div>
                     </div>
-                    <div className="text-2xl lg:text-3xl font-bold text-white tracking-tight">
+                    <div className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                         2 Pesanan
                     </div>
-                    <div className="text-xs text-slate-400 flex items-center gap-1.5">
+                    <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                         <span className="inline-block h-1.5 w-1.5 rounded-full dot-azure shrink-0" />
                         <span>Unit siap di Ujung Berung</span>
                     </div>
                 </div>
 
                 {/* Metric 3: Selesai Bulan Ini */}
-                <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-5 space-y-3 shadow-lg">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 space-y-3 shadow-sm dark:shadow-lg">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-slate-400">
+                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                             Selesai Bulan Ini
                         </span>
-                        <div className="p-1.5 rounded-lg bg-[#76C19F]/10 border border-[#76C19F]/20 text-[#8cd4b4]">
+                        <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-[#76C19F]/10 border border-emerald-200 dark:border-[#76C19F]/20 text-emerald-600 dark:text-[#8cd4b4]">
                             <CheckCircle2 className="h-4 w-4" />
                         </div>
                     </div>
-                    <div className="text-2xl lg:text-3xl font-bold text-white tracking-tight">
+                    <div className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                         13 Transaksi
                     </div>
-                    <div className="text-xs text-slate-400 flex items-center gap-1.5">
+                    <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                         <span className="inline-block h-1.5 w-1.5 rounded-full dot-sage shrink-0" />
                         <span>BAST &amp; e-Faktur lengkap</span>
                     </div>
@@ -342,7 +342,7 @@ export default function SellerOrdersIndex() {
                                 className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
                                     active
                                         ? 'btn-primary-bespoke'
-                                        : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
                                 }`}
                             >
                                 {tab.label}
@@ -363,7 +363,7 @@ export default function SellerOrdersIndex() {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Cari kata kunci pesanan..."
-                            className="w-full h-9 rounded-lg bg-[#12161F] border border-slate-700/80 pl-9 pr-3 text-xs text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-inner"
+                            className="w-full h-9 rounded-lg bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-700/80 pl-9 pr-3 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm"
                         />
                     </div>
 
@@ -374,7 +374,7 @@ export default function SellerOrdersIndex() {
                             <select
                                 value={paymentFilter}
                                 onChange={(e) => setPaymentFilter(e.target.value)}
-                                className="h-9 rounded-lg bg-[#12161F] border border-slate-700/80 text-xs text-slate-200 pl-3 pr-8 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-sm"
+                                className="h-9 rounded-lg bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-700/80 text-xs text-slate-800 dark:text-slate-200 pl-3 pr-8 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-sm"
                             >
                                 <option value="all">Semua Pembayaran: VA &amp; Termin PO</option>
                                 <option value="va">Virtual Account (Lunas)</option>
@@ -387,7 +387,7 @@ export default function SellerOrdersIndex() {
                             <select
                                 value={periodFilter}
                                 onChange={(e) => setPeriodFilter(e.target.value)}
-                                className="h-9 rounded-lg bg-[#12161F] border border-slate-700/80 text-xs text-slate-200 pl-3 pr-8 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-sm"
+                                className="h-9 rounded-lg bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-700/80 text-xs text-slate-800 dark:text-slate-200 pl-3 pr-8 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-sm"
                             >
                                 <option value="this_month">Bulan Berjalan</option>
                                 <option value="last_month">Bulan Lalu</option>
@@ -403,20 +403,123 @@ export default function SellerOrdersIndex() {
             {/* ========================================================= */}
             {/* MAIN ORDERS TABLE: DAFTAR PESANAN & PURCHASE ORDER        */}
             {/* ========================================================= */}
-            <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-5 space-y-4 shadow-lg">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
-                    <h2 className="text-sm font-bold text-white tracking-tight">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 space-y-4 shadow-sm dark:shadow-lg">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800/80">
+                    <h2 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight">
                         Daftar Pesanan &amp; Purchase Order
                     </h2>
-                    <span className="text-xs text-slate-400 font-medium">
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                         {tabCounts.all} Transaksi B2B
                     </span>
                 </div>
 
-                <div className="overflow-x-auto">
+                {/* Mobile Card List (md:hidden) */}
+                <div className="md:hidden space-y-3">
+                    {filteredOrders.length === 0 ? (
+                        <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-400">
+                            Tidak ada transaksi yang cocok dengan filter.
+                        </div>
+                    ) : (
+                        filteredOrders.map((ord) => (
+                            <div
+                                key={ord.id}
+                                className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#12161F] space-y-3"
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <span className="font-mono font-bold text-slate-900 dark:text-white text-xs">{ord.invoice_code}</span>
+                                        <div className="text-[10px] text-slate-500 dark:text-slate-400">{ord.date}</div>
+                                    </div>
+                                    {ord.payment_variant === 'emerald' && (
+                                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-medium badge-sage">
+                                            <span className="h-1.5 w-1.5 rounded-full dot-sage shrink-0" />
+                                            <span>{ord.payment_status}</span>
+                                        </span>
+                                    )}
+                                    {ord.payment_variant === 'amber' && (
+                                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-medium badge-ochre">
+                                            <span className="h-1.5 w-1.5 rounded-full dot-ochre shrink-0" />
+                                            <span>{ord.payment_status}</span>
+                                        </span>
+                                    )}
+                                    {ord.payment_variant === 'slate' && (
+                                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-medium badge-azure">
+                                            <span className="h-1.5 w-1.5 rounded-full dot-azure shrink-0" />
+                                            <span>{ord.payment_status}</span>
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="space-y-1">
+                                    <div className="text-xs font-semibold text-slate-900 dark:text-white">{ord.client_name}</div>
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400">PIC: {ord.pic_name} &bull; PO: {ord.po_number}</div>
+                                    <div className="text-xs text-slate-600 dark:text-slate-300 pt-1">{ord.items}</div>
+                                </div>
+
+                                <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800/80">
+                                    <div>
+                                        <div className="text-[10px] text-slate-500 dark:text-slate-400">Total Tagihan</div>
+                                        <div className="text-sm font-bold text-slate-900 dark:text-white">
+                                            Rp {ord.total_price.toLocaleString('id-ID')}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white dark:bg-[#171B26] border border-slate-200 dark:border-slate-700/80 text-xs">
+                                        {ord.fulfillment_icon === 'truck' && <Truck className="h-3.5 w-3.5 text-blue-600 dark:text-[#9bb8f5] shrink-0" />}
+                                        {ord.fulfillment_icon === 'box' && <Box className="h-3.5 w-3.5 text-blue-600 dark:text-[#9bb8f5] shrink-0" />}
+                                        {ord.fulfillment_icon === 'clock' && <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-[#dec093] shrink-0" />}
+                                        <span className="text-[11px] font-medium text-slate-800 dark:text-slate-200 truncate max-w-[120px]">
+                                            {ord.fulfillment_status}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-end gap-2">
+                                    {ord.po_status === 'pending_review' ? (
+                                        <>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRejectPo(ord.id)}
+                                                className="px-3 py-1.5 rounded-lg btn-danger-subtle text-xs"
+                                            >
+                                                Tolak
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setActivePoValidation(ord)}
+                                                className="px-3 py-1.5 rounded-lg btn-primary-bespoke text-xs font-medium"
+                                            >
+                                                Validasi PO
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <button
+                                                type="button"
+                                                onClick={() => setActiveDetailModal(ord)}
+                                                className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300"
+                                            >
+                                                Detail
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setActiveDeliverySlip(ord)}
+                                                className="px-3 py-1.5 rounded-lg btn-primary-bespoke text-xs font-medium"
+                                            >
+                                                Surat Jalan
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                {/* Desktop Table (hidden md:block) */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left text-xs">
                         <thead>
-                            <tr className="border-b border-slate-800/80 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                            <tr className="border-b border-slate-200 dark:border-slate-800/80 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                 <th className="pb-3 pr-4">No. Invoice &amp; Ref. PO</th>
                                 <th className="pb-3 px-4">Perusahaan Klien &amp; PIC</th>
                                 <th className="pb-3 px-4">Daftar Produk &amp; Layanan</th>
@@ -426,43 +529,43 @@ export default function SellerOrdersIndex() {
                                 <th className="pb-3 pl-4 text-center">Aksi Admin</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-800/60 font-sans">
+                        <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 font-sans">
                             {filteredOrders.map((ord) => (
-                                <tr key={ord.id} className="hover:bg-slate-800/30 transition">
+                                <tr key={ord.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition">
                                     
                                     {/* Col 1: Invoice & Ref PO */}
                                     <td className="py-4 pr-4 align-top">
-                                        <div className="font-mono font-bold text-white text-xs">
+                                        <div className="font-mono font-bold text-slate-900 dark:text-white text-xs">
                                             {ord.invoice_code}
                                         </div>
-                                        <div className="text-[11px] text-slate-400 mt-0.5">
+                                        <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                                             {ord.date}
                                         </div>
-                                        <div className="text-[11px] text-slate-400 mt-0.5">
-                                            PO: <span className={ord.po_number === 'Belum Upload' ? 'text-[#dec093] font-medium' : 'text-slate-300'}>{ord.po_number}</span>
+                                        <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                            PO: <span className={ord.po_number === 'Belum Upload' ? 'text-amber-600 dark:text-[#dec093] font-medium' : 'text-slate-700 dark:text-slate-300'}>{ord.po_number}</span>
                                         </div>
                                     </td>
 
                                     {/* Col 2: Perusahaan & PIC */}
                                     <td className="py-4 px-4 align-top">
-                                        <div className="font-semibold text-white text-xs">
+                                        <div className="font-semibold text-slate-900 dark:text-white text-xs">
                                             {ord.client_name}
                                         </div>
-                                        <div className="text-[11px] text-slate-400 mt-0.5">
+                                        <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                                             PIC: {ord.pic_name}
                                         </div>
                                     </td>
 
                                     {/* Col 3: Daftar Produk & Layanan */}
                                     <td className="py-4 px-4 align-top max-w-xs">
-                                        <div className="text-slate-200 text-xs leading-relaxed">
+                                        <div className="text-slate-700 dark:text-slate-200 text-xs leading-relaxed">
                                             {ord.items}
                                         </div>
                                     </td>
 
                                     {/* Col 4: Total & Pembayaran */}
                                     <td className="py-4 px-4 align-top">
-                                        <div className="font-bold text-white text-xs sm:text-sm">
+                                        <div className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">
                                             Rp {ord.total_price.toLocaleString('id-ID')}
                                         </div>
                                         <div className="mt-1">
@@ -490,12 +593,12 @@ export default function SellerOrdersIndex() {
                                     {/* Col 5: Status Pengadaan Dropdown */}
                                     <td className="py-4 px-4 align-top min-w-[200px]">
                                         <div className="relative">
-                                            <div className="flex items-center gap-2 p-2 rounded-lg bg-[#12161F] border border-slate-700/80 text-xs text-slate-200">
-                                                {ord.fulfillment_icon === 'truck' && <Truck className="h-3.5 w-3.5 text-[#9bb8f5] shrink-0" />}
-                                                {ord.fulfillment_icon === 'box' && <Box className="h-3.5 w-3.5 text-[#9bb8f5] shrink-0" />}
-                                                {ord.fulfillment_icon === 'clock' && <Clock className="h-3.5 w-3.5 text-[#dec093] shrink-0" />}
+                                            <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-700/80 text-xs text-slate-800 dark:text-slate-200">
+                                                {ord.fulfillment_icon === 'truck' && <Truck className="h-3.5 w-3.5 text-blue-600 dark:text-[#9bb8f5] shrink-0" />}
+                                                {ord.fulfillment_icon === 'box' && <Box className="h-3.5 w-3.5 text-blue-600 dark:text-[#9bb8f5] shrink-0" />}
+                                                {ord.fulfillment_icon === 'clock' && <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-[#dec093] shrink-0" />}
                                                 <span className={`truncate text-xs font-medium ${
-                                                    ord.fulfillment_icon === 'clock' ? 'text-[#dec093]' : 'text-slate-200'
+                                                    ord.fulfillment_icon === 'clock' ? 'text-amber-600 dark:text-[#dec093]' : 'text-slate-800 dark:text-slate-200'
                                                 }`}>
                                                     {ord.fulfillment_status}
                                                 </span>
@@ -525,7 +628,7 @@ export default function SellerOrdersIndex() {
                                                         key={idx}
                                                         type="button"
                                                         onClick={() => showToast(`Mengunduh dokumen: ${ord.invoice_code}-${doc.name}`)}
-                                                        className="flex items-center gap-1 text-[11px] text-slate-300 hover:text-[#9bb8f5] transition"
+                                                        className="flex items-center gap-1 text-[11px] text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-[#9bb8f5] transition"
                                                     >
                                                         <FileText className="h-3 w-3 text-slate-400" />
                                                         <span>{doc.name}</span>
@@ -559,14 +662,14 @@ export default function SellerOrdersIndex() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setActiveDetailOrder(ord)}
-                                                    className="text-xs text-slate-300 hover:text-white font-medium block w-full hover:underline transition"
+                                                    className="text-xs text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-medium block w-full hover:underline transition"
                                                 >
                                                     Detail
                                                 </button>
                                                 <button
                                                     type="button"
                                                     onClick={() => setActiveSuratJalan(ord)}
-                                                    className="text-xs text-slate-300 hover:text-white font-medium block w-full hover:underline transition"
+                                                    className="text-xs text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-medium block w-full hover:underline transition"
                                                 >
                                                     Surat Jalan
                                                 </button>
@@ -581,7 +684,7 @@ export default function SellerOrdersIndex() {
                 </div>
 
                 {/* Table Footer: Pagination */}
-                <div className="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+                <div className="pt-4 border-t border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
                     <div>
                         Menampilkan 1 - 3 dari 18 Transaksi B2B
                     </div>
@@ -596,21 +699,21 @@ export default function SellerOrdersIndex() {
                         <button
                             type="button"
                             onClick={() => showToast('Memuat halaman 2 transaksi...')}
-                            className="h-7 w-7 rounded-lg bg-[#12161F] hover:bg-slate-800 text-slate-400 hover:text-white text-xs flex items-center justify-center transition"
+                            className="h-7 w-7 rounded-lg bg-slate-100 dark:bg-[#12161F] hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs flex items-center justify-center transition"
                         >
                             2
                         </button>
                         <button
                             type="button"
                             onClick={() => showToast('Memuat halaman 3 transaksi...')}
-                            className="h-7 w-7 rounded-lg bg-[#12161F] hover:bg-slate-800 text-slate-400 hover:text-white text-xs flex items-center justify-center transition"
+                            className="h-7 w-7 rounded-lg bg-slate-100 dark:bg-[#12161F] hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs flex items-center justify-center transition"
                         >
                             3
                         </button>
                         <button
                             type="button"
                             onClick={() => showToast('Memuat halaman berikutnya...')}
-                            className="px-2.5 py-1 text-slate-400 hover:text-white text-xs flex items-center gap-1 transition"
+                            className="px-2.5 py-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs flex items-center gap-1 transition"
                         >
                             <span>Berikutnya</span>
                             <ArrowRight className="h-3 w-3" />
@@ -625,20 +728,20 @@ export default function SellerOrdersIndex() {
             {/* ========================================================= */}
             {manualOrderModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-modal-backdrop">
-                    <div className="relative w-full max-w-lg rounded-2xl border border-slate-800 bg-[#171B26] p-6 shadow-2xl space-y-4 animate-modal">
-                        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <div className="relative w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-6 shadow-2xl space-y-4 animate-modal">
+                        <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                             <div>
-                                <div className="text-[10px] font-semibold text-[#9bb8f5] uppercase tracking-wider">
+                                <div className="text-[10px] font-semibold text-blue-600 dark:text-[#9bb8f5] uppercase tracking-wider">
                                     Admin Internal Back-Office
                                 </div>
-                                <h3 className="text-base font-bold text-white">
+                                <h3 className="text-base font-bold text-slate-900 dark:text-white">
                                     Buat Pesanan &amp; Penugasan Manual
                                 </h3>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setManualOrderModalOpen(false)}
-                                className="p-1 rounded-lg text-slate-400 hover:text-white"
+                                className="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white"
                             >
                                 <X className="h-5 w-5" />
                             </button>
@@ -650,28 +753,28 @@ export default function SellerOrdersIndex() {
                             showToast('Pesanan baru berhasil dibuat dan diteruskan ke bagian gudang!');
                         }} className="space-y-3 text-xs">
                             <div className="space-y-1">
-                                <label className="text-[11px] font-semibold text-slate-300">Nama Instansi / Perusahaan Pembeli:</label>
+                                <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">Nama Instansi / Perusahaan Pembeli:</label>
                                 <input
                                     type="text"
                                     required
                                     placeholder="Contoh: PT Telkom Akses Regional 3"
                                     defaultValue="PT Sinergi Data Nusantara"
-                                    className="w-full h-9 rounded-lg bg-[#12161F] border border-slate-700 px-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#3651dc]"
+                                    className="w-full h-9 rounded-lg bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-700 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#3651dc]"
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-1">
-                                    <label className="text-[11px] font-semibold text-slate-300">Nama PIC &amp; Telepon:</label>
+                                    <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">Nama PIC &amp; Telepon:</label>
                                     <input
                                         type="text"
                                         defaultValue="Bambang (0812-9988-7766)"
-                                        className="w-full h-9 rounded-lg bg-[#12161F] border border-slate-700 px-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#3651dc]"
+                                        className="w-full h-9 rounded-lg bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-700 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#3651dc]"
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[11px] font-semibold text-slate-300">Metode Pembayaran:</label>
-                                    <select className="w-full h-9 rounded-lg bg-[#12161F] border border-slate-700 px-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#3651dc]">
+                                    <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">Metode Pembayaran:</label>
+                                    <select className="w-full h-9 rounded-lg bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-700 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#3651dc]">
                                         <option>Termin PO 30 Hari (Mitra B2B)</option>
                                         <option>Virtual Account Mandiri / BCA</option>
                                         <option>Transfer Bank Manual</option>
@@ -680,29 +783,29 @@ export default function SellerOrdersIndex() {
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-[11px] font-semibold text-slate-300">Rincian Komoditas &amp; Layanan:</label>
+                                <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">Rincian Komoditas &amp; Layanan:</label>
                                 <textarea
                                     rows={2}
                                     defaultValue="2x Switch Cisco 24-Port Gigabit + 1x Patch Panel 24 Cat6"
-                                    className="w-full rounded-lg bg-[#12161F] border border-slate-700 p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#3651dc]"
+                                    className="w-full rounded-lg bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-700 p-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#3651dc]"
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-1">
-                                    <label className="text-[11px] font-semibold text-slate-300">Nomor PO Pembeli:</label>
+                                    <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">Nomor PO Pembeli:</label>
                                     <input
                                         type="text"
                                         defaultValue="PO/SDN/IT/2026/012"
-                                        className="w-full h-9 rounded-lg bg-[#12161F] border border-slate-700 px-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#3651dc]"
+                                        className="w-full h-9 rounded-lg bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-700 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#3651dc]"
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[11px] font-semibold text-slate-300">Total Tagihan (Rp):</label>
+                                    <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">Total Tagihan (Rp):</label>
                                     <input
                                         type="text"
                                         defaultValue="Rp 33.200.000"
-                                        className="w-full h-9 rounded-lg bg-[#12161F] border border-slate-700 px-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#3651dc] font-bold"
+                                        className="w-full h-9 rounded-lg bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-700 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#3651dc] font-bold"
                                     />
                                 </div>
                             </div>
@@ -711,7 +814,7 @@ export default function SellerOrdersIndex() {
                                 <button
                                     type="button"
                                     onClick={() => setManualOrderModalOpen(false)}
-                                    className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 text-xs font-semibold"
+                                    className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold"
                                 >
                                     Batal
                                 </button>
@@ -732,20 +835,20 @@ export default function SellerOrdersIndex() {
             {/* ========================================================= */}
             {activeDetailOrder && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-modal-backdrop">
-                    <div className="relative w-full max-w-xl rounded-2xl border border-slate-800 bg-[#171B26] p-6 shadow-2xl space-y-4 animate-modal">
-                        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <div className="relative w-full max-w-xl rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-6 shadow-2xl space-y-4 animate-modal">
+                        <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                             <div>
-                                <span className="text-[10px] font-semibold text-[#9bb8f5] uppercase tracking-wider">
+                                <span className="text-[10px] font-semibold text-blue-600 dark:text-[#9bb8f5] uppercase tracking-wider">
                                     Informasi Lengkap Transaksi
                                 </span>
-                                <h3 className="text-base font-bold text-white">
+                                <h3 className="text-base font-bold text-slate-900 dark:text-white">
                                     Detail Pesanan {activeDetailOrder.invoice_code}
                                 </h3>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setActiveDetailOrder(null)}
-                                className="p-1 rounded-lg text-slate-400 hover:text-white"
+                                className="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white"
                             >
                                 <X className="h-5 w-5" />
                             </button>
@@ -753,52 +856,52 @@ export default function SellerOrdersIndex() {
 
                         <div className="space-y-3 text-xs max-h-[70vh] overflow-y-auto pr-1">
                             {/* Klien & Alamat */}
-                            <div className="p-3.5 rounded-xl bg-[#12161F] border border-slate-800 space-y-2">
+                            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-800 space-y-2">
                                 <div className="flex items-start justify-between">
                                     <div>
-                                        <div className="text-slate-400 text-[11px]">Klien Instansi:</div>
-                                        <div className="font-bold text-white text-sm">{activeDetailOrder.client_name}</div>
-                                        <div className="text-slate-300 text-[11px] mt-0.5">
+                                        <div className="text-slate-500 dark:text-slate-400 text-[11px]">Klien Instansi:</div>
+                                        <div className="font-bold text-slate-900 dark:text-white text-sm">{activeDetailOrder.client_name}</div>
+                                        <div className="text-slate-700 dark:text-slate-300 text-[11px] mt-0.5">
                                             PIC: {activeDetailOrder.pic_name} ({activeDetailOrder.pic_phone})
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <div className="text-slate-400 text-[11px]">No. Purchase Order:</div>
-                                        <div className="font-mono font-semibold text-[#9bb8f5]">{activeDetailOrder.po_number}</div>
+                                        <div className="text-slate-500 dark:text-slate-400 text-[11px]">No. Purchase Order:</div>
+                                        <div className="font-mono font-semibold text-blue-600 dark:text-[#9bb8f5]">{activeDetailOrder.po_number}</div>
                                     </div>
                                 </div>
-                                <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-300 flex items-start gap-1.5">
+                                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-300 flex items-start gap-1.5">
                                     <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0 mt-0.5" />
                                     <span>Alamat Pengiriman: {activeDetailOrder.address}</span>
                                 </div>
                             </div>
 
                             {/* Daftar Barang */}
-                            <div className="p-3.5 rounded-xl bg-[#12161F] border border-slate-800 space-y-2">
-                                <div className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-800 space-y-2">
+                                <div className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                                     Rincian Barang &amp; Jasa
                                 </div>
-                                <div className="divide-y divide-slate-800">
+                                <div className="divide-y divide-slate-200 dark:divide-slate-800">
                                     {activeDetailOrder.items_breakdown.map((item, idx) => (
                                         <div key={idx} className="py-2 flex items-center justify-between">
                                             <div>
-                                                <div className="text-white font-medium">{item.name}</div>
-                                                <div className="text-[11px] text-slate-400">Qty: {item.qty} unit</div>
+                                                <div className="text-slate-900 dark:text-white font-medium">{item.name}</div>
+                                                <div className="text-[11px] text-slate-500 dark:text-slate-400">Qty: {item.qty} unit</div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="text-white font-bold">
+                                                <div className="text-slate-900 dark:text-white font-bold">
                                                     Rp {(item.qty * item.unit_price).toLocaleString('id-ID')}
                                                 </div>
-                                                <div className="text-[10px] text-slate-400">
+                                                <div className="text-[10px] text-slate-500 dark:text-slate-400">
                                                     @ Rp {item.unit_price.toLocaleString('id-ID')}
                                                 </div>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
-                                <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs font-bold">
-                                    <span className="text-white">Total Tagihan (Termasuk PPN 11%):</span>
-                                    <span className="text-[#8cd4b4] text-sm">
+                                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs font-bold">
+                                    <span className="text-slate-900 dark:text-white">Total Tagihan (Termasuk PPN 11%):</span>
+                                    <span className="text-emerald-600 dark:text-[#8cd4b4] text-sm">
                                         Rp {activeDetailOrder.total_price.toLocaleString('id-ID')}
                                     </span>
                                 </div>
@@ -806,11 +909,11 @@ export default function SellerOrdersIndex() {
 
                             {/* Tim Pengiriman & Logistik */}
                             {activeDetailOrder.driver_name && (
-                                <div className="p-3 rounded-xl bg-[#12161F] border border-slate-800 space-y-1">
-                                    <div className="text-[11px] font-semibold text-[#9bb8f5]">Penugasan Ekspedisi Gudang:</div>
-                                    <div className="text-slate-200">{activeDetailOrder.driver_name}</div>
+                                <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-800 space-y-1">
+                                    <div className="text-[11px] font-semibold text-blue-600 dark:text-[#9bb8f5]">Penugasan Ekspedisi Gudang:</div>
+                                    <div className="text-slate-700 dark:text-slate-200">{activeDetailOrder.driver_name}</div>
                                     {activeDetailOrder.technician_team && (
-                                        <div className="text-slate-400 text-[11px] pt-1">
+                                        <div className="text-slate-500 dark:text-slate-400 text-[11px] pt-1">
                                             Teknisi Instalasi: {activeDetailOrder.technician_team}
                                         </div>
                                     )}
@@ -818,7 +921,7 @@ export default function SellerOrdersIndex() {
                             )}
                         </div>
 
-                        <div className="pt-2 flex items-center justify-between border-t border-slate-800">
+                        <div className="pt-2 flex items-center justify-between border-t border-slate-200 dark:border-slate-800">
                             <button
                                 type="button"
                                 onClick={() => {
@@ -834,7 +937,7 @@ export default function SellerOrdersIndex() {
                             <button
                                 type="button"
                                 onClick={() => setActiveDetailOrder(null)}
-                                className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 text-xs font-semibold"
+                                className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold"
                             >
                                 Tutup
                             </button>
@@ -848,15 +951,15 @@ export default function SellerOrdersIndex() {
             {/* ========================================================= */}
             {activeSuratJalan && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-modal-backdrop">
-                    <div className="relative w-full max-w-2xl rounded-2xl border border-slate-800 bg-[#171B26] p-6 shadow-2xl space-y-4 animate-modal">
-                        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <div className="relative w-full max-w-2xl rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-6 shadow-2xl space-y-4 animate-modal">
+                        <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                             <div className="flex items-center gap-2.5">
-                                <Printer className="h-5 w-5 text-[#9bb8f5]" />
+                                <Printer className="h-5 w-5 text-blue-600 dark:text-[#9bb8f5]" />
                                 <div>
-                                    <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                                    <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                         Dokumen Logistik Gudang
                                     </div>
-                                    <h3 className="text-base font-bold text-white">
+                                    <h3 className="text-base font-bold text-slate-900 dark:text-white">
                                         Surat Jalan Pengiriman Resmi
                                     </h3>
                                 </div>
@@ -864,18 +967,18 @@ export default function SellerOrdersIndex() {
                             <button
                                 type="button"
                                 onClick={() => setActiveSuratJalan(null)}
-                                className="p-1 rounded-lg text-slate-400 hover:text-white"
+                                className="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white"
                             >
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
 
                         {/* Surat Jalan Paper Sheet View */}
-                        <div className="p-5 rounded-xl bg-white text-slate-900 text-xs space-y-4 shadow-inner">
+                        <div className="p-5 rounded-xl bg-white text-slate-900 text-xs space-y-4 shadow-inner border border-slate-200">
                             {/* Kop Surat */}
                             <div className="flex items-start justify-between border-b-2 border-slate-900 pb-3">
                                 <div>
-                                    <div className="font-black text-sm uppercase tracking-wide">
+                                    <div className="font-black text-sm uppercase tracking-wide text-slate-900">
                                         CV. PUTRA NUGRAHA
                                     </div>
                                     <div className="text-[10px] text-slate-600">Perdagangan Barang dan Jasa Pengadaan IT</div>
@@ -888,7 +991,7 @@ export default function SellerOrdersIndex() {
                                     <div className="font-extrabold text-xs uppercase bg-slate-900 text-white px-2 py-0.5 rounded">
                                         SURAT JALAN
                                     </div>
-                                    <div className="text-[10px] font-mono font-bold mt-1">SJ-PN/2026/10/{activeSuratJalan.id}</div>
+                                    <div className="text-[10px] font-mono font-bold mt-1 text-slate-900">SJ-PN/2026/10/{activeSuratJalan.id}</div>
                                     <div className="text-[10px] text-slate-600">{activeSuratJalan.date}</div>
                                 </div>
                             </div>
@@ -963,7 +1066,7 @@ export default function SellerOrdersIndex() {
                             <button
                                 type="button"
                                 onClick={() => setActiveSuratJalan(null)}
-                                className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 text-xs font-semibold"
+                                className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold"
                             >
                                 Tutup
                             </button>
@@ -977,66 +1080,66 @@ export default function SellerOrdersIndex() {
             {/* ========================================================= */}
             {activePoValidation && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-modal-backdrop">
-                    <div className="relative w-full max-w-lg rounded-2xl border border-slate-800 bg-[#171B26] p-6 shadow-2xl space-y-4 animate-modal">
-                        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <div className="relative w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-6 shadow-2xl space-y-4 animate-modal">
+                        <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                             <div>
-                                <span className="text-[10px] font-semibold text-[#dec093] uppercase tracking-wider">
+                                <span className="text-[10px] font-semibold text-amber-600 dark:text-[#dec093] uppercase tracking-wider">
                                     Verifikasi Legalitas Pengadaan
                                 </span>
-                                <h3 className="text-base font-bold text-white">
+                                <h3 className="text-base font-bold text-slate-900 dark:text-white">
                                     Validasi Dokumen PO: {activePoValidation.client_name}
                                 </h3>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setActivePoValidation(null)}
-                                className="p-1 rounded-lg text-slate-400 hover:text-white"
+                                className="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white"
                             >
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
 
                         <div className="space-y-3 text-xs">
-                            <div className="p-3.5 rounded-xl bg-[#12161F] border border-slate-800 space-y-2">
-                                <div className="text-slate-400 text-[11px]">Nomor Invoice Sistem:</div>
-                                <div className="font-mono font-bold text-white text-sm">{activePoValidation.invoice_code}</div>
-                                <div className="text-slate-300">Komoditas: {activePoValidation.items}</div>
-                                <div className="text-white font-bold text-sm">
+                            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-800 space-y-2">
+                                <div className="text-slate-500 dark:text-slate-400 text-[11px]">Nomor Invoice Sistem:</div>
+                                <div className="font-mono font-bold text-slate-900 dark:text-white text-sm">{activePoValidation.invoice_code}</div>
+                                <div className="text-slate-700 dark:text-slate-300">Komoditas: {activePoValidation.items}</div>
+                                <div className="text-slate-900 dark:text-white font-bold text-sm">
                                     Nilai Tagihan: Rp {activePoValidation.total_price.toLocaleString('id-ID')}
                                 </div>
                             </div>
 
                             {/* Checklist Verifikasi */}
-                            <div className="p-3 rounded-xl bg-[#12161F] border border-slate-800 space-y-2">
-                                <div className="font-bold text-slate-300 text-[11px] uppercase tracking-wider">
+                            <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-800 space-y-2">
+                                <div className="font-bold text-slate-700 dark:text-slate-300 text-[11px] uppercase tracking-wider">
                                     Kriteria Pemeriksaan Purchase Order:
                                 </div>
-                                <div className="space-y-1.5 text-slate-300">
+                                <div className="space-y-1.5 text-slate-700 dark:text-slate-300">
                                     <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" defaultChecked className="rounded border-slate-700 bg-[#0C0D12] text-[#3651dc]" />
+                                        <input type="checkbox" defaultChecked className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0C0D12] text-[#3651dc]" />
                                         <span>Nomor PO &amp; Tanggal resmi tertera jelas</span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" defaultChecked className="rounded border-slate-700 bg-[#0C0D12] text-[#3651dc]" />
+                                        <input type="checkbox" defaultChecked className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0C0D12] text-[#3651dc]" />
                                         <span>Stempel basah / e-Meterai instansi terlampir</span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" defaultChecked className="rounded border-slate-700 bg-[#0C0D12] text-[#3651dc]" />
+                                        <input type="checkbox" defaultChecked className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0C0D12] text-[#3651dc]" />
                                         <span>Nominal tagihan sesuai SPH (Rp 7.850.000)</span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" defaultChecked className="rounded border-slate-700 bg-[#0C0D12] text-[#3651dc]" />
+                                        <input type="checkbox" defaultChecked className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0C0D12] text-[#3651dc]" />
                                         <span>Syarat pembayaran TOP 30 Hari memenuhi ketentuan limit kredit</span>
                                     </label>
                                 </div>
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-[11px] font-semibold text-slate-300">Catatan Validasi Admin (Opsional):</label>
+                                <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">Catatan Validasi Admin (Opsional):</label>
                                 <input
                                     type="text"
                                     defaultValue="Dokumen PO telah diverifikasi via telepon dengan PIC Rian Hidayat."
-                                    className="w-full h-9 rounded-lg bg-[#12161F] border border-slate-700 px-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#3651dc]"
+                                    className="w-full h-9 rounded-lg bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-700 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#3651dc]"
                                 />
                             </div>
                         </div>

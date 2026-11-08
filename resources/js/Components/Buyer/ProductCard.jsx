@@ -85,12 +85,12 @@ export default function ProductCard({ product, onAddToCart }) {
     };
 
     return (
-        <div className="group flex flex-col rounded-2xl border border-slate-800 bg-[#171B26] p-3 sm:p-3.5 hover:border-blue-600/60 hover:shadow-xl hover:shadow-blue-950/30 transition-all duration-200">
+        <div className="group flex flex-col rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-3 sm:p-3.5 hover:border-blue-600/60 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-blue-950/30 transition-all duration-200 shadow-sm">
             
             {/* 1. Thumbnail Container (White Rounded Box seperti di Desain Figma) */}
             <Link 
                 href={`/buyer/products/${product.id}`}
-                className="w-full h-36 sm:h-40 bg-white rounded-xl p-3 flex items-center justify-center overflow-hidden shrink-0 cursor-pointer block"
+                className="w-full h-36 sm:h-40 bg-slate-50 dark:bg-white rounded-xl p-3 flex items-center justify-center overflow-hidden shrink-0 cursor-pointer block border border-slate-100 dark:border-transparent"
             >
                 <img
                     src={product.image_url || '/images/product-lan-services.png'}
@@ -114,18 +114,18 @@ export default function ProductCard({ product, onAddToCart }) {
                 {/* Product Name (Linked to Detail Page) */}
                 <Link 
                     href={`/buyer/products/${product.id}`}
-                    className="text-xs sm:text-[13px] font-semibold text-slate-100 hover:text-blue-400 transition-colors leading-snug line-clamp-2 min-h-[2.4rem] block"
+                    className="text-xs sm:text-[13px] font-semibold text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors leading-snug line-clamp-2 min-h-[2.4rem] block"
                 >
                     {product.name}
                 </Link>
 
                 {/* Price & Unit */}
                 <div className="mt-2 flex items-baseline gap-1">
-                    <span className="text-sm sm:text-base font-bold text-white tracking-tight">
+                    <span className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">
                         {formatRupiah(product.price)}
                     </span>
                     {product.unit && (
-                        <span className="text-[11px] font-normal text-slate-400">
+                        <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
                             / {product.unit}
                         </span>
                     )}

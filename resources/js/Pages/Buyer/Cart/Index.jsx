@@ -23,6 +23,7 @@ import {
     Download
 } from 'lucide-react';
 import { formatRupiah } from '@/Components/Buyer/ProductCard';
+import ThemeToggle from '@/Components/Common/ThemeToggle';
 
 /**
  * Data default keranjang pengadaan B2B sesuai mockup Figma.
@@ -156,27 +157,28 @@ export default function CartIndex({ cart_items: serverCartItems }) {
     };
 
     return (
-        <div className="min-h-screen bg-[#0C0D12] text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#0C0D12] text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col transition-colors duration-150">
             <Head title="Keranjang Pengadaan B2B — CV. Putra Nugraha" />
 
             {/* ========================================================= */}
             {/* HEADER NAVBAR & CATEGORY SUB-NAV */}
             {/* ========================================================= */}
-            <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-[#12161F]">
-                <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 sm:gap-6 px-4 sm:px-6 lg:px-8 h-16 sm:h-20">
+            <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-[#12161F] backdrop-blur transition-colors duration-150">
+                <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-6 px-3 sm:px-6 lg:px-8 h-16 sm:h-20">
                     
                     {/* Brand Logo */}
-                    <Link href="/portal" className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                    <Link href="/portal" className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
                         <img
                             src="/images/logo-pn.png"
                             alt="Logo CV. Putra Nugraha"
-                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-contain"
+                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-contain shrink-0"
                         />
-                        <div className="flex flex-col">
-                            <span className="text-xs sm:text-sm font-bold tracking-tight text-white uppercase">
-                                CV. PUTRA NUGRAHA
+                        <div className="flex flex-col min-w-0">
+                            <span className="text-xs sm:text-sm font-bold tracking-tight text-slate-900 dark:text-white uppercase truncate">
+                                <span className="sm:hidden">CV. PN</span>
+                                <span className="hidden sm:inline">CV. PUTRA NUGRAHA</span>
                             </span>
-                            <span className="hidden sm:inline text-[11px] font-normal text-slate-400">
+                            <span className="hidden sm:inline text-[11px] font-normal text-slate-500 dark:text-slate-400">
                                 Perdagangan Barang dan Jasa
                             </span>
                         </div>
@@ -190,23 +192,24 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Cari produk hardware, perangkat jaringan, atau layanan servis..."
-                                style={{ color: '#0f172a' }}
-                                className="w-full h-10 rounded-lg bg-white border border-transparent pl-4 pr-11 text-xs !text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                                className="w-full h-10 rounded-lg bg-slate-100 dark:bg-white border border-slate-200 dark:border-transparent pl-4 pr-11 text-xs text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
                             />
-                            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-500">
+                            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                                 <Search className="h-4 w-4" />
                             </div>
                         </div>
                     </div>
 
                     {/* Right Actions */}
-                    <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+                    <div className="flex items-center gap-1.5 sm:gap-5 shrink-0">
+                        <ThemeToggle />
+
                         <Link
                             href="/buyer/cart"
-                            className="relative flex items-center gap-2 text-xs font-semibold text-blue-400"
+                            className="relative flex items-center gap-1.5 sm:gap-2 p-2 sm:p-0 text-xs font-semibold text-blue-600 dark:text-blue-400"
                         >
-                            <ShoppingCart className="h-4 w-4 text-blue-400" />
-                            <span>Keranjang</span>
+                            <ShoppingCart className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                            <span className="hidden sm:inline">Keranjang</span>
                             {items.length > 0 && (
                                 <span className="flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-blue-600 text-[10px] font-bold text-white">
                                     {items.length}
@@ -219,30 +222,30 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                             <button
                                 type="button"
                                 onClick={() => setAccountMenuOpen(!accountMenuOpen)}
-                                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
+                                className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
                             >
                                 <User className="h-4 w-4" />
-                                <span>Akun</span>
+                                <span className="hidden sm:inline">Akun</span>
                             </button>
 
                             {accountMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-800 bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
-                                    <div className="px-3 py-2 border-b border-slate-800">
-                                        <div className="font-bold text-white truncate">{auth?.user?.name || 'Klien B2B'}</div>
-                                        <div className="text-[10px] text-slate-400 truncate">{auth?.user?.email || 'klien@instansi.co.id'}</div>
+                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
+                                    <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
+                                        <div className="font-bold text-slate-900 dark:text-white truncate">{auth?.user?.name || 'Klien B2B'}</div>
+                                        <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{auth?.user?.email || 'klien@instansi.co.id'}</div>
                                     </div>
                                     <Link
                                         href="/buyer/dashboard"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-white/[0.06] hover:text-white transition"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
                                     >
-                                        <LayoutDashboard className="h-3.5 w-3.5 text-blue-400" />
+                                        <LayoutDashboard className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                         <span>Dashboard Pengadaan</span>
                                     </Link>
                                     <Link
                                         href="/logout"
                                         method="post"
                                         as="button"
-                                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-rose-400 hover:bg-rose-500/10 transition text-left"
+                                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition text-left"
                                     >
                                         <LogOut className="h-3.5 w-3.5" />
                                         <span>Keluar (Logout)</span>
@@ -255,16 +258,16 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                 </div>
 
                 {/* Sub-nav */}
-                <div className="border-t border-slate-800/80 bg-[#12161F]">
+                <div className="border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-[#12161F]">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <nav className="flex items-center justify-start md:justify-between py-2.5 sm:py-3 overflow-x-auto text-xs font-medium text-slate-300 gap-6 sm:gap-8 scrollbar-none no-scrollbar whitespace-nowrap">
+                        <nav className="flex items-center justify-start md:justify-between py-2.5 sm:py-3 overflow-x-auto text-xs font-medium text-slate-600 dark:text-slate-300 gap-6 sm:gap-8 scrollbar-none no-scrollbar whitespace-nowrap">
                             {categories.map((cat) => {
                                 const IconComponent = cat.icon;
                                 return (
                                     <Link
                                         key={cat.id}
                                         href={`/portal?kategori=${cat.id}`}
-                                        className="shrink-0 flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
+                                        className="shrink-0 flex items-center gap-2 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"
                                     >
                                         <IconComponent className="h-4 w-4 text-slate-400" />
                                         <span>{cat.name}</span>
@@ -284,14 +287,14 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                 {/* Page Title & PPN Badge */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h1 className="font-display text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                        <h1 className="font-display text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                             Keranjang Pengadaan
                         </h1>
-                        <p className="mt-1 text-xs sm:text-sm text-slate-400">
+                        <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                             Tinjau produk, lengkapi data pengadaan, lalu pilih checkout atau penawaran resmi.
                         </p>
                     </div>
-                    <span className="self-start sm:self-auto px-3 py-1 rounded-full text-xs font-semibold bg-[#1E2434] text-blue-300 border border-blue-600/30">
+                    <span className="self-start sm:self-auto px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-[#1E2434] text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-600/30">
                         Faktur Pajak PPN 11%
                     </span>
                 </div>
@@ -303,15 +306,15 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                     <div className="lg:col-span-8 space-y-6">
                         
                         {/* Select All Bar */}
-                        <div className="flex items-center justify-between px-5 py-3 rounded-xl border border-slate-800 bg-[#171B26] text-xs">
+                        <div className="flex items-center justify-between px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] text-xs shadow-sm">
                             <label className="flex items-center gap-3 cursor-pointer">
                                 <input
                                     type="checkbox"
                                     checked={allSelected}
                                     onChange={toggleSelectAll}
-                                    className="h-4 w-4 rounded border-slate-700 bg-[#0C0D12] text-blue-600 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                                    className="h-4 w-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0C0D12] text-blue-600 focus:ring-0 focus:ring-offset-0 cursor-pointer"
                                 />
-                                <span className="font-semibold text-slate-200">
+                                <span className="font-semibold text-slate-800 dark:text-slate-200">
                                     Pilih Semua ({items.length} Produk &amp; Layanan)
                                 </span>
                             </label>
@@ -320,7 +323,7 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                 <button
                                     type="button"
                                     onClick={handleRemoveSelected}
-                                    className="text-slate-400 hover:text-rose-400 transition font-medium"
+                                    className="text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 transition font-medium"
                                 >
                                     Hapus Pilihan
                                 </button>
@@ -330,10 +333,10 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                         {/* Cart Items List */}
                         <div className="space-y-4">
                             {items.length === 0 ? (
-                                <div className="p-12 text-center rounded-2xl border border-slate-800 bg-[#171B26] space-y-3">
-                                    <ShoppingCart className="h-12 w-12 text-slate-600 mx-auto" />
-                                    <h3 className="text-base font-bold text-white">Keranjang Pengadaan Kosong</h3>
-                                    <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                                <div className="p-12 text-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] space-y-3 shadow-sm">
+                                    <ShoppingCart className="h-12 w-12 text-slate-400 dark:text-slate-600 mx-auto" />
+                                    <h3 className="text-base font-bold text-slate-900 dark:text-white">Keranjang Pengadaan Kosong</h3>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
                                         Belum ada barang atau jasa yang ditambahkan ke keranjang pengadaan.
                                     </p>
                                     <Link
@@ -347,7 +350,7 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                 items.map((item) => (
                                     <div
                                         key={item.id}
-                                        className="rounded-2xl border border-slate-800 bg-[#171B26] p-4 sm:p-5 transition hover:border-slate-700/80"
+                                        className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 transition hover:border-slate-300 dark:hover:border-slate-700/80 shadow-sm"
                                     >
                                         <div className="flex items-start gap-4">
                                             {/* Item Checkbox */}
@@ -355,11 +358,11 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                                 type="checkbox"
                                                 checked={item.selected}
                                                 onChange={() => toggleSelectItem(item.id)}
-                                                className="h-4 w-4 mt-1 rounded border-slate-700 bg-[#0C0D12] text-blue-600 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                                                className="h-4 w-4 mt-1 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0C0D12] text-blue-600 focus:ring-0 focus:ring-offset-0 cursor-pointer"
                                             />
 
                                             {/* Thumbnail Image Box */}
-                                            <div className="h-20 w-20 sm:h-24 sm:w-24 bg-white rounded-xl p-2 flex items-center justify-center shrink-0 overflow-hidden border border-slate-700/50">
+                                            <div className="h-20 w-20 sm:h-24 sm:w-24 bg-slate-50 dark:bg-white rounded-xl p-2 flex items-center justify-center shrink-0 overflow-hidden border border-slate-100 dark:border-slate-700/50">
                                                 <img
                                                     src={item.image_url}
                                                     alt={item.name}
@@ -372,11 +375,11 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                                 
                                                 {/* Title & SKU */}
                                                 <div>
-                                                    <h3 className="text-xs sm:text-sm font-semibold text-white leading-snug">
+                                                    <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white leading-snug">
                                                         {item.name}
                                                     </h3>
                                                     {item.sku && (
-                                                        <p className="text-[11px] text-slate-400 mt-0.5">
+                                                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                                                             SKU: {item.sku}
                                                         </p>
                                                     )}
@@ -396,45 +399,45 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                                     )}
 
                                                     {item.tax_badge && (
-                                                        <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-[#1E2434] text-blue-300 border border-blue-600/30">
+                                                        <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-blue-50 dark:bg-[#1E2434] text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-600/30">
                                                             {item.tax_badge}
                                                         </span>
                                                     )}
                                                 </div>
 
                                                 {/* Price, Stepper & Subtotal Row */}
-                                                <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-800/80">
+                                                <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-100 dark:border-slate-800/80">
                                                     <div>
-                                                        <span className="text-[11px] text-slate-400">
+                                                        <span className="text-[11px] text-slate-500 dark:text-slate-400">
                                                             {item.unit === 'paket' ? 'Harga per paket:' : 'Harga satuan:'}
                                                         </span>
-                                                        <div className="text-xs sm:text-sm font-bold text-white">
+                                                        <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                                                             {formatRupiah(item.price)}
-                                                            {item.unit === 'paket' && <span className="text-[11px] font-normal text-slate-400"> / paket</span>}
+                                                            {item.unit === 'paket' && <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400"> / paket</span>}
                                                         </div>
                                                     </div>
 
                                                     {/* Quantity Stepper & Item Subtotal */}
                                                     <div className="flex items-center justify-between sm:justify-end gap-5">
                                                         <div className="flex items-center gap-2">
-                                                            <span className="text-[11px] text-slate-400 hidden sm:inline">Jumlah</span>
-                                                            <div className="flex items-center rounded-lg bg-[#0C0D12] border border-slate-800 p-0.5">
+                                                            <span className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">Jumlah</span>
+                                                            <div className="flex items-center rounded-lg bg-slate-100 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 p-0.5">
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => handleQuantityChange(item.id, -1)}
                                                                     disabled={item.quantity <= 1}
-                                                                    className="h-6 w-6 rounded flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
+                                                                    className="h-6 w-6 rounded flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
                                                                 >
                                                                     <Minus className="h-3 w-3" />
                                                                 </button>
-                                                                <span className="font-bold text-xs text-white px-2.5">
+                                                                <span className="font-bold text-xs text-slate-900 dark:text-white px-2.5">
                                                                     {item.quantity}
                                                                 </span>
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => handleQuantityChange(item.id, 1)}
                                                                     disabled={item.quantity >= item.stock}
-                                                                    className="h-6 w-6 rounded flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
+                                                                    className="h-6 w-6 rounded flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
                                                                 >
                                                                     <Plus className="h-3 w-3" />
                                                                 </button>
@@ -442,8 +445,8 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                                         </div>
 
                                                         <div className="text-right">
-                                                            <span className="text-[10px] text-slate-400 block sm:hidden">Subtotal</span>
-                                                            <span className="text-xs sm:text-sm font-bold text-white">
+                                                            <span className="text-[10px] text-slate-500 dark:text-slate-400 block sm:hidden">Subtotal</span>
+                                                            <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                                                                 {formatRupiah(item.price * item.quantity)}
                                                             </span>
                                                         </div>
@@ -459,15 +462,15 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                         </div>
 
                         {/* Informasi Pengadaan & Pajak Card (Sesuai Mockup) */}
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-5 sm:p-6 space-y-4">
-                            <div className="flex items-center gap-2.5 text-white font-bold text-sm">
-                                <FileText className="h-4 w-4 text-blue-400" />
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-4 shadow-sm">
+                            <div className="flex items-center gap-2.5 text-slate-900 dark:text-white font-bold text-sm">
+                                <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                 <span>Informasi Pengadaan &amp; Pajak</span>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-300">
+                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                                         Nomor Referensi PR / Proyek (Opsional)
                                     </label>
                                     <input
@@ -475,12 +478,12 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                         value={prReference}
                                         onChange={(e) => setPrReference(e.target.value)}
                                         placeholder="Contoh: PR/IT/2026/001"
-                                        className="w-full rounded-lg bg-[#0C0D12] border border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        className="w-full rounded-lg bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     />
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-300">
+                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                                         NPWP Perusahaan (Untuk Penerbitan e-Faktur Pajak)
                                     </label>
                                     <input
@@ -488,13 +491,13 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                         value={companyNpwp}
                                         onChange={(e) => setCompanyNpwp(e.target.value)}
                                         placeholder="Masukkan NPWP perusahaan"
-                                        className="w-full rounded-lg bg-[#0C0D12] border border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        className="w-full rounded-lg bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-semibold text-slate-300">
+                                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                                     Catatan Khusus Pengiriman / Jadwal Instalasi
                                 </label>
                                 <textarea
@@ -502,7 +505,7 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                     value={deliveryNotes}
                                     onChange={(e) => setDeliveryNotes(e.target.value)}
                                     placeholder="Tambahkan alamat tujuan, PIC penerima, atau jadwal instalasi yang diinginkan."
-                                    className="w-full rounded-lg bg-[#0C0D12] border border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
+                                    className="w-full rounded-lg bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
                                 />
                             </div>
                         </div>
@@ -511,13 +514,13 @@ export default function CartIndex({ cart_items: serverCartItems }) {
 
                     {/* RIGHT COLUMN: STICKY ORDER SUMMARY (4 COLS) */}
                     <div className="lg:col-span-4">
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-6 space-y-5 sticky top-24 shadow-xl">
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-6 space-y-5 sticky top-24 shadow-sm dark:shadow-xl">
                             
                             <div>
-                                <h3 className="font-bold text-white text-base">
+                                <h3 className="font-bold text-slate-900 dark:text-white text-base">
                                     Ringkasan Pengadaan B2B
                                 </h3>
-                                <p className="text-xs text-slate-400 mt-0.5">
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                                     {selectedItems.length} produk &amp; layanan dipilih • {totalUnits} unit/paket
                                 </p>
                             </div>
@@ -529,60 +532,60 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                     value={voucherCode}
                                     onChange={(e) => setVoucherCode(e.target.value)}
                                     placeholder="Kode Voucher / Kontrak Mitra"
-                                    className="w-full rounded-lg bg-[#0C0D12] border border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    className="w-full rounded-lg bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 />
                                 <button
                                     type="submit"
-                                    className="w-full py-2 rounded-lg bg-[#12161F] border border-slate-700 hover:border-blue-500 text-xs font-semibold text-slate-200 hover:text-white transition"
+                                    className="w-full py-2 rounded-lg bg-slate-100 dark:bg-[#12161F] border border-slate-200 dark:border-slate-700 hover:border-blue-500 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white transition"
                                 >
                                     Terapkan
                                 </button>
                                 {voucherApplied && (
-                                    <p className="text-[11px] text-emerald-400 font-medium">
+                                    <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
                                         ✓ Kode kontrak mitra aktif
                                     </p>
                                 )}
                             </form>
 
                             {/* Cost Breakdown */}
-                            <div className="space-y-3 pt-2 border-t border-slate-800 text-xs">
-                                <div className="flex items-center justify-between text-slate-300">
+                            <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800 text-xs">
+                                <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
                                     <span>Total Harga ({selectedItems.length} Item):</span>
-                                    <span className="font-semibold text-white">
+                                    <span className="font-semibold text-slate-900 dark:text-white">
                                         {formatRupiah(totalPrice)}
                                     </span>
                                 </div>
 
-                                <div className="flex items-center justify-between text-slate-400">
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span>DPP (Dasar Pengenaan Pajak):</span>
-                                    <span>{formatRupiah(dppAmount)}</span>
+                                    <span className="text-slate-700 dark:text-slate-300">{formatRupiah(dppAmount)}</span>
                                 </div>
 
-                                <div className="flex items-center justify-between text-slate-400">
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span>PPN 11% (Faktur Pajak Resmi):</span>
-                                    <span>
+                                    <span className="text-slate-700 dark:text-slate-300">
                                         {formatRupiah(ppnAmount)}{' '}
-                                        <span className="text-[10px] text-slate-500">(Termasuk)</span>
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-500">(Termasuk)</span>
                                     </span>
                                 </div>
 
-                                <div className="flex items-center justify-between text-slate-400">
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span>Estimasi Pengiriman &amp; Survei:</span>
-                                    <span className="text-[#8cd4b4] font-medium">
-                                        Gratis <span className="text-[10px] font-normal text-slate-500">(Area Bandung)</span>
+                                    <span className="text-emerald-600 dark:text-[#8cd4b4] font-medium">
+                                        Gratis <span className="text-[10px] font-normal text-slate-400 dark:text-slate-500">(Area Bandung)</span>
                                     </span>
                                 </div>
                             </div>
 
                             {/* Total Tagihan Box */}
-                            <div className="pt-4 border-t border-slate-800 space-y-1">
-                                <div className="text-xs text-slate-400">
+                            <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-1">
+                                <div className="text-xs text-slate-500 dark:text-slate-400">
                                     Total Tagihan
                                 </div>
-                                <div className="text-2xl font-extrabold text-white">
+                                <div className="text-2xl font-extrabold text-slate-900 dark:text-white">
                                     {formatRupiah(totalPrice)}
                                 </div>
-                                <div className="text-[11px] text-slate-400">
+                                <div className="text-[11px] text-slate-500 dark:text-slate-400">
                                     Faktur Pajak PPN 11%
                                 </div>
                             </div>
@@ -605,14 +608,14 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                             </div>
 
                             {/* Document & Tax Legal Guarantee Notice */}
-                            <div className="pt-2 border-t border-slate-800/80 text-[11px] text-slate-400 space-y-1">
+                            <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 text-[11px] text-slate-500 dark:text-slate-400 space-y-1">
                                 <div className="flex items-start gap-2">
-                                    <ShieldCheck className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
+                                    <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                                     <p className="leading-relaxed">
                                         Dokumen Faktur Pajak, Invoice, &amp; BAST diterbitkan resmi oleh CV. Putra Nugraha.
                                     </p>
                                 </div>
-                                <p className="pl-6 text-slate-500">
+                                <p className="pl-6 text-slate-400 dark:text-slate-500">
                                     Bantuan WhatsApp: (+62) 813-2077-7874
                                 </p>
                             </div>
@@ -627,7 +630,7 @@ export default function CartIndex({ cart_items: serverCartItems }) {
             {/* ========================================================= */}
             {/* FOOTER PORTAL B2B */}
             {/* ========================================================= */}
-            <footer className="border-t border-slate-800/80 bg-[#12161F] mt-20">
+            <footer className="border-t border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#12161F] text-slate-500 dark:text-slate-400 mt-20 transition-colors duration-150">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
 
@@ -640,22 +643,22 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                     className="h-9 w-9 rounded-lg object-contain"
                                 />
                                 <div className="flex flex-col">
-                                    <span className="text-xs font-bold uppercase tracking-tight text-white">
+                                    <span className="text-xs font-bold uppercase tracking-tight text-slate-900 dark:text-white">
                                         CV. PUTRA NUGRAHA -
                                     </span>
-                                    <span className="text-[10px] text-slate-400">
+                                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
                                         Perdagangan Barang dan Jasa
                                     </span>
                                 </div>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Pengadaan perangkat IT dan layanan profesional untuk mendukung kebutuhan perusahaan Anda.
                             </p>
                         </div>
 
                         {/* Col 2 */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Panduan Pengadaan B2B
                             </h4>
                             <ul className="space-y-2 text-xs">
@@ -668,7 +671,7 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                     <li key={link.label}>
                                         <Link
                                             href={link.href}
-                                            className="text-slate-400 hover:text-white transition-colors"
+                                            className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                                         >
                                             {link.label}
                                         </Link>
@@ -679,16 +682,16 @@ export default function CartIndex({ cart_items: serverCartItems }) {
 
                         {/* Col 3 */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Layanan Pelanggan
                             </h4>
                             <div className="flex items-center gap-2">
-                                <Phone className="h-4 w-4 text-blue-400 shrink-0" />
-                                <span className="text-sm font-bold text-white">
+                                <Phone className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                <span className="text-sm font-bold text-slate-900 dark:text-white">
                                     (+62) 813-2077-7874
                                 </span>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Hubungi tim kami untuk konsultasi produk, penawaran, dan status pengadaan.
                             </p>
                             <div>
@@ -696,7 +699,7 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                     href="https://wa.me/6281320777874"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
                                 >
                                     <span>Konsultasikan kebutuhan Anda</span>
                                     <ArrowRight className="h-3 w-3" />
@@ -706,16 +709,16 @@ export default function CartIndex({ cart_items: serverCartItems }) {
 
                         {/* Col 4 */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Alamat Kantor
                             </h4>
                             <div className="flex items-start gap-2.5">
-                                <MapPin className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
-                                <p className="text-xs text-slate-400 leading-relaxed">
+                                <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                     Jl. Cinangka Kavling 2, RT 03, RW 05 Kel. Pasir Wangi Kec. Ujung Berung
                                 </p>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Melayani kebutuhan barang dan jasa IT perusahaan.
                             </p>
                         </div>
@@ -724,7 +727,7 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="border-t border-slate-800/80">
+                <div className="border-t border-slate-200 dark:border-slate-800/80">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
                         <p>© 2026 CV. Putra Nugraha. All Right Reserved.</p>
                         <p className="hidden sm:block">Perdagangan Barang dan Jasa</p>
