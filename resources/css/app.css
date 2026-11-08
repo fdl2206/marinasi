@@ -1,3 +1,229 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html {
+    scroll-behavior: smooth;
+    background-color: #0C0D12;
+    color: #f8fafc;
+}
+
+body {
+    background-color: #0C0D12;
+    color: #f8fafc;
+    min-height: 100vh;
+}
+
+/* ========================================================= */
+/* APP-LIKE UI BEHAVIOR (PREVENT ACCIDENTAL CARET & I-BEAM)  */
+/* ========================================================= */
+
+/* Non-input UI titles, buttons, navigation, headers */
+h1, h2, h3, h4, h5, h6,
+nav,
+th,
+.badge-sage,
+.badge-ochre,
+.badge-crimson,
+.badge-azure,
+.badge-neutral {
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Ensure interactive controls have clean pointer cursor */
+button,
+[role="button"],
+select,
+input[type="checkbox"],
+input[type="radio"],
+input[type="button"],
+input[type="submit"] {
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Preserve standard text typing cursor strictly on text fields */
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+textarea,
+[contenteditable="true"] {
+    cursor: text !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+}
+
+@keyframes modalBackdropFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalContentPopIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.93) translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.animate-modal-backdrop {
+    animation: modalBackdropFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-modal,
+.animate-modal-content {
+    animation: modalContentPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes mobileOverlayFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes mobileNavTextSlide {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-mobile-overlay {
+    animation: mobileOverlayFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.mobile-nav-overlay {
+    background-color: #0C0D12 !important;
+}
+
+.animate-mobile-link {
+    animation: mobileNavTextSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ========================================================= */
+/* BESPOKE B2B COLOR SYSTEM (ANTI-AI SLOP PALETTE)          */
+/* Editorial, Desaturated, Linear/Stripe Enterprise Style    */
+/* ========================================================= */
+
+/* Sage Jade (Success / Lunas / Ready / BAST) */
+.badge-sage {
+    background-color: rgba(118, 193, 159, 0.09);
+    border: 1px solid rgba(118, 193, 159, 0.24);
+    color: #92d8b8;
+}
+
+/* Warm Sand Ochre (Pending / SPH / Attention / Schedule) */
+.badge-ochre {
+    background-color: rgba(199, 155, 100, 0.09);
+    border: 1px solid rgba(199, 155, 100, 0.24);
+    color: #dfc399;
+}
+
+/* Muted Rosewood / Terracotta (Urgent / Critical / Belum) */
+.badge-crimson {
+    background-color: rgba(197, 99, 99, 0.09);
+    border: 1px solid rgba(197, 99, 99, 0.24);
+    color: #e49a9a;
+}
+
+/* Steel Azure / Slate Cobalt (B2B Term / Logistics / Primary) */
+.badge-azure {
+    background-color: rgba(67, 97, 238, 0.09);
+    border: 1px solid rgba(67, 97, 238, 0.24);
+    color: #a4c0f8;
+}
+
+/* Neutral Minimalist Capsule */
+.badge-neutral {
+    background-color: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    color: #cbd5e1;
+}
+
+/* Micro Status Dots (Minimalist & Solid - No Aggressive Glow/Pulse) */
+.dot-sage {
+    background-color: #76C19F;
+}
+.dot-ochre {
+    background-color: #C79B64;
+}
+.dot-crimson {
+    background-color: #C56363;
+}
+.dot-azure {
+    background-color: #4361EE;
+}
+.dot-neutral {
+    background-color: #64748b;
+}
+
+/* Bespoke Action Buttons */
+.btn-primary-bespoke {
+    background-color: #3651dc;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    transition: all 0.15s ease;
+}
+.btn-primary-bespoke:hover {
+    background-color: #2c44bd;
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+.btn-ochre-bespoke {
+    background-color: #c79b64;
+    color: #0c0d12;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    font-weight: 600;
+    transition: all 0.15s ease;
+}
+.btn-ochre-bespoke:hover {
+    background-color: #b88d56;
+}
+
+.btn-secondary-bespoke {
+    background-color: #171B26;
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.15s ease;
+}
+.btn-secondary-bespoke:hover {
+    background-color: #1E2434;
+    border-color: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+}
+
+.btn-danger-subtle {
+    background-color: rgba(197, 99, 99, 0.08);
+    border: 1px solid rgba(197, 99, 99, 0.24);
+    color: #e49a9a;
+    transition: all 0.15s ease;
+}
+.btn-danger-subtle:hover {
+    background-color: rgba(197, 99, 99, 0.16);
+    color: #f1b3b3;
+}

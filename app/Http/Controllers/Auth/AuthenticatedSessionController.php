@@ -33,6 +33,11 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $portal = $request->input('portal', 'buyer');
+        if ($portal === 'seller') {
+            return redirect()->intended(route('seller.dashboard', absolute: false));
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
