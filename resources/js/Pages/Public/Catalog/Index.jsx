@@ -1,53 +1,40 @@
 import MainLayout from '@/Layouts/MainLayout';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { Search, ArrowRight, Box } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-export default function CatalogIndex({ products = [] }) {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('Semua');
+export default function CatalogIndex({ products = [], categories = [], filters = {}, pagination = {}, paginationLinks = {} }) {
+    const [searchQuery, setSearchQuery] = useState(filters.search || '');
+    const [selectedCategoryId, setSelectedCategoryId] = useState(filters.category_id || '');
+    const [selectedType, setSelectedType] = useState(filters.type || '');
 
-    const categories = ['Semua', 'Peralatan Kantor', 'Perangkat IT & Komputer', 'Material & Teknik', 'Alat Keselamatan Kerja (K3)'];
+    useEffect(() => {
+        setSearchQuery(filters.search || '');
+        setSelectedCategoryId(filters.category_id || '');
+        setSelectedType(filters.type || '');
+    }, [filters.search, filters.category_id, filters.type]);
 
-    const wireframeItems = [
-        {
-            id: 1,
-            name: '[PRODUK_01]: Perangkat Komputer / Workstation Enterprise',
-            category: 'Perangkat IT & Komputer',
-            sku: 'PN-IT-001',
-            priceEst: 'Rp xx.xxx.xxx',
-            moq: 'Minimal x Unit',
-        },
-        {
-            id: 2,
-            name: '[PRODUK_02]: Perangkat Jaringan & Server Rack',
-            category: 'Perangkat IT & Komputer',
-            sku: 'PN-IT-002',
-            priceEst: 'Rp xx.xxx.xxx',
-            moq: 'Minimal x Unit',
-        },
-        {
-            id: 3,
-            name: '[PRODUK_03]: Paket Mobiler Kantor Modular',
-            category: 'Peralatan Kantor',
-            sku: 'PN-OF-001',
-            priceEst: 'Rp xx.xxx.xxx',
-            moq: 'Minimal x Set',
-        },
-        {
-            id: 4,
-            name: '[PRODUK_04]: Perlengkapan K3 Standar SNI',
-            category: 'Alat Keselamatan Kerja (K3)',
-            sku: 'PN-K3-001',
-            priceEst: 'Rp xxx.xxx',
-            moq: 'Minimal xx Unit',
-        },
-    ];
+    const applyFilters = (overrides = {}) => {
+        const nextFilters = {
+            search: searchQuery,
+            category_id: selectedCategoryId,
+            type: selectedType,
+            ...overrides,
+        };
 
-    const displayProducts = products.length > 0 ? products : wireframeItems;
+        setSearchQuery(nextFilters.search || '');
+        setSelectedCategoryId(nextFilters.category_id || '');
+        setSelectedType(nextFilters.type || '');
+
+        router.get('/katalog', {
+            search: nextFilters.search || undefined,
+            category_id: nextFilters.category_id || undefined,
+            type: nextFilters.type || undefined,
+        }, { preserveState: true, replace: true });
+    };
 
     return (
-        <MainLayout title="Katalog Produk (Wireframe)">
+        <MainLayout title="Katalog Produk">
             <div className="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 font-sans">
                 {/* Header Wireframe */}
                 <div className="border border-dashed border-navy-700 bg-navy-900/30 p-6 rounded-xl space-y-2">
@@ -67,30 +54,52 @@ export default function CatalogIndex({ products = [] }) {
                             placeholder="[INPUT_SEARCH: Cari nama komoditas, SKU, atau spesifikasi...]"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
                             className="w-full pl-9 pr-4 py-2 rounded bg-navy-950 border border-navy-800 text-white placeholder-slate-500 text-xs focus:border-blue-500"
                         />
                     </div>
                     <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
-                        {categories.map((cat) => (
+                        <button
+                            type="button"
+                            onClick={() => applyFilters({ category_id: undefined })}
+                            className={`px-2.5 py-1.5 rounded text-[11px] font-medium whitespace-nowrap transition ${!selectedCategoryId ? 'bg-blue-600 text-white font-bold' : 'bg-navy-950 text-slate-400 border border-navy-800 hover:text-white'}`}
+                        >
+                            Semua
+                        </button>
+                        {categories.map((category) => (
                             <button
-                                key={cat}
+                                key={category.id}
                                 type="button"
-                                onClick={() => setSelectedCategory(cat)}
+                                onClick={() => applyFilters({ category_id: String(category.id) })}
                                 className={`px-2.5 py-1.5 rounded text-[11px] font-medium whitespace-nowrap transition ${
-                                    selectedCategory === cat
+                                    Number(selectedCategoryId) === category.id
                                         ? 'bg-blue-600 text-white font-bold'
                                         : 'bg-navy-950 text-slate-400 border border-navy-800 hover:text-white'
                                 }`}
                             >
-                                {cat}
+                                {category.name}
                             </button>
                         ))}
                     </div>
+                    <select
+                        value={selectedType}
+                        onChange={(e) => applyFilters({ type: e.target.value })}
+                        className="rounded bg-navy-950 border border-navy-800 text-white text-xs px-3 py-2"
+                    >
+                        <option value="">Semua tipe</option>
+                        <option value="goods">Barang</option>
+                        <option value="service">Jasa</option>
+                    </select>
                 </div>
 
                 {/* Catalog Grid Wireframe */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {displayProducts.map((p) => (
+                    {products.length === 0 && (
+                        <p className="col-span-full rounded-xl border border-navy-800 p-8 text-center text-sm text-slate-400">
+                            Belum ada produk yang tersedia.
+                        </p>
+                    )}
+                    {products.map((p) => (
                         <div
                             key={p.id}
                             className="rounded-xl border border-dashed border-navy-700 bg-navy-900/40 p-5 flex flex-col justify-between hover:border-blue-500/50 transition font-mono"
@@ -98,24 +107,24 @@ export default function CatalogIndex({ products = [] }) {
                             <div className="space-y-3">
                                 <div className="h-40 w-full rounded border border-navy-800 bg-navy-950 flex flex-col items-center justify-center text-slate-600 text-[11px]">
                                     <Box className="h-8 w-8 mb-1 text-slate-700" />
-                                    <span>[IMAGE_PLACEHOLDER_400x300]</span>
+                                    <span>Gambar belum tersedia</span>
                                 </div>
                                 <div className="flex justify-between text-[10px] text-slate-500">
-                                    <span className="text-blue-400 font-semibold">{p.category}</span>
+                                    <span className="text-blue-400 font-semibold">{p.category?.name}</span>
                                     <span>{p.sku}</span>
                                 </div>
                                 <h3 className="text-xs font-bold text-white font-sans leading-snug">
                                     {p.name}
                                 </h3>
                                 <div className="text-[11px] text-slate-400">
-                                    <span>[STATUS: READY / PO]</span> • <span>{p.moq}</span>
+                                    <span>{p.type === 'goods' ? 'Barang' : 'Jasa'}</span>{p.moq ? <> • <span>Min. {p.moq}</span></> : null}
                                 </div>
                             </div>
 
                             <div className="mt-5 pt-3 border-t border-navy-800 flex items-center justify-between">
                                 <div>
                                     <div className="text-[9px] text-slate-500 uppercase">Estimasi Acuan</div>
-                                    <div className="text-sm font-bold text-white">{p.priceEst}</div>
+                                    <div className="text-sm font-bold text-white">{p.price ? `Rp ${Number(p.price).toLocaleString('id-ID')}` : 'Hubungi untuk penawaran'}</div>
                                 </div>
                                 <Link
                                     href={`/katalog/${p.id}`}
@@ -128,6 +137,13 @@ export default function CatalogIndex({ products = [] }) {
                         </div>
                     ))}
                 </div>
+                {pagination.last_page > 1 && (
+                    <nav className="flex items-center justify-between text-sm text-slate-300" aria-label="Pagination katalog">
+                        {paginationLinks.previous ? <Link href={paginationLinks.previous}>Sebelumnya</Link> : <span />}
+                        <span>Halaman {pagination.current_page} dari {pagination.last_page}</span>
+                        {paginationLinks.next ? <Link href={paginationLinks.next}>Berikutnya</Link> : <span />}
+                    </nav>
+                )}
             </div>
         </MainLayout>
     );

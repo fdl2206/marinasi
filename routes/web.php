@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicCatalogController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -11,10 +12,6 @@ use Inertia\Inertia;
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
-    if (Auth::check()) {
-        return Inertia::render('Buyer/Home');
-    }
-
     if (Auth::check()) {
         return Inertia::render('Buyer/Home');
     }
@@ -30,13 +27,8 @@ Route::get('/tentang-kami', function () {
     return Inertia::render('Public/About');
 })->name('about');
 
-Route::get('/katalog', function () {
-    return Inertia::render('Public/Catalog/Index');
-})->name('catalog.index');
-
-Route::get('/katalog/{id}', function ($id) {
-    return Inertia::render('Public/Catalog/Show', ['id' => $id]);
-})->name('catalog.show');
+Route::get('/katalog', [PublicCatalogController::class, 'index'])->name('catalog.index');
+Route::get('/katalog/{product}', [PublicCatalogController::class, 'show'])->name('catalog.show');
 
 Route::get('/portofolio', function () {
     return Inertia::render('Public/Portfolio');
