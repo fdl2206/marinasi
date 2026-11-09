@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BuyerCatalogController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicCatalogController;
 use App\Http\Controllers\SellerCategoryController;
@@ -20,15 +21,14 @@ Route::get('/', function () {
     }
 
     if (Auth::check()) {
-        return Inertia::render('Buyer/Home');
+        return redirect()->route('buyer.home');
     }
 
     return Inertia::render('Public/Home');
 })->name('home');
 
-Route::get('/portal', function () {
-    return Inertia::render('Buyer/Home');
-})->middleware(['auth', 'can:access-buyer'])->name('buyer.home');
+Route::get('/portal', [BuyerCatalogController::class, 'index'])
+    ->middleware(['auth', 'can:access-buyer'])->name('buyer.home');
 
 Route::get('/tentang-kami', function () {
     return Inertia::render('Public/About');
@@ -94,9 +94,7 @@ Route::prefix('buyer')->name('buyer.')->middleware(['auth', 'can:access-buyer'])
     Route::get('/profile', [ProfileController::class, 'buyerEdit'])->name('profile.index');
     Route::patch('/profile', [ProfileController::class, 'buyerUpdate'])->name('profile.update');
 
-    Route::get('/products/{id}', function ($id) {
-        return Inertia::render('Buyer/Products/Show', ['id' => $id]);
-    })->name('products.show');
+    Route::get('/products/{product}', [BuyerCatalogController::class, 'show'])->name('products.show');
 });
 
 /*

@@ -123,7 +123,7 @@ class AccountAccessTest extends TestCase
     {
         $this->actingAs(User::factory()->create());
         $this->get('/dashboard')->assertRedirect(route('buyer.dashboard'));
-        $this->get('/')->assertOk();
+        $this->get('/')->assertRedirect(route('buyer.home'));
 
         $this->actingAs(User::factory()->seller()->create());
         $this->get('/dashboard')->assertRedirect(route('seller.dashboard'));

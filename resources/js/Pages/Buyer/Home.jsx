@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Head, Link, usePage, router } from '@inertiajs/react';
 import { 
     Search, 
@@ -25,75 +25,8 @@ import {
 import ProductCard from '@/Components/Buyer/ProductCard';
 import ThemeToggle from '@/Components/Common/ThemeToggle';
 
-/**
- * Default catalog products yang merepresentasikan struktur data Eloquent Product Model:
- * Backend dapat langsung mengirim prop `products` dari Controller / API Resource.
- */
-const DEFAULT_PRODUCTS = [
-    {
-        id: 1,
-        name: 'Server HPE ProLiant ML30 Gen10',
-        slug: 'server-hpe-proliant-ml30-gen10',
-        price: 32500000,
-        unit: null,
-        stock_status: 'ready_stock',
-        badge_label: 'Ready Stock',
-        tags: ['B2B', 'Faktur Pajak'],
-        image_url: '/images/product-server-hpe.png',
-        category_id: 'hardware',
-    },
-    {
-        id: 2,
-        name: 'Paket Jasa Instalasi Jaringan LAN Kantor',
-        slug: 'paket-jasa-instalasi-jaringan-lan-kantor',
-        price: 8500000,
-        unit: 'paket',
-        stock_status: 'official_service',
-        badge_label: 'Jasa Resmi',
-        tags: ['B2B', 'Faktur Pajak'],
-        image_url: '/images/product-lan-services.png',
-        category_id: 'services',
-    },
-    {
-        id: 3,
-        name: 'Cisco Catalyst Switch 24-Port Gigabit',
-        slug: 'cisco-catalyst-switch-24-port',
-        price: 15450000,
-        unit: null,
-        stock_status: 'ready_stock',
-        badge_label: 'Ready Stock',
-        tags: ['B2B', 'Faktur Pajak'],
-        image_url: '/images/product-cisco-switch.png',
-        category_id: 'networking',
-    },
-    {
-        id: 4,
-        name: 'Ubiquiti UniFi AP AC Pro Dual-Band',
-        slug: 'ubiquiti-unifi-ap-ac-pro',
-        price: 2450000,
-        unit: null,
-        stock_status: 'ready_stock',
-        badge_label: 'Ready Stock',
-        tags: ['B2B', 'Faktur Pajak'],
-        image_url: '/images/product-ubiquiti-ap.png',
-        category_id: 'networking',
-    },
-    {
-        id: 5,
-        name: 'Kabel UTP Cat6 Belden 305m (1 Roll)',
-        slug: 'kabel-utp-cat6-belden-305m',
-        price: 3100000,
-        unit: 'roll',
-        stock_status: 'ready_stock',
-        badge_label: 'Ready Stock',
-        tags: ['B2B', 'Faktur Pajak'],
-        image_url: '/images/product-belden-cable.png',
-        category_id: 'accessories',
-    },
-];
-
 const SORT_OPTIONS = [
-    { key: 'popular', label: 'Terpopuler' },
+    { key: 'newest', label: 'Terbaru' },
     { key: 'price_asc', label: 'Harga: Terendah' },
     { key: 'price_desc', label: 'Harga: Tertinggi' },
     { key: 'ready_stock', label: 'Ready Stock Saja' },
@@ -123,7 +56,10 @@ const TRUST_FEATURES = [
 ];
 
 export default function BuyerHome({ 
-    products: serverProducts, 
+    products = [],
+    categories: serverCategories = [],
+    pagination = {},
+    paginationLinks = {},
     filters: serverFilters = {}, 
     cartCount: serverCartCount = 0 
 }) {
@@ -132,43 +68,25 @@ export default function BuyerHome({
 
     // Search & Filter States
     const [searchQuery, setSearchQuery] = useState(serverFilters.search || '');
-    const [selectedSort, setSelectedSort] = useState(serverFilters.sort || 'popular');
+    const [selectedSort, setSelectedSort] = useState(serverFilters.sort || 'newest');
     const [filterMenuOpen, setFilterMenuOpen] = useState(false);
     const [accountMenuOpen, setAccountMenuOpen] = useState(false);
     const [cartCount, setCartCount] = useState(serverCartCount);
 
-    const categories = [
-        { id: 'hardware', name: 'Hardware', icon: Server },
-        { id: 'networking', name: 'Networking & Router', icon: Network },
-        { id: 'services', name: 'Jasa Instalasi & Servis', icon: Wrench },
-        { id: 'accessories', name: 'Aksesoris IT', icon: HardDrive },
-        { id: 'procurement', name: 'Paket Pengadaan Kantor', icon: Briefcase },
-    ];
+    const categories = serverCategories.map(category => ({ ...category, icon: Briefcase }));
 
-    // Data produk: gunakan data dari backend jika ada, fallback ke DEFAULT_PRODUCTS
-    const rawProducts = serverProducts && serverProducts.length > 0 
-        ? serverProducts 
-        : DEFAULT_PRODUCTS;
-
-    // Client-side sorting fallback
-    const displayedProducts = useMemo(() => {
-        let list = [...rawProducts];
-        if (selectedSort === 'price_asc') {
-            list.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
-        } else if (selectedSort === 'price_desc') {
-            list.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
-        } else if (selectedSort === 'ready_stock') {
-            list = list.filter(p => p.stock_status === 'ready_stock');
-        }
-        return list;
-    }, [rawProducts, selectedSort]);
+    useEffect(() => {
+        setSearchQuery(serverFilters.search || '');
+        setSelectedSort(serverFilters.sort || 'newest');
+    }, [serverFilters.search, serverFilters.sort]);
 
     // Handle search submit (Backend-ready)
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         router.get('/portal', { 
             search: searchQuery, 
-            sort: selectedSort 
+            sort: selectedSort,
+            kategori: serverFilters.kategori || undefined,
         }, { 
             preserveState: true,
             preserveScroll: true 
@@ -181,7 +99,8 @@ export default function BuyerHome({
         setFilterMenuOpen(false);
         router.get('/portal', { 
             search: searchQuery, 
-            sort: sortKey 
+            sort: sortKey,
+            kategori: serverFilters.kategori || undefined,
         }, { 
             preserveState: true, 
             preserveScroll: true 
@@ -315,7 +234,7 @@ export default function BuyerHome({
                                 return (
                                     <Link
                                         key={cat.id}
-                                        href={`/portal?kategori=${cat.id}`}
+                                        href={route('buyer.home', { kategori: cat.id, search: searchQuery, sort: selectedSort })}
                                         className="shrink-0 flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-white transition-colors"
                                     >
                                         <IconComponent className="h-4 w-4 text-slate-500 dark:text-slate-400" />
@@ -412,7 +331,7 @@ export default function BuyerHome({
                     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                         <div>
                             <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                                Katalog B2B Terpopuler &amp; Pengadaan Tercepat
+                                Katalog Produk dan Jasa
                             </h2>
                             <p className="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                                 Produk dan layanan IT pilihan untuk kebutuhan operasional perusahaan.
@@ -457,15 +376,21 @@ export default function BuyerHome({
 
                     {/* Product Cards Grid: 5 Kolom Sesuai Mockup Desain */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                        {displayedProducts.map((product) => (
+                        {products.length === 0 && <p className="col-span-full py-8 text-center text-sm text-slate-500 dark:text-slate-400">Belum ada produk yang sesuai.</p>}
+                        {products.map((product) => (
                             <ProductCard
                                 key={product.id}
                                 product={product}
-                                onAddToCart={(item) => setCartCount((prev) => prev + 1)}
                             />
                         ))}
                     </div>
-
+                    {pagination.last_page > 1 && (
+                        <nav aria-label="Halaman katalog" className="flex items-center justify-between text-sm">
+                            {paginationLinks.previous ? <Link href={paginationLinks.previous}>Sebelumnya</Link> : <span />}
+                            <span>{pagination.current_page} / {pagination.last_page}</span>
+                            {paginationLinks.next ? <Link href={paginationLinks.next}>Berikutnya</Link> : <span />}
+                        </nav>
+                    )}
                 </section>
 
             </main>
