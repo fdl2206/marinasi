@@ -20,11 +20,10 @@ export default function ConfirmPassword() {
 
     return (
         <GuestLayout>
-            <Head title="Confirm Password" />
+            <Head title="Konfirmasi Kata Sandi — CV. Putra Nugraha" />
 
-            <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-                This is a secure area of the application. Please confirm your
-                password before continuing.
+            <div className="mb-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Ini adalah area aman aplikasi. Harap konfirmasikan kata sandi Anda sebelum melanjutkan.
             </div>
 
             <form onSubmit={submit}>

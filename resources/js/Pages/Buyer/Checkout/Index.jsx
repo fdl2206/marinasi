@@ -22,6 +22,7 @@ import {
     Loader2
 } from 'lucide-react';
 import { formatRupiah } from '@/Components/Buyer/ProductCard';
+import ThemeToggle from '@/Components/Common/ThemeToggle';
 
 export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: serverBuyerInfo }) {
     const { props } = usePage();
@@ -78,27 +79,28 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
     };
 
     return (
-        <div className="min-h-screen bg-[#0C0D12] text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#0C0D12] text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col transition-colors duration-150">
             <Head title="Pembayaran & Konfirmasi Pesanan — CV. Putra Nugraha" />
 
             {/* ========================================================= */}
             {/* HEADER NAVBAR & CATEGORY SUB-NAV */}
             {/* ========================================================= */}
-            <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-[#12161F]">
-                <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 sm:gap-6 px-4 sm:px-6 lg:px-8 h-16 sm:h-20">
+            <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-[#12161F] backdrop-blur transition-colors duration-150">
+                <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-6 px-3 sm:px-6 lg:px-8 h-16 sm:h-20">
                     
                     {/* Brand Logo */}
-                    <Link href="/portal" className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                    <Link href="/portal" className="flex items-center gap-2.5 sm:gap-3 shrink-0 min-w-0">
                         <img
                             src="/images/logo-pn.png"
                             alt="Logo CV. Putra Nugraha"
-                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-contain"
+                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-contain shrink-0"
                         />
-                        <div className="flex flex-col">
-                            <span className="text-xs sm:text-sm font-bold tracking-tight text-white uppercase">
-                                CV. PUTRA NUGRAHA
+                        <div className="flex flex-col min-w-0">
+                            <span className="text-xs sm:text-sm font-bold tracking-tight text-slate-900 dark:text-white uppercase truncate">
+                                <span className="sm:hidden">CV. PN</span>
+                                <span className="hidden sm:inline">CV. PUTRA NUGRAHA</span>
                             </span>
-                            <span className="hidden sm:inline text-[11px] font-normal text-slate-400">
+                            <span className="hidden sm:inline text-[11px] font-normal text-slate-500 dark:text-slate-400">
                                 Perdagangan Barang dan Jasa
                             </span>
                         </div>
@@ -112,23 +114,24 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Cari produk hardware, perangkat jaringan, atau layanan servis..."
-                                style={{ color: '#0f172a' }}
-                                className="w-full h-10 rounded-lg bg-white border border-transparent pl-4 pr-11 text-xs !text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                                className="w-full h-10 rounded-lg bg-slate-100 dark:bg-white border border-slate-200 dark:border-transparent pl-4 pr-11 text-xs text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
                             />
-                            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-500">
+                            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                                 <Search className="h-4 w-4" />
                             </div>
                         </div>
                     </div>
 
                     {/* Right Actions */}
-                    <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+                    <div className="flex items-center gap-1.5 sm:gap-5 shrink-0">
+                        <ThemeToggle />
+
                         <Link
                             href="/buyer/cart"
-                            className="flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white transition-colors"
+                            className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-0 text-xs font-medium text-slate-700 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white transition-colors"
                         >
-                            <ShoppingCart className="h-4 w-4 text-slate-300" />
-                            <span>Keranjang</span>
+                            <ShoppingCart className="h-4 w-4 text-slate-500 dark:text-slate-300" />
+                            <span className="hidden sm:inline">Keranjang</span>
                         </Link>
 
                         {/* Akun Button */}
@@ -136,30 +139,30 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                             <button
                                 type="button"
                                 onClick={() => setAccountMenuOpen(!accountMenuOpen)}
-                                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
+                                className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
                             >
                                 <User className="h-4 w-4" />
-                                <span>Akun</span>
+                                <span className="hidden sm:inline">Akun</span>
                             </button>
 
                             {accountMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-800 bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
-                                    <div className="px-3 py-2 border-b border-slate-800">
-                                        <div className="font-bold text-white truncate">{auth?.user?.name || 'Klien B2B'}</div>
-                                        <div className="text-[10px] text-slate-400 truncate">{auth?.user?.email || 'klien@instansi.co.id'}</div>
+                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
+                                    <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
+                                        <div className="font-bold text-slate-900 dark:text-white truncate">{auth?.user?.name || 'Klien B2B'}</div>
+                                        <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{auth?.user?.email || 'klien@instansi.co.id'}</div>
                                     </div>
                                     <Link
                                         href="/buyer/dashboard"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-white/[0.06] hover:text-white transition"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
                                     >
-                                        <LayoutDashboard className="h-3.5 w-3.5 text-blue-400" />
+                                        <LayoutDashboard className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                         <span>Dashboard Pengadaan</span>
                                     </Link>
                                     <Link
                                         href="/logout"
                                         method="post"
                                         as="button"
-                                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-rose-400 hover:bg-rose-500/10 transition text-left"
+                                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition text-left"
                                     >
                                         <LogOut className="h-3.5 w-3.5" />
                                         <span>Keluar (Logout)</span>
@@ -172,16 +175,16 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                 </div>
 
                 {/* Sub-nav */}
-                <div className="border-t border-slate-800/80 bg-[#12161F]">
+                <div className="border-t border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-[#12161F]">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <nav className="flex items-center justify-start md:justify-between py-2.5 sm:py-3 overflow-x-auto text-xs font-medium text-slate-300 gap-6 sm:gap-8 scrollbar-none no-scrollbar whitespace-nowrap">
+                        <nav className="flex items-center justify-start md:justify-between py-2.5 sm:py-3 overflow-x-auto text-xs font-medium text-slate-600 dark:text-slate-300 gap-6 sm:gap-8 scrollbar-none no-scrollbar whitespace-nowrap">
                             {categories.map((cat) => {
                                 const IconComponent = cat.icon;
                                 return (
                                     <Link
                                         key={cat.id}
                                         href={`/portal?kategori=${cat.id}`}
-                                        className="shrink-0 flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
+                                        className="shrink-0 flex items-center gap-2 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"
                                     >
                                         <IconComponent className="h-4 w-4 text-slate-400" />
                                         <span>{cat.name}</span>
@@ -201,14 +204,14 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                 {/* Page Title & PPN Badge */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h1 className="font-display text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                        <h1 className="font-display text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                             Pembayaran &amp; Konfirmasi Pesanan
                         </h1>
-                        <p className="mt-1 text-xs sm:text-sm text-slate-400">
+                        <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                             Pastikan alamat pengiriman dan pilih metode pembayaran untuk menyelesaikan pengadaan.
                         </p>
                     </div>
-                    <span className="self-start sm:self-auto px-3 py-1 rounded-full text-xs font-semibold bg-[#1E2434] text-blue-300 border border-blue-600/30">
+                    <span className="self-start sm:self-auto px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-[#1E2434] text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-600/30">
                         Faktur Pajak PPN 11%
                     </span>
                 </div>
@@ -220,20 +223,20 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                     <div className="lg:col-span-8 space-y-6">
                         
                         {/* CARD 1: ALAMAT PENGIRIMAN & EKSPEDISI KANTOR */}
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-6 space-y-4">
-                            <h2 className="font-bold text-white text-base">
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-6 space-y-4 shadow-sm">
+                            <h2 className="font-bold text-slate-900 dark:text-white text-base">
                                 Alamat Pengiriman &amp; Ekspedisi Kantor
                             </h2>
 
                             {/* Recipient Address Box (Sesuai Mockup) */}
-                            <div className="rounded-xl border border-slate-800 bg-[#0C0D12] p-4 space-y-1.5">
+                            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0C0D12] p-4 space-y-1.5">
                                 <div className="flex items-start gap-2.5">
-                                    <MapPin className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
+                                    <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                                     <div>
-                                        <p className="text-xs font-bold text-white leading-snug">
+                                        <p className="text-xs font-bold text-slate-900 dark:text-white leading-snug">
                                             Penerima: PT Maju Jaya Teknologi (Attn: Budi Santoso - 08123456789)
                                         </p>
-                                        <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
                                             Jl. Asia Afrika No. 128, Gedung Menara Lt. 5, Kota Bandung, Jawa Barat 40111
                                         </p>
                                     </div>
@@ -248,8 +251,8 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                                     onClick={() => setShippingMethod('mitra_courier')}
                                     className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
                                         shippingMethod === 'mitra_courier'
-                                            ? 'border-blue-600 bg-blue-600/10 text-white'
-                                            : 'border-slate-800 bg-[#0C0D12] text-slate-300 hover:border-slate-700'
+                                            ? 'border-blue-500 bg-blue-50 dark:border-blue-600 dark:bg-blue-600/10 text-slate-900 dark:text-white'
+                                            : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0C0D12] text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'
                                     }`}
                                 >
                                     <input
@@ -257,7 +260,7 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                                         name="shipping_method"
                                         checked={shippingMethod === 'mitra_courier'}
                                         onChange={() => setShippingMethod('mitra_courier')}
-                                        className="text-blue-600 focus:ring-0 bg-transparent border-slate-600"
+                                        className="text-blue-600 focus:ring-0 bg-transparent border-slate-400"
                                     />
                                     <span className="text-xs font-semibold">
                                         Kurir Logistik Ekspedisi Mitra CV. Putra Nugraha (Free / Area Bandung)
@@ -269,8 +272,8 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                                     onClick={() => setShippingMethod('pickup')}
                                     className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
                                         shippingMethod === 'pickup'
-                                            ? 'border-blue-600 bg-blue-600/10 text-white'
-                                            : 'border-slate-800 bg-[#0C0D12] text-slate-300 hover:border-slate-700'
+                                            ? 'border-blue-500 bg-blue-50 dark:border-blue-600 dark:bg-blue-600/10 text-slate-900 dark:text-white'
+                                            : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0C0D12] text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'
                                     }`}
                                 >
                                     <input
@@ -278,7 +281,7 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                                         name="shipping_method"
                                         checked={shippingMethod === 'pickup'}
                                         onChange={() => setShippingMethod('pickup')}
-                                        className="text-blue-600 focus:ring-0 bg-transparent border-slate-600"
+                                        className="text-blue-600 focus:ring-0 bg-transparent border-slate-400"
                                     />
                                     <span className="text-xs font-semibold">
                                         Ambil Sendiri di Kantor (Jl. Cinangka Kavling 2, Ujung Berung)
@@ -290,8 +293,8 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                         </div>
 
                         {/* CARD 2: PILIH METODE PEMBAYARAN REKANAN B2B */}
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-6 space-y-4">
-                            <h2 className="font-bold text-white text-base">
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-6 space-y-4 shadow-sm">
+                            <h2 className="font-bold text-slate-900 dark:text-white text-base">
                                 Pilih Metode Pembayaran Rekanan B2B
                             </h2>
 
@@ -301,8 +304,8 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                                 <div
                                     className={`rounded-xl border transition-all overflow-hidden ${
                                         paymentMethod === 'va'
-                                            ? 'border-blue-600 bg-blue-600/5'
-                                            : 'border-slate-800 bg-[#0C0D12]'
+                                            ? 'border-blue-500 bg-blue-50/50 dark:border-blue-600 dark:bg-blue-600/5'
+                                            : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0C0D12]'
                                     }`}
                                 >
                                     <label
@@ -314,16 +317,16 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                                             name="payment_method"
                                             checked={paymentMethod === 'va'}
                                             onChange={() => setPaymentMethod('va')}
-                                            className="text-blue-600 focus:ring-0 bg-transparent border-slate-600"
+                                            className="text-blue-600 focus:ring-0 bg-transparent border-slate-400"
                                         />
-                                        <span className="text-xs font-semibold text-white">
+                                        <span className="text-xs font-semibold text-slate-900 dark:text-white">
                                             Virtual Account Bank Mandiri / BCA / BNI (Verifikasi Otomatis)
                                         </span>
                                     </label>
 
                                     {/* Expanded VA Bank Selector & Account Details */}
                                     {paymentMethod === 'va' && (
-                                        <div className="px-4 pb-4 pt-1 space-y-3 border-t border-slate-800/80">
+                                        <div className="px-4 pb-4 pt-1 space-y-3 border-t border-slate-200 dark:border-slate-800/80">
                                             
                                             {/* Bank Selector Pills */}
                                             <div className="flex items-center gap-2.5">
@@ -339,7 +342,7 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                                                         className={`px-4 py-2 rounded-lg text-xs font-bold transition ${
                                                             selectedBank === bank.id
                                                                 ? 'bg-blue-600 text-white shadow-sm'
-                                                                : 'bg-[#0C0D12] border border-slate-700 text-slate-300 hover:text-white'
+                                                                : 'bg-white dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                                                         }`}
                                                     >
                                                         {bank.label}
@@ -348,24 +351,24 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                                             </div>
 
                                             {/* VA Number & Verification Box */}
-                                            <div className="rounded-xl border border-slate-800 bg-[#0C0D12] p-3.5 space-y-1.5">
+                                            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0C0D12] p-3.5 space-y-1.5">
                                                 <div className="flex items-center justify-between gap-3">
-                                                    <div className="text-xs font-mono font-semibold text-white">
-                                                        No. VA: <span className="text-blue-400 font-bold">{currentVaNumber}</span>{' '}
-                                                        <span className="text-slate-400 font-sans">(Atas Nama: CV Putra Nugraha)</span>
+                                                    <div className="text-xs font-mono font-semibold text-slate-900 dark:text-white">
+                                                        No. VA: <span className="text-blue-600 dark:text-blue-400 font-bold">{currentVaNumber}</span>{' '}
+                                                        <span className="text-slate-500 dark:text-slate-400 font-sans">(Atas Nama: CV Putra Nugraha)</span>
                                                     </div>
                                                     <button
                                                         type="button"
                                                         onClick={handleCopyVA}
-                                                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px] font-medium text-slate-200 transition"
+                                                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-[11px] font-medium text-slate-700 dark:text-slate-200 transition"
                                                     >
-                                                        {copied ? <Check className="h-3 w-3 text-[#76C19F]" /> : <Copy className="h-3 w-3" />}
+                                                        {copied ? <Check className="h-3 w-3 text-emerald-600 dark:text-[#76C19F]" /> : <Copy className="h-3 w-3" />}
                                                         <span>{copied ? 'Tersalin' : 'Salin'}</span>
                                                     </button>
                                                 </div>
 
-                                                <div className="flex items-center gap-1.5 text-[11px] text-[#8cd4b4] font-medium">
-                                                    <Check className="h-3 w-3 text-[#76C19F]" />
+                                                <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-[#8cd4b4] font-medium">
+                                                    <Check className="h-3 w-3 text-emerald-600 dark:text-[#76C19F]" />
                                                     <span>Siap menerima pembayaran • Verifikasi otomatis</span>
                                                 </div>
                                             </div>
@@ -378,8 +381,8 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                                 <div
                                     className={`rounded-xl border transition-all overflow-hidden ${
                                         paymentMethod === 'manual_transfer'
-                                            ? 'border-blue-600 bg-blue-600/5'
-                                            : 'border-slate-800 bg-[#0C0D12]'
+                                            ? 'border-blue-500 bg-blue-50/50 dark:border-blue-600 dark:bg-blue-600/5'
+                                            : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0C0D12]'
                                     }`}
                                 >
                                     <label
@@ -391,21 +394,21 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                                             name="payment_method"
                                             checked={paymentMethod === 'manual_transfer'}
                                             onChange={() => setPaymentMethod('manual_transfer')}
-                                            className="text-blue-600 focus:ring-0 bg-transparent border-slate-600"
+                                            className="text-blue-600 focus:ring-0 bg-transparent border-slate-400"
                                         />
-                                        <span className="text-xs font-semibold text-white">
+                                        <span className="text-xs font-semibold text-slate-900 dark:text-white">
                                             Transfer Bank Manual (Rekening Resmi Perusahaan)
                                         </span>
                                     </label>
 
                                     {paymentMethod === 'manual_transfer' && (
-                                        <div className="px-4 pb-4 pt-1 space-y-2 text-xs border-t border-slate-800/80">
-                                            <p className="text-slate-400 leading-relaxed">
+                                        <div className="px-4 pb-4 pt-1 space-y-2 text-xs border-t border-slate-200 dark:border-slate-800/80">
+                                            <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                                                 Silakan transfer ke rekening giro resmi perusahaan:
                                             </p>
-                                            <div className="p-3 rounded-lg bg-[#0C0D12] border border-slate-800 space-y-1">
-                                                <div className="font-bold text-white">Bank Mandiri: 131-00-1234567-8</div>
-                                                <div className="text-slate-400 text-[11px]">Atas Nama: CV. Putra Nugraha</div>
+                                            <div className="p-3 rounded-lg bg-white dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 space-y-1">
+                                                <div className="font-bold text-slate-900 dark:text-white">Bank Mandiri: 131-00-1234567-8</div>
+                                                <div className="text-slate-500 dark:text-slate-400 text-[11px]">Atas Nama: CV. Putra Nugraha</div>
                                             </div>
                                             <p className="text-[11px] text-slate-500">
                                                 *Kirimkan bukti setor/transfer ke finance melalui WhatsApp resmi untuk penerbitan kuitansi resmi &amp; BAST.
@@ -422,53 +425,53 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
 
                     {/* RIGHT COLUMN: STICKY ORDER SUMMARY (4 COLS) */}
                     <div className="lg:col-span-4">
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-6 space-y-5 sticky top-24 shadow-xl">
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-6 space-y-5 sticky top-24 shadow-sm dark:shadow-xl">
                             
                             <div>
-                                <h3 className="font-bold text-white text-base">
+                                <h3 className="font-bold text-slate-900 dark:text-white text-base">
                                     Ringkasan Pembayaran Pesanan
                                 </h3>
-                                <p className="text-xs text-slate-400 mt-0.5">
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                                     Total 3 Item Barang &amp; Jasa
                                 </p>
                             </div>
 
                             {/* Cost Breakdown */}
                             <div className="space-y-3 pt-1 text-xs">
-                                <div className="flex items-center justify-between text-slate-300">
+                                <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
                                     <span>Subtotal Produk:</span>
-                                    <span className="font-semibold text-white">
+                                    <span className="font-semibold text-slate-900 dark:text-white">
                                         {formatRupiah(totalAmount)}
                                     </span>
                                 </div>
 
-                                <div className="flex items-center justify-between text-slate-400">
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span>Biaya Pengiriman &amp; Instalasi:</span>
-                                    <span className="text-[#8cd4b4] font-medium">
+                                    <span className="text-emerald-600 dark:text-[#8cd4b4] font-medium">
                                         Rp 0 (Gratis)
                                     </span>
                                 </div>
 
-                                <div className="flex items-center justify-between text-slate-400">
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span>Dasar Pengenaan Pajak (DPP):</span>
-                                    <span>{formatRupiah(dppAmount)}</span>
+                                    <span className="text-slate-700 dark:text-slate-300">{formatRupiah(dppAmount)}</span>
                                 </div>
 
-                                <div className="flex items-center justify-between text-slate-400">
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span>PPN 11% (Faktur Pajak):</span>
-                                    <span>{formatRupiah(ppnAmount)}</span>
+                                    <span className="text-slate-700 dark:text-slate-300">{formatRupiah(ppnAmount)}</span>
                                 </div>
                             </div>
 
                             {/* Total Pembayaran Box (Sesuai Mockup) */}
-                            <div className="rounded-xl bg-[#0C0D12] border border-slate-800 p-4 space-y-1">
-                                <div className="text-xs text-slate-400">
+                            <div className="rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 p-4 space-y-1">
+                                <div className="text-xs text-slate-500 dark:text-slate-400">
                                     Total Pembayaran
                                 </div>
-                                <div className="text-2xl font-extrabold text-white">
+                                <div className="text-2xl font-extrabold text-slate-900 dark:text-white">
                                     {formatRupiah(totalAmount)}
                                 </div>
-                                <div className="text-[11px] text-slate-400">
+                                <div className="text-[11px] text-slate-500 dark:text-slate-400">
                                     Faktur Pajak PPN 11%
                                 </div>
                             </div>
@@ -478,16 +481,16 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                                 
                                 {paymentSuccess ? (
                                     <div className="p-4 rounded-xl badge-sage text-center space-y-2">
-                                        <div className="flex items-center justify-center gap-1.5 text-[#8cd4b4] font-bold text-xs">
+                                        <div className="flex items-center justify-center gap-1.5 text-emerald-600 dark:text-[#8cd4b4] font-bold text-xs">
                                             <Check className="h-4 w-4" />
                                             <span>Pesanan Berhasil Dikonfirmasi!</span>
                                         </div>
-                                        <p className="text-[11px] text-slate-300">
+                                        <p className="text-[11px] text-slate-600 dark:text-slate-300">
                                             Invoice &amp; instruksi VA telah dikirimkan ke email PIC Anda.
                                         </p>
                                         <Link
                                             href="/buyer/dashboard"
-                                            className="inline-block mt-1 text-xs font-semibold text-[#9bb8f5] hover:underline"
+                                            className="inline-block mt-1 text-xs font-semibold text-blue-600 dark:text-[#9bb8f5] hover:underline"
                                         >
                                             Buka Dashboard Pengadaan →
                                         </Link>
@@ -524,9 +527,9 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                             </div>
 
                             {/* Security SSL & Factur Pajak Guarantee */}
-                            <div className="pt-2 border-t border-slate-800/80 text-[11px] text-slate-400 space-y-1">
+                            <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80 text-[11px] text-slate-500 dark:text-slate-400 space-y-1">
                                 <div className="flex items-start gap-2">
-                                    <ShieldCheck className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
+                                    <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                                     <p className="leading-relaxed">
                                         Transaksi aman dilindungi enkripsi SSL. Bukti bayar dan e-Faktur akan dikirimkan ke email PIC perusahaan.
                                     </p>
@@ -543,7 +546,7 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
             {/* ========================================================= */}
             {/* FOOTER PORTAL B2B */}
             {/* ========================================================= */}
-            <footer className="border-t border-slate-800/80 bg-[#12161F] mt-20">
+            <footer className="border-t border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#12161F] text-slate-500 dark:text-slate-400 mt-20 transition-colors duration-150">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
 
@@ -556,22 +559,22 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                                     className="h-9 w-9 rounded-lg object-contain"
                                 />
                                 <div className="flex flex-col">
-                                    <span className="text-xs font-bold uppercase tracking-tight text-white">
+                                    <span className="text-xs font-bold uppercase tracking-tight text-slate-900 dark:text-white">
                                         CV. PUTRA NUGRAHA -
                                     </span>
-                                    <span className="text-[10px] text-slate-400">
+                                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
                                         Perdagangan Barang dan Jasa
                                     </span>
                                 </div>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Pengadaan perangkat IT dan layanan profesional untuk mendukung kebutuhan perusahaan Anda.
                             </p>
                         </div>
 
                         {/* Col 2 */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Panduan Pengadaan B2B
                             </h4>
                             <ul className="space-y-2 text-xs">
@@ -584,7 +587,7 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                                     <li key={link.label}>
                                         <Link
                                             href={link.href}
-                                            className="text-slate-400 hover:text-white transition-colors"
+                                            className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                                         >
                                             {link.label}
                                         </Link>
@@ -595,16 +598,16 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
 
                         {/* Col 3 */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Layanan Pelanggan
                             </h4>
                             <div className="flex items-center gap-2">
-                                <Phone className="h-4 w-4 text-blue-400 shrink-0" />
-                                <span className="text-sm font-bold text-white">
+                                <Phone className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                <span className="text-sm font-bold text-slate-900 dark:text-white">
                                     (+62) 813-2077-7874
                                 </span>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Hubungi tim kami untuk konsultasi produk, penawaran, dan status pengadaan.
                             </p>
                             <div>
@@ -612,7 +615,7 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                                     href="https://wa.me/6281320777874"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
                                 >
                                     <span>Konsultasikan kebutuhan Anda</span>
                                     <ArrowRight className="h-3 w-3" />
@@ -622,16 +625,16 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
 
                         {/* Col 4 */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Alamat Kantor
                             </h4>
                             <div className="flex items-start gap-2.5">
-                                <MapPin className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
-                                <p className="text-xs text-slate-400 leading-relaxed">
+                                <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                     Jl. Cinangka Kavling 2, RT 03, RW 05 Kel. Pasir Wangi Kec. Ujung Berung
                                 </p>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Melayani kebutuhan barang dan jasa IT perusahaan.
                             </p>
                         </div>
@@ -640,7 +643,7 @@ export default function CheckoutIndex({ orderSummary: serverSummary, buyerInfo: 
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="border-t border-slate-800/80">
+                <div className="border-t border-slate-200 dark:border-slate-800/80">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
                         <p>© 2026 CV. Putra Nugraha. All Right Reserved.</p>
                         <p className="hidden sm:block">Perdagangan Barang dan Jasa</p>

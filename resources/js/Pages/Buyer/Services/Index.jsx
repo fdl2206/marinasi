@@ -34,6 +34,7 @@ import {
     UserCheck,
     HelpCircle
 } from 'lucide-react';
+import ThemeToggle from '@/Components/Common/ThemeToggle';
 
 /**
  * Data mock jadwal instalasi & tiket servis B2B CV. Putra Nugraha
@@ -179,27 +180,28 @@ export default function ServicesIndex({
     }, [initialTickets, selectedTab, searchQuery]);
 
     return (
-        <div className="min-h-screen bg-[#0C0D12] text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#0C0D12] text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col transition-colors duration-150">
             <Head title="Jadwal Instalasi & Tiket Servis — CV. Putra Nugraha" />
 
             {/* ========================================================= */}
             {/* HEADER NAVBAR                                             */}
             {/* ========================================================= */}
-            <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-[#12161F]">
-                <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 sm:gap-6 px-4 sm:px-6 lg:px-8 h-16 sm:h-20">
+            <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-[#12161F] backdrop-blur transition-colors duration-150">
+                <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-6 px-3 sm:px-6 lg:px-8 h-16 sm:h-20">
                     
                     {/* Brand Identity / Logo */}
-                    <Link href="/portal" className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                    <Link href="/portal" className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
                         <img
                             src="/images/logo-pn.png"
                             alt="Logo CV. Putra Nugraha"
-                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-contain"
+                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-contain shrink-0"
                         />
-                        <div className="flex flex-col">
-                            <span className="text-xs sm:text-sm font-bold tracking-tight text-white uppercase">
-                                CV. PUTRA NUGRAHA -
+                        <div className="flex flex-col min-w-0">
+                            <span className="text-xs sm:text-sm font-bold tracking-tight text-slate-900 dark:text-white uppercase truncate">
+                                <span className="sm:hidden">CV. PN</span>
+                                <span className="hidden sm:inline">CV. PUTRA NUGRAHA -</span>
                             </span>
-                            <span className="hidden sm:inline text-[11px] font-normal text-slate-400">
+                            <span className="hidden sm:inline text-[11px] font-normal text-slate-500 dark:text-slate-400">
                                 Perdagangan Barang dan Jasa
                             </span>
                         </div>
@@ -213,23 +215,24 @@ export default function ServicesIndex({
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Cari nomor tiket servis, jadwal instalasi, atau nama teknisi..."
-                                style={{ color: '#0f172a' }}
-                                className="w-full h-10 rounded-lg bg-white border border-transparent pl-4 pr-11 text-xs !text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                                className="w-full h-10 rounded-lg bg-slate-100 dark:bg-white border border-slate-200 dark:border-transparent pl-4 pr-11 text-xs text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
                             />
-                            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-500">
+                            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                                 <Search className="h-4 w-4" />
                             </div>
                         </div>
                     </div>
 
-                    {/* Right Actions: Keranjang & Akun */}
-                    <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+                    {/* Right Actions: Theme Toggle, Keranjang & Akun */}
+                    <div className="flex items-center gap-1.5 sm:gap-5 shrink-0">
+                        <ThemeToggle />
+
                         <Link
                             href="/buyer/cart"
-                            className="relative flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white transition-colors"
+                            className="relative flex items-center gap-1.5 sm:gap-2 p-2 sm:p-0 text-xs font-medium text-slate-700 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white transition-colors"
                         >
-                            <ShoppingCart className="h-4 w-4 text-slate-300" />
-                            <span>Keranjang</span>
+                            <ShoppingCart className="h-4 w-4 text-slate-500 dark:text-slate-300" />
+                            <span className="hidden sm:inline">Keranjang</span>
                             {cartCount > 0 && (
                                 <span className="flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-blue-600 text-[10px] font-bold text-white">
                                     {cartCount}
@@ -242,44 +245,44 @@ export default function ServicesIndex({
                             <button
                                 type="button"
                                 onClick={() => setAccountMenuOpen(!accountMenuOpen)}
-                                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
+                                className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
                             >
                                 <User className="h-4 w-4" />
-                                <span>Akun</span>
+                                <span className="hidden sm:inline">Akun</span>
                             </button>
 
                             {accountMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-800 bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
-                                    <div className="px-3 py-2 border-b border-slate-800">
-                                        <div className="font-bold text-white truncate">{client.company_name}</div>
-                                        <div className="text-[10px] text-slate-400 truncate">{client.pic_name}</div>
+                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
+                                    <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
+                                        <div className="font-bold text-slate-900 dark:text-white truncate">{client.company_name}</div>
+                                        <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{client.pic_name}</div>
                                     </div>
                                     <Link
                                         href="/buyer/dashboard"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-white/[0.06] hover:text-white transition"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
                                     >
-                                        <LayoutDashboard className="h-3.5 w-3.5 text-blue-400" />
+                                        <LayoutDashboard className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                         <span>Dashboard Pengadaan</span>
                                     </Link>
                                     <Link
                                         href="/buyer/orders"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-white/[0.06] hover:text-white transition"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
                                     >
-                                        <Package className="h-3.5 w-3.5 text-blue-400" />
+                                        <Package className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                         <span>Riwayat Pesanan</span>
                                     </Link>
                                     <Link
                                         href="/portal"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-white/[0.06] hover:text-white transition"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
                                     >
-                                        <Wrench className="h-3.5 w-3.5 text-blue-400" />
+                                        <Wrench className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                         <span>Katalog Pengadaan B2B</span>
                                     </Link>
                                     <Link
                                         href="/logout"
                                         method="post"
                                         as="button"
-                                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-rose-400 hover:bg-rose-500/10 transition text-left"
+                                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition text-left"
                                     >
                                         <LogOut className="h-3.5 w-3.5" />
                                         <span>Keluar (Logout)</span>
@@ -305,30 +308,30 @@ export default function ServicesIndex({
                     <aside className="lg:col-span-3 space-y-5">
                         
                         {/* 1. Akun Perusahaan Card */}
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-lg">
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-sm">
                             <div className="flex items-start gap-3">
-                                <div className="p-2.5 rounded-xl bg-blue-600/10 text-blue-400 shrink-0 mt-0.5 border border-blue-500/20">
+                                <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5 border border-blue-500/20">
                                     <Building2 className="h-5 w-5" />
                                 </div>
                                 <div className="space-y-1 min-w-0">
-                                    <h2 className="text-sm font-bold text-white leading-tight truncate">
+                                    <h2 className="text-sm font-bold text-slate-900 dark:text-white leading-tight truncate">
                                         {client.company_name}
                                     </h2>
-                                    <p className="text-xs text-slate-400">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
                                         PIC: {client.pic_name}
                                     </p>
                                 </div>
                             </div>
 
                             {/* Verification Pill */}
-                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-950/60 border border-blue-500/30 text-blue-400 text-[10px] font-semibold w-full">
-                                <CheckCircle2 className="h-3 w-3 shrink-0 text-blue-400" />
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-500/30 text-blue-700 dark:text-blue-400 text-[10px] font-semibold w-full">
+                                <CheckCircle2 className="h-3 w-3 shrink-0 text-blue-600 dark:text-blue-400" />
                                 <span className="truncate">{client.tax_status}</span>
                             </div>
                         </div>
 
                         {/* 2. Sidebar Navigation Items */}
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-2 space-y-1 shadow-lg">
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-2 space-y-1 shadow-sm">
                             {sidebarMenuItems.map((item) => {
                                 const IconComponent = item.icon;
                                 const isActive = item.id === 'services';
@@ -339,7 +342,7 @@ export default function ServicesIndex({
                                         className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all text-left ${
                                             isActive
                                                 ? 'bg-blue-600 text-white shadow-md shadow-blue-900/30'
-                                                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                                                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
                                         }`}
                                     >
                                         <IconComponent className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
@@ -355,7 +358,7 @@ export default function ServicesIndex({
                                 href="/logout"
                                 method="post"
                                 as="button"
-                                className="flex items-center gap-2 text-xs font-medium text-slate-400 hover:text-rose-400 transition-colors"
+                                className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
                             >
                                 <LogOut className="h-3.5 w-3.5" />
                                 <span>Keluar Akun</span>
@@ -372,10 +375,10 @@ export default function ServicesIndex({
                         {/* 1. Header Bar: Title + Request Service Button */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>
-                                <h1 className="font-display text-xl sm:text-2xl font-bold text-white tracking-tight">
+                                <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                                     Jadwal Instalasi &amp; Tiket Servis On-Site
                                 </h1>
-                                <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
                                     Pantau jadwal teknisi bersertifikat, status perakitan infrastruktur IT, dan permohonan garansi purna jual.
                                 </p>
                             </div>
@@ -394,62 +397,62 @@ export default function ServicesIndex({
                         {/* 2. Four Service Metrics */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             
-                            <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-md">
-                                <div className="flex items-center justify-between text-slate-400">
+                            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-sm">
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span className="text-xs font-medium">Jadwal On-Site Aktif</span>
-                                    <Calendar className="h-4 w-4 text-blue-400" />
+                                    <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                 </div>
                                 <div>
-                                    <div className="text-xl sm:text-2xl font-extrabold text-white">
+                                    <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
                                         {metrics.active_schedules_count} Kunjungan
                                     </div>
-                                    <div className="text-[11px] text-slate-400 mt-1 truncate">
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 truncate">
                                         {metrics.active_schedules_sub}
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-md">
-                                <div className="flex items-center justify-between text-slate-400">
+                            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-sm">
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span className="text-xs font-medium">Tiket Servis Selesai</span>
                                     <CheckCircle2 className="h-4 w-4 text-[#8cd4b4]" />
                                 </div>
                                 <div>
-                                    <div className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                                    <div className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                                         {metrics.completed_tickets_count} Tiket
                                     </div>
-                                    <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1.5">
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
                                         <span className="inline-block h-1.5 w-1.5 rounded-full dot-sage shrink-0" />
                                         <span>{metrics.completed_tickets_sub}</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-md">
-                                <div className="flex items-center justify-between text-slate-400">
+                            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-sm">
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span className="text-xs font-medium">Garansi Pemeliharaan</span>
-                                    <ShieldCheck className="h-4 w-4 text-blue-400" />
+                                    <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                 </div>
                                 <div>
-                                    <div className="text-xl sm:text-2xl font-extrabold text-white">
+                                    <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
                                         {metrics.warranty_months} Bulan
                                     </div>
-                                    <div className="text-[11px] text-slate-400 mt-1">
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                                         {metrics.warranty_sub}
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-md">
-                                <div className="flex items-center justify-between text-slate-400">
+                            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-sm">
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span className="text-xs font-medium">Teknisi Bertugas</span>
-                                    <UserCheck className="h-4 w-4 text-blue-400" />
+                                    <UserCheck className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                 </div>
                                 <div>
-                                    <div className="text-xl sm:text-2xl font-extrabold text-white">
+                                    <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
                                         {metrics.assigned_techs}
                                     </div>
-                                    <div className="text-[11px] text-slate-400 mt-1">
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                                         {metrics.assigned_techs_sub}
                                     </div>
                                 </div>
@@ -458,23 +461,23 @@ export default function ServicesIndex({
                         </div>
 
                         {/* 3. FEATURED ACTIVE VISIT CARD: JADWAL INSTALASI ONSITE TERDEKAT */}
-                        <div className="rounded-2xl border border-blue-600/40 bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-2xl relative overflow-hidden">
+                        <div className="rounded-2xl border border-blue-500/30 dark:border-blue-600/40 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-md dark:shadow-2xl relative overflow-hidden">
                             <div className="absolute top-0 right-0 h-32 w-32 bg-blue-600/10 rounded-full blur-2xl pointer-events-none" />
 
                             {/* Header of Active Visit */}
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800/80 pb-4">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
                                         <span className="h-1.5 w-1.5 rounded-full dot-sage shrink-0" />
-                                        <span className="text-xs font-semibold text-[#8cd4b4] uppercase tracking-wider">
+                                        <span className="text-xs font-semibold text-emerald-600 dark:text-[#8cd4b4] uppercase tracking-wider">
                                             Kunjungan Teknisi On-Site Terdekat
                                         </span>
                                     </div>
-                                    <h2 className="text-base sm:text-lg font-bold text-white">
+                                    <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                                         {upcomingSchedule.title}
                                     </h2>
-                                    <p className="text-xs text-slate-400 font-mono">
-                                        Invoice Ref: <span className="text-[#9bb8f5]">{upcomingSchedule.invoice_ref}</span> • Ref PO: {upcomingSchedule.po_ref}
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                                        Invoice Ref: <span className="text-blue-600 dark:text-[#9bb8f5]">{upcomingSchedule.invoice_ref}</span> • Ref PO: {upcomingSchedule.po_ref}
                                     </p>
                                 </div>
 
@@ -486,28 +489,28 @@ export default function ServicesIndex({
 
                             {/* Waktu & Lokasi Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="p-3.5 rounded-xl bg-[#0C0D12] border border-slate-800 space-y-1">
-                                    <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                                        <Calendar className="h-3.5 w-3.5 text-blue-400" />
+                                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 space-y-1">
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                                        <Calendar className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                         <span>Hari &amp; Waktu Pelaksanaan:</span>
                                     </div>
-                                    <div className="font-bold text-white text-xs sm:text-sm">
+                                    <div className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">
                                         {upcomingSchedule.date}
                                     </div>
-                                    <div className="text-xs text-blue-300 font-medium">
+                                    <div className="text-xs text-blue-600 dark:text-blue-300 font-medium">
                                         {upcomingSchedule.time}
                                     </div>
                                 </div>
 
-                                <div className="p-3.5 rounded-xl bg-[#0C0D12] border border-slate-800 space-y-1">
-                                    <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                                        <MapPin className="h-3.5 w-3.5 text-rose-400" />
+                                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 space-y-1">
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                                        <MapPin className="h-3.5 w-3.5 text-rose-500 dark:text-rose-400" />
                                         <span>Lokasi Gedung / Ruang Server:</span>
                                     </div>
-                                    <div className="font-bold text-white text-xs sm:text-sm">
+                                    <div className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">
                                         {upcomingSchedule.location}
                                     </div>
-                                    <div className="text-[11px] text-slate-400">
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400">
                                         PIC Penerima Lapangan: Budi Santoso (0812-3456-7890)
                                     </div>
                                 </div>
@@ -515,21 +518,21 @@ export default function ServicesIndex({
 
                             {/* Tim Teknisi Bertugas */}
                             <div className="space-y-2.5">
-                                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                                <div className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                                     Tim Teknisi Resmi CV. Putra Nugraha yang Ditugaskan
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     {upcomingSchedule.technicians.map((tech, idx) => (
-                                        <div key={idx} className="flex items-center gap-3 p-3 rounded-xl bg-[#0C0D12]/80 border border-slate-800">
-                                            <div className="h-9 w-9 rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center font-bold text-xs shrink-0">
+                                        <div key={idx} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#0C0D12]/80 border border-slate-200 dark:border-slate-800">
+                                            <div className="h-9 w-9 rounded-xl bg-blue-600/10 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 dark:border-blue-500/30 flex items-center justify-center font-bold text-xs shrink-0">
                                                 {tech.avatar_initial}
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <div className="flex items-center justify-between gap-1">
-                                                    <span className="font-bold text-white text-xs truncate">{tech.name}</span>
-                                                    <span className="text-[9px] font-semibold px-2 py-0.5 rounded bg-blue-600/20 text-blue-300 border border-blue-600/30">{tech.badge}</span>
+                                                    <span className="font-bold text-slate-900 dark:text-white text-xs truncate">{tech.name}</span>
+                                                    <span className="text-[9px] font-semibold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-600/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-600/30">{tech.badge}</span>
                                                 </div>
-                                                <div className="text-[10px] text-slate-400 truncate">{tech.role}</div>
+                                                <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{tech.role}</div>
                                             </div>
                                         </div>
                                     ))}
@@ -537,12 +540,12 @@ export default function ServicesIndex({
                             </div>
 
                             {/* Lingkup Pekerjaan & Tools */}
-                            <div className="p-4 rounded-xl bg-[#0C0D12] border border-slate-800 space-y-2 text-xs">
-                                <div className="font-bold text-white flex items-center gap-2">
-                                    <Wrench className="h-3.5 w-3.5 text-blue-400" />
+                            <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
+                                <div className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <Wrench className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                     <span>Rencana Cakupan Pekerjaan (Scope of Work):</span>
                                 </div>
-                                <ul className="space-y-1.5 text-slate-300 pl-5 list-disc text-[11px]">
+                                <ul className="space-y-1.5 text-slate-600 dark:text-slate-300 pl-5 list-disc text-[11px]">
                                     {upcomingSchedule.scope_of_work.map((scope, sIdx) => (
                                         <li key={sIdx}>{scope}</li>
                                     ))}
@@ -551,7 +554,7 @@ export default function ServicesIndex({
 
                             {/* Action Buttons for Schedule */}
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-                                <div className="text-xs text-slate-400">
+                                <div className="text-xs text-slate-500 dark:text-slate-400">
                                     Butuh penyesuaian jam kedatangan? Hubungi helpdesk kami maksimal H-1.
                                 </div>
                                 <div className="flex items-center gap-2.5">
@@ -559,7 +562,7 @@ export default function ServicesIndex({
                                         href="https://wa.me/6281320777874"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 text-xs font-bold transition"
+                                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-600/20 hover:bg-emerald-100 dark:hover:bg-emerald-600/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/40 text-xs font-bold transition"
                                     >
                                         <MessageSquare className="h-3.5 w-3.5" />
                                         <span>Koordinasi WhatsApp Teknisi</span>
@@ -572,10 +575,10 @@ export default function ServicesIndex({
                         {/* 4. RIWAYAT TIKET PERMINTAAN SERVIS & PEMELIHARAAN B2B */}
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <h3 className="font-bold text-white text-sm sm:text-base">
+                                <h3 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">
                                     Daftar Tiket Bantuan Teknis &amp; Pemeliharaan
                                 </h3>
-                                <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                                <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
                                     {serviceTabs.map((tab) => (
                                         <button
                                             key={tab.id}
@@ -584,7 +587,7 @@ export default function ServicesIndex({
                                             className={`px-3 py-1 rounded-lg text-xs font-medium transition ${
                                                 selectedTab === tab.id
                                                     ? 'btn-primary-bespoke'
-                                                    : 'bg-[#171B26] text-slate-400 hover:text-white border border-slate-800'
+                                                    : 'bg-white dark:bg-[#171B26] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800 shadow-sm'
                                             }`}
                                         >
                                             {tab.label}
@@ -593,11 +596,11 @@ export default function ServicesIndex({
                                 </div>
                             </div>
 
-                            <div className="rounded-2xl border border-slate-800 bg-[#171B26] overflow-hidden shadow-xl">
+                            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] overflow-hidden shadow-sm">
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left text-xs border-collapse">
                                         <thead>
-                                            <tr className="border-b border-slate-800 bg-[#0C0D12]/80 text-[11px] font-bold text-slate-400">
+                                            <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0C0D12]/80 text-[11px] font-bold text-slate-600 dark:text-slate-400">
                                                 <th className="py-3.5 px-4">No. Tiket &amp; Ref PO</th>
                                                 <th className="py-3.5 px-3">Tanggal</th>
                                                 <th className="py-3.5 px-4">Kategori &amp; Pokok Pekerjaan</th>
@@ -606,26 +609,26 @@ export default function ServicesIndex({
                                                 <th className="py-3.5 px-4 text-right sm:text-left">Dokumen / Aksi</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-800/80">
+                                        <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80">
                                             {filteredTickets.map((t) => (
-                                                <tr key={t.id} className="hover:bg-slate-800/30 transition-colors">
+                                                <tr key={t.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                                     
                                                     <td className="py-4 px-4 font-mono">
-                                                        <div className="font-bold text-white text-xs">{t.id}</div>
-                                                        <div className="text-[10px] text-[#9bb8f5]">{t.ref_code}</div>
+                                                        <div className="font-bold text-slate-900 dark:text-white text-xs">{t.id}</div>
+                                                        <div className="text-[10px] text-blue-600 dark:text-[#9bb8f5]">{t.ref_code}</div>
                                                     </td>
 
-                                                    <td className="py-4 px-3 text-slate-300 whitespace-nowrap">
+                                                    <td className="py-4 px-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">
                                                         {t.date}
                                                     </td>
 
-                                                    <td className="py-4 px-4 text-white font-medium max-w-xs">
-                                                        <div className="text-[10px] font-semibold text-[#9bb8f5] uppercase tracking-wider">{t.category}</div>
-                                                        <div className="text-xs text-slate-200 mt-0.5 line-clamp-1">{t.subject}</div>
-                                                        <div className="text-[10px] text-slate-400 mt-0.5">{t.sla_info}</div>
+                                                    <td className="py-4 px-4 text-slate-800 dark:text-white font-medium max-w-xs">
+                                                        <div className="text-[10px] font-semibold text-blue-600 dark:text-[#9bb8f5] uppercase tracking-wider">{t.category}</div>
+                                                        <div className="text-xs text-slate-700 dark:text-slate-200 mt-0.5 line-clamp-1">{t.subject}</div>
+                                                        <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{t.sla_info}</div>
                                                     </td>
 
-                                                    <td className="py-4 px-4 text-slate-300 whitespace-nowrap">
+                                                    <td className="py-4 px-4 text-slate-600 dark:text-slate-300 whitespace-nowrap">
                                                         {t.tech_name}
                                                     </td>
 
@@ -676,7 +679,7 @@ export default function ServicesIndex({
             {/* ========================================================= */}
             {/* FOOTER B2B CORPORATE 4 KOLOM                              */}
             {/* ========================================================= */}
-            <footer className="mt-16 border-t border-slate-800/80 bg-[#12161F] text-slate-400 text-xs">
+            <footer className="mt-16 border-t border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#12161F] text-slate-500 dark:text-slate-400 text-xs transition-colors duration-150">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         
@@ -689,42 +692,42 @@ export default function ServicesIndex({
                                     className="h-9 w-9 rounded-lg object-contain"
                                 />
                                 <div className="flex flex-col">
-                                    <span className="text-xs font-bold tracking-tight text-white uppercase">
+                                    <span className="text-xs font-bold tracking-tight text-slate-900 dark:text-white uppercase">
                                         CV. PUTRA NUGRAHA -
                                     </span>
-                                    <span className="text-[10px] text-slate-400">
+                                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
                                         Perdagangan Barang dan Jasa
                                     </span>
                                 </div>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Pengadaan perangkat IT dan layanan profesional untuk mendukung kebutuhan perusahaan Anda.
                             </p>
                         </div>
 
                         {/* Col 2 */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Panduan Pengadaan B2B
                             </h4>
                             <ul className="space-y-2 text-xs">
                                 <li>
-                                    <Link href="/panduan/cara-belanja" className="text-slate-400 hover:text-white transition">
+                                    <Link href="/panduan/cara-belanja" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                                         Cara Belanja &amp; Pengajuan RFQ
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href="/panduan/faktur-pajak" className="text-slate-400 hover:text-white transition">
+                                    <Link href="/panduan/faktur-pajak" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                                         Ketentuan Faktur Pajak
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href="/panduan/pembayaran" className="text-slate-400 hover:text-white transition">
+                                    <Link href="/panduan/pembayaran" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                                         Pembayaran &amp; Pengiriman
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href="/panduan/garansi" className="text-slate-400 hover:text-white transition">
+                                    <Link href="/panduan/garansi" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                                         Garansi &amp; Layanan Purnajual
                                     </Link>
                                 </li>
@@ -733,21 +736,21 @@ export default function ServicesIndex({
 
                         {/* Col 3 */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Layanan Pelanggan
                             </h4>
-                            <div className="flex items-center gap-2 text-white font-bold text-sm">
-                                <Phone className="h-4 w-4 text-emerald-400" />
+                            <div className="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-sm">
+                                <Phone className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                                 <a 
                                     href="https://wa.me/6281320777874" 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="hover:text-emerald-400 transition"
+                                    className="hover:text-emerald-600 dark:hover:text-emerald-400 transition"
                                 >
                                     (+62) 813-2077-7874
                                 </a>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Hubungi tim kami untuk konsultasi produk, penawaran, dan status pengadaan.
                             </p>
                             <div>
@@ -755,7 +758,7 @@ export default function ServicesIndex({
                                     href="https://wa.me/6281320777874"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
                                 >
                                     <span>Konsultasikan kebutuhan Anda</span>
                                     <ArrowRight className="h-3 w-3" />
@@ -765,16 +768,16 @@ export default function ServicesIndex({
 
                         {/* Col 4 */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Alamat Kantor
                             </h4>
                             <div className="flex items-start gap-2.5">
-                                <MapPin className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
-                                <p className="text-xs text-slate-400 leading-relaxed">
+                                <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                     Jl. Cinangka Kavling 2, RT 03, RW 05 Kel. Pasir Wangi Kec. Ujung Berung
                                 </p>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Melayani kebutuhan barang dan jasa IT perusahaan.
                             </p>
                         </div>
@@ -783,7 +786,7 @@ export default function ServicesIndex({
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="border-t border-slate-800/80">
+                <div className="border-t border-slate-200 dark:border-slate-800/80">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
                         <p>© 2026 CV. Putra Nugraha. All Right Reserved.</p>
                         <p className="hidden sm:block">Perdagangan Barang dan Jasa</p>

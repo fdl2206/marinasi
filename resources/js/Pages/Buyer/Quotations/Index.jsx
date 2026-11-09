@@ -33,6 +33,7 @@ import {
     ChevronDown
 } from 'lucide-react';
 import { formatRupiah } from '@/Components/Buyer/ProductCard';
+import ThemeToggle from '@/Components/Common/ThemeToggle';
 
 /**
  * Data mock pengajuan penawaran harga (RFQ) dan SPH resmi
@@ -204,27 +205,28 @@ export default function QuotationsIndex({
     }, [initialQuotations, selectedTab, searchQuery]);
 
     return (
-        <div className="min-h-screen bg-[#0C0D12] text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#0C0D12] text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col transition-colors duration-150">
             <Head title="Status Pengajuan RFQ & SPH — CV. Putra Nugraha" />
 
             {/* ========================================================= */}
             {/* HEADER NAVBAR                                             */}
             {/* ========================================================= */}
-            <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-[#12161F]">
-                <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 sm:gap-6 px-4 sm:px-6 lg:px-8 h-16 sm:h-20">
+            <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-[#12161F] backdrop-blur transition-colors duration-150">
+                <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-6 px-3 sm:px-6 lg:px-8 h-16 sm:h-20">
                     
                     {/* Brand Identity / Logo */}
-                    <Link href="/portal" className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                    <Link href="/portal" className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
                         <img
                             src="/images/logo-pn.png"
                             alt="Logo CV. Putra Nugraha"
-                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-contain"
+                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-contain shrink-0"
                         />
-                        <div className="flex flex-col">
-                            <span className="text-xs sm:text-sm font-bold tracking-tight text-white uppercase">
-                                CV. PUTRA NUGRAHA -
+                        <div className="flex flex-col min-w-0">
+                            <span className="text-xs sm:text-sm font-bold tracking-tight text-slate-900 dark:text-white uppercase truncate">
+                                <span className="sm:hidden">CV. PN</span>
+                                <span className="hidden sm:inline">CV. PUTRA NUGRAHA -</span>
                             </span>
-                            <span className="hidden sm:inline text-[11px] font-normal text-slate-400">
+                            <span className="hidden sm:inline text-[11px] font-normal text-slate-500 dark:text-slate-400">
                                 Perdagangan Barang dan Jasa
                             </span>
                         </div>
@@ -238,23 +240,24 @@ export default function QuotationsIndex({
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Cari nomor RFQ, nomor SPH, atau nama kebutuhan barang..."
-                                style={{ color: '#0f172a' }}
-                                className="w-full h-10 rounded-lg bg-white border border-transparent pl-4 pr-11 text-xs !text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                                className="w-full h-10 rounded-lg bg-slate-100 dark:bg-white border border-slate-200 dark:border-transparent pl-4 pr-11 text-xs text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
                             />
-                            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-500">
+                            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                                 <Search className="h-4 w-4" />
                             </div>
                         </div>
                     </div>
 
-                    {/* Right Actions: Keranjang & Akun */}
-                    <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+                    {/* Right Actions: Theme Toggle, Keranjang & Akun */}
+                    <div className="flex items-center gap-1.5 sm:gap-5 shrink-0">
+                        <ThemeToggle />
+
                         <Link
                             href="/buyer/cart"
-                            className="relative flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white transition-colors"
+                            className="relative flex items-center gap-1.5 sm:gap-2 p-2 sm:p-0 text-xs font-medium text-slate-700 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white transition-colors"
                         >
-                            <ShoppingCart className="h-4 w-4 text-slate-300" />
-                            <span>Keranjang</span>
+                            <ShoppingCart className="h-4 w-4 text-slate-500 dark:text-slate-300" />
+                            <span className="hidden sm:inline">Keranjang</span>
                             {cartCount > 0 && (
                                 <span className="flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-blue-600 text-[10px] font-bold text-white">
                                     {cartCount}
@@ -267,44 +270,44 @@ export default function QuotationsIndex({
                             <button
                                 type="button"
                                 onClick={() => setAccountMenuOpen(!accountMenuOpen)}
-                                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
+                                className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
                             >
                                 <User className="h-4 w-4" />
-                                <span>Akun</span>
+                                <span className="hidden sm:inline">Akun</span>
                             </button>
 
                             {accountMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-800 bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
-                                    <div className="px-3 py-2 border-b border-slate-800">
-                                        <div className="font-bold text-white truncate">{client.company_name}</div>
-                                        <div className="text-[10px] text-slate-400 truncate">{client.pic_name}</div>
+                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
+                                    <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
+                                        <div className="font-bold text-slate-900 dark:text-white truncate">{client.company_name}</div>
+                                        <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{client.pic_name}</div>
                                     </div>
                                     <Link
                                         href="/buyer/dashboard"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-white/[0.06] hover:text-white transition"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
                                     >
-                                        <LayoutDashboard className="h-3.5 w-3.5 text-blue-400" />
+                                        <LayoutDashboard className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                         <span>Dashboard Pengadaan</span>
                                     </Link>
                                     <Link
                                         href="/buyer/orders"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-white/[0.06] hover:text-white transition"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
                                     >
-                                        <Package className="h-3.5 w-3.5 text-blue-400" />
+                                        <Package className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                         <span>Riwayat Pesanan</span>
                                     </Link>
                                     <Link
                                         href="/portal"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-white/[0.06] hover:text-white transition"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
                                     >
-                                        <Layers className="h-3.5 w-3.5 text-blue-400" />
+                                        <Layers className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                         <span>Katalog Pengadaan B2B</span>
                                     </Link>
                                     <Link
                                         href="/logout"
                                         method="post"
                                         as="button"
-                                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-rose-400 hover:bg-rose-500/10 transition text-left"
+                                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition text-left"
                                     >
                                         <LogOut className="h-3.5 w-3.5" />
                                         <span>Keluar (Logout)</span>
@@ -330,30 +333,30 @@ export default function QuotationsIndex({
                     <aside className="lg:col-span-3 space-y-5">
                         
                         {/* 1. Akun Perusahaan Card */}
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-lg">
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-sm">
                             <div className="flex items-start gap-3">
-                                <div className="p-2.5 rounded-xl bg-blue-600/10 text-blue-400 shrink-0 mt-0.5 border border-blue-500/20">
+                                <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5 border border-blue-500/20">
                                     <Building2 className="h-5 w-5" />
                                 </div>
                                 <div className="space-y-1 min-w-0">
-                                    <h2 className="text-sm font-bold text-white leading-tight truncate">
+                                    <h2 className="text-sm font-bold text-slate-900 dark:text-white leading-tight truncate">
                                         {client.company_name}
                                     </h2>
-                                    <p className="text-xs text-slate-400">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
                                         PIC: {client.pic_name}
                                     </p>
                                 </div>
                             </div>
 
                             {/* Verification Pill */}
-                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-950/60 border border-blue-500/30 text-blue-400 text-[10px] font-semibold w-full">
-                                <CheckCircle2 className="h-3 w-3 shrink-0 text-blue-400" />
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-500/30 text-blue-700 dark:text-blue-400 text-[10px] font-semibold w-full">
+                                <CheckCircle2 className="h-3 w-3 shrink-0 text-blue-600 dark:text-blue-400" />
                                 <span className="truncate">{client.tax_status}</span>
                             </div>
                         </div>
 
                         {/* 2. Sidebar Navigation Items */}
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-2 space-y-1 shadow-lg">
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-2 space-y-1 shadow-sm">
                             {sidebarMenuItems.map((item) => {
                                 const IconComponent = item.icon;
                                 const isActive = item.id === 'rfq';
@@ -364,10 +367,10 @@ export default function QuotationsIndex({
                                         className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all text-left ${
                                             isActive
                                                 ? 'bg-blue-600 text-white shadow-md shadow-blue-900/30'
-                                                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                                                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
                                         }`}
                                     >
-                                        <IconComponent className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                                        <IconComponent className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
                                         <span className="truncate">{item.label}</span>
                                     </Link>
                                 );
@@ -380,7 +383,7 @@ export default function QuotationsIndex({
                                 href="/logout"
                                 method="post"
                                 as="button"
-                                className="flex items-center gap-2 text-xs font-medium text-slate-400 hover:text-rose-400 transition-colors"
+                                className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
                             >
                                 <LogOut className="h-3.5 w-3.5" />
                                 <span>Keluar Akun</span>
@@ -397,10 +400,10 @@ export default function QuotationsIndex({
                         {/* 1. Header Bar: Title + Button Ajukan RFQ */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>
-                                <h1 className="font-display text-xl sm:text-2xl font-bold text-white tracking-tight">
+                                <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                                     Status Pengajuan RFQ &amp; Surat Penawaran (SPH)
                                 </h1>
-                                <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
                                     Kelola penawaran harga kuantitas besar, negosiasi B2B, dan unduh dokumen SPH resmi format PDF.
                                 </p>
                             </div>
@@ -418,44 +421,44 @@ export default function QuotationsIndex({
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             
                             {/* Metric 1 */}
-                            <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-4 sm:p-5 space-y-2 shadow-md">
-                                <div className="flex items-center justify-between text-slate-400">
+                            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 space-y-2 shadow-sm">
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span className="text-xs font-medium">Total Pengajuan RFQ</span>
-                                    <FileSpreadsheet className="h-4 w-4 text-blue-400" />
+                                    <FileSpreadsheet className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                 </div>
-                                <div className="text-xl sm:text-2xl font-extrabold text-white">
+                                <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
                                     {metrics.total_rfq} Pengajuan
                                 </div>
-                                <div className="text-[11px] text-slate-400">
+                                <div className="text-[11px] text-slate-500 dark:text-slate-400">
                                     {metrics.total_rfq_sub}
                                 </div>
                             </div>
 
                             {/* Metric 2 */}
-                            <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-4 sm:p-5 space-y-2 shadow-md">
-                                <div className="flex items-center justify-between text-slate-400">
+                            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 space-y-2 shadow-sm">
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span className="text-xs font-medium">Potensi Efisiensi / Diskon</span>
-                                    <TrendingDown className="h-4 w-4 text-[#8cd4b4]" />
+                                    <TrendingDown className="h-4 w-4 text-emerald-600 dark:text-[#8cd4b4]" />
                                 </div>
-                                <div className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                                <div className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                                     {formatRupiah(metrics.efficiency_savings)}
                                 </div>
-                                <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                                <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                                     <span className="inline-block h-1.5 w-1.5 rounded-full dot-sage shrink-0" />
                                     <span>{metrics.efficiency_sub}</span>
                                 </div>
                             </div>
 
                             {/* Metric 3 */}
-                            <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-4 sm:p-5 space-y-2 shadow-md">
-                                <div className="flex items-center justify-between text-slate-400">
+                            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 space-y-2 shadow-sm">
+                                <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span className="text-xs font-medium">SPH Siap Checkout</span>
-                                    <FileCheck2 className="h-4 w-4 text-amber-400" />
+                                    <FileCheck2 className="h-4 w-4 text-amber-500 dark:text-amber-400" />
                                 </div>
-                                <div className="text-xl sm:text-2xl font-extrabold text-white">
+                                <div className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
                                     {metrics.ready_sph} Dokumen Sah
                                 </div>
-                                <div className="text-[11px] text-slate-400">
+                                <div className="text-[11px] text-slate-500 dark:text-slate-400">
                                     {metrics.ready_sph_sub}
                                 </div>
                             </div>
@@ -472,7 +475,7 @@ export default function QuotationsIndex({
                                     className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
                                         selectedTab === tab.id
                                             ? 'bg-blue-600 text-white shadow-sm'
-                                            : 'bg-[#171B26] text-slate-300 hover:text-white border border-slate-800'
+                                            : 'bg-white dark:bg-[#171B26] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800 shadow-sm'
                                     }`}
                                 >
                                     {tab.label}
@@ -483,10 +486,10 @@ export default function QuotationsIndex({
                         {/* 4. RFQ / SPH CARDS LIST */}
                         <div className="space-y-5">
                             {filteredQuotations.length === 0 ? (
-                                <div className="p-12 text-center rounded-2xl border border-slate-800 bg-[#171B26] space-y-3">
-                                    <FileText className="h-12 w-12 text-slate-600 mx-auto" />
-                                    <h3 className="text-base font-bold text-white">Belum Ada Pengajuan Sesuai Filter</h3>
-                                    <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                                <div className="p-12 text-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] space-y-3 shadow-sm">
+                                    <FileText className="h-12 w-12 text-slate-400 dark:text-slate-600 mx-auto" />
+                                    <h3 className="text-base font-bold text-slate-900 dark:text-white">Belum Ada Pengajuan Sesuai Filter</h3>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
                                         Silakan pilih filter lain atau ajukan penawaran baru untuk pengadaan kebutuhan kantor Anda.
                                     </p>
                                 </div>
@@ -494,31 +497,31 @@ export default function QuotationsIndex({
                                 filteredQuotations.map((q) => (
                                     <div
                                         key={q.id}
-                                        className="rounded-2xl border border-slate-800 bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-xl transition hover:border-slate-700/80"
+                                        className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-sm transition hover:border-slate-300 dark:hover:border-slate-700/80"
                                     >
                                         
                                         {/* Card Header: Nomor RFQ/SPH, Tanggal, Masa Berlaku, Status */}
-                                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-slate-800/80 pb-4">
+                                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-slate-200 dark:border-slate-800/80 pb-4">
                                             
                                             {/* Left: Code & Title */}
                                             <div className="space-y-1">
                                                 <div className="flex items-center gap-2.5 flex-wrap">
-                                                    <span className="text-xs font-mono font-bold text-blue-400">
+                                                    <span className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400">
                                                         {q.rfq_number}
                                                     </span>
                                                     {q.sph_number && (
-                                                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 font-mono">
+                                                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 font-mono">
                                                             No. SPH: {q.sph_number}
                                                         </span>
                                                     )}
                                                 </div>
-                                                <h3 className="text-sm sm:text-base font-bold text-white leading-snug">
+                                                <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug">
                                                     {q.title}
                                                 </h3>
-                                                <div className="text-[11px] text-slate-400 flex items-center gap-3 flex-wrap">
+                                                <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-3 flex-wrap">
                                                     <span>Diajukan: {q.date}</span>
                                                     <span>•</span>
-                                                    <span className="text-slate-300">{q.valid_until}</span>
+                                                    <span className="text-slate-700 dark:text-slate-300">{q.valid_until}</span>
                                                 </div>
                                             </div>
 
@@ -545,14 +548,14 @@ export default function QuotationsIndex({
                                             
                                             {/* Items List (8 Cols) */}
                                             <div className="md:col-span-8 space-y-3">
-                                                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                                                <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                                     Daftar Kebutuhan &amp; Spesifikasi Barang
                                                 </div>
 
                                                 <div className="space-y-2.5">
                                                     {q.items.map((item, idx) => (
-                                                        <div key={idx} className="flex items-start gap-3 p-2.5 rounded-xl bg-[#0C0D12]/80 border border-slate-800/80">
-                                                            <div className="h-10 w-10 rounded-lg bg-white p-1 flex items-center justify-center shrink-0 overflow-hidden border border-slate-700/60">
+                                                        <div key={idx} className="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 dark:bg-[#0C0D12]/80 border border-slate-200 dark:border-slate-800/80">
+                                                            <div className="h-10 w-10 rounded-lg bg-slate-50 dark:bg-white p-1 flex items-center justify-center shrink-0 overflow-hidden border border-slate-200 dark:border-slate-700/60">
                                                                 <img
                                                                     src={item.image_url}
                                                                     alt={item.name}
@@ -561,14 +564,14 @@ export default function QuotationsIndex({
                                                             </div>
                                                             <div className="min-w-0 flex-1">
                                                                 <div className="flex items-baseline justify-between gap-2">
-                                                                    <h4 className="text-xs font-semibold text-white leading-tight truncate">
+                                                                    <h4 className="text-xs font-semibold text-slate-900 dark:text-white leading-tight truncate">
                                                                         {item.name}
                                                                     </h4>
-                                                                    <span className="text-[11px] font-bold text-slate-300 shrink-0">
+                                                                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 shrink-0">
                                                                         {item.qty} {item.unit}
                                                                     </span>
                                                                 </div>
-                                                                <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
+                                                                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
                                                                     {item.spec}
                                                                 </p>
                                                             </div>
@@ -578,23 +581,23 @@ export default function QuotationsIndex({
 
                                                 {/* Catatan Kebutuhan Khusus / TOP */}
                                                 {q.notes && (
-                                                    <div className="p-3 rounded-xl bg-blue-950/20 border border-blue-600/30 text-[11px] text-blue-200 leading-relaxed flex items-start gap-2">
-                                                        <ShieldCheck className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
+                                                    <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-600/30 text-[11px] text-blue-800 dark:text-blue-200 leading-relaxed flex items-start gap-2">
+                                                        <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                                                         <span>{q.notes}</span>
                                                     </div>
                                                 )}
                                             </div>
 
                                             {/* Financials / Negotiated Price Block (4 Cols) */}
-                                            <div className="md:col-span-4 md:border-l md:border-slate-800 md:pl-6 space-y-3">
+                                            <div className="md:col-span-4 md:border-l md:border-slate-200 dark:md:border-slate-800 md:pl-6 space-y-3">
                                                 <div className="space-y-1">
-                                                    <span className="text-[11px] text-slate-400">
+                                                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
                                                         {q.status === 'sph_issued' ? 'Total Harga Penawaran SPH:' : 'Estimasi Pagu Anggaran:'}
                                                     </span>
-                                                    <div className="text-2xl font-extrabold text-white tracking-tight">
+                                                    <div className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                                                         {formatRupiah(q.negotiated_price)}
                                                     </div>
-                                                    <div className="text-[10px] text-emerald-400 font-semibold">
+                                                    <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">
                                                         Harga sudah termasuk Faktur Pajak PPN 11%
                                                     </div>
                                                 </div>
@@ -602,21 +605,21 @@ export default function QuotationsIndex({
                                                 {/* Diskon / Efisiensi Info jika SPH sudah terbit */}
                                                 {q.savings_amount && (
                                                     <div className="p-2.5 rounded-xl badge-sage space-y-0.5 text-xs">
-                                                        <div className="text-[10px] text-slate-400 line-through">
+                                                        <div className="text-[10px] text-slate-500 dark:text-slate-400 line-through">
                                                             Harga Katalog: {formatRupiah(q.retail_price)}
                                                         </div>
-                                                        <div className="font-bold text-[#8cd4b4] text-xs">
+                                                        <div className="font-bold text-emerald-700 dark:text-[#8cd4b4] text-xs">
                                                             Hemat {formatRupiah(q.savings_amount)} (Diskon B2B Disetujui)
                                                         </div>
                                                     </div>
                                                 )}
 
                                                 {/* PIC Sales Information */}
-                                                <div className="pt-1 text-[11px] text-slate-400 border-t border-slate-800 space-y-0.5">
-                                                    <div className="font-semibold text-slate-300">
+                                                <div className="pt-1 text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 space-y-0.5">
+                                                    <div className="font-semibold text-slate-700 dark:text-slate-300">
                                                         {q.sales_rep.name}
                                                     </div>
-                                                    <div className="text-[10px] text-slate-400">
+                                                    <div className="text-[10px] text-slate-500 dark:text-slate-400">
                                                         {q.sales_rep.role}
                                                     </div>
                                                 </div>
@@ -625,7 +628,7 @@ export default function QuotationsIndex({
                                         </div>
 
                                         {/* Card Footer: Action Buttons */}
-                                        <div className="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div className="pt-4 border-t border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                             
                                             {/* Left Buttons: Dokumen SPH PDF / Draft */}
                                             <div className="flex items-center gap-2 flex-wrap">
@@ -674,7 +677,7 @@ export default function QuotationsIndex({
                                                     <button
                                                         type="button"
                                                         onClick={() => alert('Membuka formulir pembaruan rincian RFQ...')}
-                                                        className="text-xs text-slate-300 hover:text-white transition font-medium"
+                                                        className="text-xs text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition font-medium"
                                                     >
                                                         Perbarui Dokumen RFQ
                                                     </button>
@@ -689,10 +692,10 @@ export default function QuotationsIndex({
                         </div>
 
                         {/* 5. Legal Guarantee Note Banner */}
-                        <div className="p-4 rounded-2xl border border-slate-800 bg-[#171B26] flex items-start gap-3.5 text-xs text-slate-400 leading-relaxed shadow-md">
-                            <ShieldCheck className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+                        <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] flex items-start gap-3.5 text-xs text-slate-600 dark:text-slate-400 leading-relaxed shadow-sm">
+                            <ShieldCheck className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                             <div>
-                                <span className="font-semibold text-white">Legalitas Dokumen Penawaran Resmi: </span>
+                                <span className="font-semibold text-slate-900 dark:text-white">Legalitas Dokumen Penawaran Resmi: </span>
                                 Setiap Surat Penawaran Harga (SPH) yang diterbitkan oleh CV. Putra Nugraha dilengkapi dengan nomor surat resmi perusahaan, stempel basah/elektronik direksi, dan sah digunakan sebagai lampiran administrasi tender, verifikasi LPSE/BUMN, maupun pengajuan PO internal perusahaan.
                             </div>
                         </div>
@@ -706,7 +709,7 @@ export default function QuotationsIndex({
             {/* ========================================================= */}
             {/* FOOTER B2B CORPORATE 4 KOLOM                              */}
             {/* ========================================================= */}
-            <footer className="mt-16 border-t border-slate-800/80 bg-[#12161F] text-slate-400 text-xs">
+            <footer className="mt-16 border-t border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#12161F] text-slate-500 dark:text-slate-400 text-xs transition-colors duration-150">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         
@@ -719,42 +722,42 @@ export default function QuotationsIndex({
                                     className="h-9 w-9 rounded-lg object-contain"
                                 />
                                 <div className="flex flex-col">
-                                    <span className="text-xs font-bold tracking-tight text-white uppercase">
+                                    <span className="text-xs font-bold tracking-tight text-slate-900 dark:text-white uppercase">
                                         CV. PUTRA NUGRAHA -
                                     </span>
-                                    <span className="text-[10px] text-slate-400">
+                                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
                                         Perdagangan Barang dan Jasa
                                     </span>
                                 </div>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Pengadaan perangkat IT dan layanan profesional untuk mendukung kebutuhan perusahaan Anda.
                             </p>
                         </div>
 
                         {/* Col 2: Panduan Pengadaan */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Panduan Pengadaan B2B
                             </h4>
                             <ul className="space-y-2 text-xs">
                                 <li>
-                                    <Link href="/panduan/cara-belanja" className="text-slate-400 hover:text-white transition">
+                                    <Link href="/panduan/cara-belanja" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                                         Cara Belanja &amp; Pengajuan RFQ
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href="/panduan/faktur-pajak" className="text-slate-400 hover:text-white transition">
+                                    <Link href="/panduan/faktur-pajak" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                                         Ketentuan Faktur Pajak
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href="/panduan/pembayaran" className="text-slate-400 hover:text-white transition">
+                                    <Link href="/panduan/pembayaran" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                                         Pembayaran &amp; Pengiriman
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href="/panduan/garansi" className="text-slate-400 hover:text-white transition">
+                                    <Link href="/panduan/garansi" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
                                         Garansi &amp; Layanan Purnajual
                                     </Link>
                                 </li>
@@ -763,21 +766,21 @@ export default function QuotationsIndex({
 
                         {/* Col 3: Layanan Pelanggan */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Layanan Pelanggan
                             </h4>
-                            <div className="flex items-center gap-2 text-white font-bold text-sm">
-                                <Phone className="h-4 w-4 text-emerald-400" />
+                            <div className="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-sm">
+                                <Phone className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                                 <a 
                                     href="https://wa.me/6281320777874" 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="hover:text-emerald-400 transition"
+                                    className="hover:text-emerald-600 dark:hover:text-emerald-400 transition"
                                 >
                                     (+62) 813-2077-7874
                                 </a>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Hubungi tim kami untuk konsultasi produk, penawaran, dan status pengadaan.
                             </p>
                             <div>
@@ -785,7 +788,7 @@ export default function QuotationsIndex({
                                     href="https://wa.me/6281320777874"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
                                 >
                                     <span>Konsultasikan kebutuhan Anda</span>
                                     <ArrowRight className="h-3 w-3" />
@@ -795,16 +798,16 @@ export default function QuotationsIndex({
 
                         {/* Col 4: Alamat Kantor */}
                         <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                                 Alamat Kantor
                             </h4>
                             <div className="flex items-start gap-2.5">
-                                <MapPin className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
-                                <p className="text-xs text-slate-400 leading-relaxed">
+                                <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                     Jl. Cinangka Kavling 2, RT 03, RW 05 Kel. Pasir Wangi Kec. Ujung Berung
                                 </p>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Melayani kebutuhan barang dan jasa IT perusahaan.
                             </p>
                         </div>
@@ -813,8 +816,8 @@ export default function QuotationsIndex({
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="border-t border-slate-800/80">
-                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+                <div className="border-t border-slate-200 dark:border-slate-800/80">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-500">
                         <p>© 2026 CV. Putra Nugraha. All Right Reserved.</p>
                         <p className="hidden sm:block">Perdagangan Barang dan Jasa</p>
                     </div>

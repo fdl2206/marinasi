@@ -11,21 +11,21 @@ export default function SellerSettingsIndex() {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1">
                     <div>
-                        <div className="text-xs text-slate-400 font-medium">
+                        <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                             CV. PUTRA NUGRAHA - Perdagangan Barang dan Jasa
                         </div>
-                        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-0.5">
+                        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-0.5">
                             Pengaturan Portal Vendor
                         </h1>
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                             Konfigurasi batas plafon termin PO, integrasi bank virtual account (VA), tarif PPN, dan profil legalitas instansi.
                         </p>
                     </div>
                 </div>
 
                 {/* Empty State / Awaiting Design Card */}
-                <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-8 sm:p-12 text-center space-y-4 shadow-xl">
-                    <div className="h-16 w-16 rounded-2xl bg-[#12161F] border border-slate-700/80 text-[#9bb8f5] flex items-center justify-center mx-auto shadow-inner">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-8 sm:p-12 text-center space-y-4 shadow-sm dark:shadow-xl">
+                    <div className="h-16 w-16 rounded-2xl bg-blue-50 dark:bg-[#12161F] border border-blue-100 dark:border-slate-700/80 text-blue-600 dark:text-[#9bb8f5] flex items-center justify-center mx-auto shadow-sm dark:shadow-inner">
                         <Settings className="h-8 w-8" />
                     </div>
 
@@ -34,10 +34,10 @@ export default function SellerSettingsIndex() {
                             <span className="h-1.5 w-1.5 rounded-full dot-azure shrink-0" />
                             <span>Menunggu Spesifikasi Desain UI/UX</span>
                         </span>
-                        <h3 className="text-base sm:text-lg font-bold text-white pt-1">
+                        <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white pt-1">
                             Modul Pengaturan Belum Memiliki Desain
                         </h3>
-                        <p className="text-xs text-slate-400 leading-relaxed">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Halaman pengaturan portal vendor sengaja dikosongkan terlebih dahulu sambil menunggu instruksi kebutuhan konfigurasi sistem dan desain tampilan.
                         </p>
                     </div>
