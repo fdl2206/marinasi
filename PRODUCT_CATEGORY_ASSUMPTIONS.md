@@ -2,6 +2,8 @@
 
 Dokumen ini mencatat keputusan teknis sementara untuk modul Product & Category. Asumsi perlu ditinjau bersama PM/mitra sebelum dianggap sebagai kontrak bisnis final.
 
+Pembaruan tahap 1 pada 9 November 2026 menggunakan commit `71ffe9c`. Tim telah menetapkan MySQL dan batas unggahan **5 MB per berkas**. Makna harga/stok nullable, SKU, MOQ, rentang harga dan kebijakan transaksi masih perlu keputusan mitra. Lihat [acuan kerja tahap 1](dokum/hasil/tahap-1-acuan-kerja.md).
+
 ## Skema yang diterapkan
 
 - Satu produk memiliki satu kategori melalui `products.category_id`; kategori tidak dapat dihapus selama masih direferensikan produk (`restrictOnDelete`).
@@ -24,11 +26,11 @@ Dokumen ini mencatat keputusan teknis sementara untuk modul Product & Category. 
 - Harga dan stok, bila diisi, tidak negatif. `moq`, bila diisi, minimal 1.
 - SKU, bila diisi, unik.
 - Spesifikasi harus berupa array/struktur JSON.
-- Upload gambar (jika dikirim bersama payload produk) dibatasi JPG/JPEG/PNG/WEBP maksimal 5 MB. Ketentuan ini sementara; SRS memuat batas yang berbeda untuk foto/dokumen.
+- Upload gambar pada validator dibatasi JPG/JPEG/PNG/WEBP maksimal 5 MB. Ukuran 5 MB sudah diputuskan tim; jenis berkas, termasuk WebP, masih perlu diselaraskan per fitur dengan SRS.
 
 ## Data contoh
 
-`ProductCategorySeeder` merupakan seeder terpisah untuk kategori Komponen Komputer/Layanan IT dan contoh SSD/jasa maintenance. Seeder sengaja tidak dipanggil dari seeder utama dan tidak dijalankan pada MariaDB.
+`ProductCategorySeeder` merupakan seeder terpisah untuk kategori Komponen Komputer/Layanan IT dan contoh SSD/jasa maintenance. Riwayat eksekusinya tidak diverifikasi pada tahap 1. Katalog XLSX sumber berisi harga rentang untuk 16 dari 113 item berlabel aktif; pemetaan ke satu nilai `price` menunggu keputusan mitra.
 
 ## Belum diputuskan
 
@@ -38,10 +40,10 @@ Dokumen ini mencatat keputusan teknis sementara untuk modul Product & Category. 
 - Unit stok, aturan stok untuk jasa/indent, serta kapan stok dikurangi.
 - Definisi MOQ dan apakah pecahan kuantitas diperbolehkan.
 - Format spesifikasi dan jumlah foto per produk.
-- Batas ukuran/format foto final dan media storage.
+- Format foto per fitur dan media storage; ukuran final sudah 5 MB.
 - Apakah produk yang pernah dipakai dalam transaksi hanya boleh dinonaktifkan/diarsipkan.
 - Apakah kategori nonaktif masih dapat ditampilkan untuk produk lama.
 
 ## Batas cakupan
 
-Implementasi ini hanya menyediakan schema, model, relasi, factory, seeder, dan Form Request dasar. Belum ada route/controller CRUD, proses upload file, integrasi halaman React, RFQ, quotation, order, payment, atau shipment.
+Pembaruan tahap 3 menyediakan endpoint CRUD seller untuk kategori dan produk/jasa, unggahan foto pada disk public serta hapus file gambar. Katalog publik memakai PublicCatalogController untuk daftar, filter dan detail. Form seller serta integrasi portal/detail Buyer menjadi pekerjaan FE. Perubahan JSX buatan agen telah dikembalikan sesuai arahan pengguna. RFQ, quotation, order, payment, dan shipment masih perlu dilengkapi. Batas format gambar mengikuti validator yang sudah ada (JPG/PNG/WebP); belum ada perubahan keputusan harga rentang atau stok transaksi.
