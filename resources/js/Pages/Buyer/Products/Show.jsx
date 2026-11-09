@@ -28,248 +28,28 @@ import {
 import ProductCard, { formatRupiah } from '@/Components/Buyer/ProductCard';
 import ThemeToggle from '@/Components/Common/ThemeToggle';
 
-/**
- * Database dummy lengkap untuk fallback katalog produk B2B CV. Putra Nugraha.
- * Backend dapat menyuplai prop `product` dari Controller secara dinamis.
- */
-const PRODUCTS_DATABASE = {
-    1: {
-        id: 1,
-        name: 'Server HPE ProLiant ML30 Gen10 - Intel Xeon E-2224 16GB RAM 1TB SATA',
-        sku: 'PN-HPE-ML30G10',
-        brand: 'Hewlett Packard Enterprise',
-        warranty: 'Garansi Resmi 3 Tahun',
-        warranty_badge_top: '3 Tahun',
-        warranty_badge_sub: 'GARANSI RESMI',
-        category: 'Hardware & Server',
-        category_id: 'hardware',
-        stock: 12,
-        base_price: 32500000,
-        unit: 'unit',
-        stock_status: 'ready_stock',
-        badge_label: 'Ready Stock',
-        tax_badge: 'B2B • S&K Pajak Aktif (Faktur Pajak)',
-        tier_prices: [
-            { min: 1, max: 2, price: 32500000, label: '1 - 2 Unit: Rp 32.500.000' },
-            { min: 3, max: 5, price: 31750000, label: '3 - 5 Unit: Rp 31.750.000' },
-            { min: 6, max: null, price: null, label: '≥ 6 Unit (Proyek): Harga Khusus RFQ' },
-        ],
-        default_procurement_label: 'Hanya Unit Hardware',
-        installation_price: 1500000,
-        installation_label: '+ Paket Instalasi & Setup Server di Lokasi (+Rp 1.500.000)',
-        images: [
-            '/images/detail-server-main.png',
-            '/images/detail-server-t2.png',
-            '/images/detail-server-t3.png',
-        ],
-        specifications: [
-            { label: 'Processor', value: 'Intel Xeon E-2224 3.4GHz' },
-            { label: 'Memory', value: '16GB DDR4 UDIMM' },
-            { label: 'Storage', value: '2× 1TB SATA 7.2K LFF' },
-            { label: 'Network Controller', value: 'HPE Ethernet 1Gb 2-port' },
-            { label: 'Power Supply', value: '350W ATX' },
-            { label: 'Warranty', value: '3 Tahun Parts, Labor, Onsite' },
-        ],
-        datasheet_title: 'Datasheet Resmi HPE ProLiant ML30 Gen10',
-        datasheet_size: 'PDF • 2.4 MB',
-        warranty_title: 'Garansi Resmi HPE Enterprise Indonesia',
-        warranty_desc: 'Garansi 3 Tahun mencakup penggantian suku cadang (Parts), perbaikan (Labor), dan dukungan teknis langsung di lokasi perusahaan Anda (Onsite Next Business Day).',
-    },
-    2: {
-        id: 2,
-        name: 'Paket Jasa Instalasi Jaringan LAN Kantor (10 Titik Integrasi)',
-        sku: 'PN-SRV-LAN10P',
-        brand: 'Layanan Resmi CV. Putra Nugraha',
-        warranty: 'Garansi Pemeliharaan 6 Bulan',
-        warranty_badge_top: '6 Bulan',
-        warranty_badge_sub: 'GARANSI SERVIS',
-        category: 'Jasa Instalasi & Servis',
-        category_id: 'services',
-        stock: 50,
-        base_price: 8500000,
-        unit: 'paket',
-        stock_status: 'official_service',
-        badge_label: 'Jasa Resmi',
-        tax_badge: 'B2B • Faktur Pajak Resmi',
-        tier_prices: [
-            { min: 1, max: 2, price: 8500000, label: '1 - 2 Paket: Rp 8.500.000' },
-            { min: 3, max: 5, price: 8100000, label: '3 - 5 Paket: Rp 8.100.000' },
-            { min: 6, max: null, price: null, label: '≥ 6 Paket (Proyek): Harga Khusus RFQ' },
-        ],
-        default_procurement_label: 'Paket Standar Instalasi 10 Titik',
-        installation_price: 750000,
-        installation_label: '+ Uji Sertifikasi Fluke Networks & Dokumentasi As-Built (+Rp 750.000)',
-        images: [
-            '/images/product-lan-services.png',
-            '/images/service-technician-lan.png',
-        ],
-        specifications: [
-            { label: 'Cakupan Pekerjaan', value: 'Penarikan kabel UTP Cat6 10 titik, crimping RJ45, labelling & patch panel' },
-            { label: 'Material Termasuk', value: 'Modular Jack Cat6, Faceplate 10 pcs, Patch Cord 1m & 2m' },
-            { label: 'Pengujian & Sertifikasi', value: 'Fluke Cable Analyzer Continuity & Wiremap Test Report' },
-            { label: 'Estimasi Durasi', value: '2 - 3 Hari Kerja Onsite di Lokasi Klien' },
-            { label: 'Tenaga Ahli', value: 'Teknisi Jaringan Tersertifikasi MTCNA / CCNA' },
-            { label: 'Garansi Purna Jual', value: '6 Bulan Garansi Pemeliharaan & Troubleshooting Onsite' },
-        ],
-        datasheet_title: 'SOP & Scope of Work Instalasi Jaringan LAN Kantor',
-        datasheet_size: 'PDF • 1.8 MB',
-        warranty_title: 'Garansi Servis Resmi CV. Putra Nugraha',
-        warranty_desc: 'Jaminan pemeliharaan purna instalasi selama 6 bulan, penanganan insiden kabel putus atau koneksi drop tanpa biaya tambahan.',
-    },
-    3: {
-        id: 3,
-        name: 'Cisco Catalyst Switch 24-Port Gigabit Managed',
-        sku: 'PN-CSCO-24G',
-        brand: 'Cisco Systems',
-        warranty: 'Garansi Resmi 1 Tahun',
-        warranty_badge_top: '1 Tahun',
-        warranty_badge_sub: 'GARANSI RESMI',
-        category: 'Networking & Router',
-        category_id: 'networking',
-        stock: 8,
-        base_price: 15450000,
-        unit: 'unit',
-        stock_status: 'ready_stock',
-        badge_label: 'Ready Stock',
-        tax_badge: 'B2B • S&K Pajak Aktif (Faktur Pajak)',
-        tier_prices: [
-            { min: 1, max: 2, price: 15450000, label: '1 - 2 Unit: Rp 15.450.000' },
-            { min: 3, max: 5, price: 14900000, label: '3 - 5 Unit: Rp 14.900.000' },
-            { min: 6, max: null, price: null, label: '≥ 6 Unit (Proyek): Harga Khusus RFQ' },
-        ],
-        default_procurement_label: 'Hanya Unit Switch Hardware',
-        installation_price: 850000,
-        installation_label: '+ Konfigurasi VLAN, Trunking & Pemasangan Rackmount (+Rp 850.000)',
-        images: [
-            '/images/product-cisco-switch.png',
-        ],
-        specifications: [
-            { label: 'Port Configuration', value: '24x 10/100/1000 Gigabit Ethernet + 4x 1G SFP' },
-            { label: 'Switching Capacity', value: '56 Gbps Full Wire-Speed' },
-            { label: 'Forwarding Rate', value: '41.66 Mpps' },
-            { label: 'Form Factor', value: '1U Rackmount (Include Rack Ear Kit)' },
-            { label: 'Management', value: 'Web UI, CLI via Console, SNMP v1/v2/v3' },
-            { label: 'Garansi', value: '1 Tahun Garansi Resmi Cisco Indonesia' },
-        ],
-        datasheet_title: 'Datasheet Cisco Catalyst 24-Port Managed Switch',
-        datasheet_size: 'PDF • 3.1 MB',
-        warranty_title: 'Garansi Resmi Cisco Enterprise Indonesia',
-        warranty_desc: 'Garansi 1 tahun penggantian unit (RMA hardware) dan akses download update firmware resmi.',
-    },
-    4: {
-        id: 4,
-        name: 'Ubiquiti UniFi AP AC Pro Dual-Band Gigabit Access Point',
-        sku: 'PN-UBNT-UAPACPRO',
-        brand: 'Ubiquiti Networks',
-        warranty: 'Garansi Resmi 1 Tahun',
-        warranty_badge_top: '1 Tahun',
-        warranty_badge_sub: 'GARANSI RESMI',
-        category: 'Networking & Router',
-        category_id: 'networking',
-        stock: 24,
-        base_price: 2450000,
-        unit: 'unit',
-        stock_status: 'ready_stock',
-        badge_label: 'Ready Stock',
-        tax_badge: 'B2B • Faktur Pajak Resmi',
-        tier_prices: [
-            { min: 1, max: 4, price: 2450000, label: '1 - 4 Unit: Rp 2.450.000' },
-            { min: 5, max: 10, price: 2350000, label: '5 - 10 Unit: Rp 2.350.000' },
-            { min: 11, max: null, price: null, label: '≥ 11 Unit: Harga Khusus RFQ' },
-        ],
-        default_procurement_label: 'Hanya Unit Access Point',
-        installation_price: 350000,
-        installation_label: '+ Setup UniFi Controller & Multi-SSID Guest (+Rp 350.000)',
-        images: [
-            '/images/product-ubiquiti-ap.png',
-        ],
-        specifications: [
-            { label: 'Wi-Fi Standards', value: '802.11 a/b/g/n/ac Dual-Band (3x3 MIMO)' },
-            { label: 'Speed Throughput', value: 'Up to 1300 Mbps (5GHz) + 450 Mbps (2.4GHz)' },
-            { label: 'Ethernet Ports', value: '2x 10/100/1000 Gigabit Ethernet' },
-            { label: 'Power Method', value: '802.3af PoE / 802.3at PoE+' },
-            { label: 'Environment', value: 'Indoor / Outdoor Weatherproof' },
-            { label: 'Garansi', value: '1 Tahun Garansi Resmi Distributor' },
-        ],
-        datasheet_title: 'Datasheet Ubiquiti UniFi AP AC Pro',
-        datasheet_size: 'PDF • 1.5 MB',
-        warranty_title: 'Garansi Resmi Ubiquiti Distributor Indonesia',
-        warranty_desc: 'Garansi ganti unit 1 tahun jika terjadi kerusakan hardware non-human-error.',
-    },
-    5: {
-        id: 5,
-        name: 'Kabel UTP Cat6 Belden 305m (1 Roll Original)',
-        sku: 'PN-BLD-7814A',
-        brand: 'Belden Original',
-        warranty: 'Garansi 100% Original',
-        warranty_badge_top: '100%',
-        warranty_badge_sub: 'ORIGINAL',
-        category: 'Aksesoris IT',
-        category_id: 'accessories',
-        stock: 35,
-        base_price: 3100000,
-        unit: 'roll',
-        stock_status: 'ready_stock',
-        badge_label: 'Ready Stock',
-        tax_badge: 'B2B • Faktur Pajak Resmi',
-        tier_prices: [
-            { min: 1, max: 2, price: 3100000, label: '1 - 2 Roll: Rp 3.100.000' },
-            { min: 3, max: 5, price: 2980000, label: '3 - 5 Roll: Rp 2.980.000' },
-            { min: 6, max: null, price: null, label: '≥ 6 Roll: Harga Khusus RFQ' },
-        ],
-        default_procurement_label: 'Hanya Material Roll Kabel',
-        installation_price: 500000,
-        installation_label: '+ Jasa Penarikan Kabel di Jalur Tray / Conduit (+Rp 500.000)',
-        images: [
-            '/images/product-belden-cable.png',
-        ],
-        specifications: [
-            { label: 'Kategori', value: 'UTP Category 6 (Unshielded Twisted Pair)' },
-            { label: 'Panjang per Roll', value: '305 Meter (1.000 Feet)' },
-            { label: 'Ukuran Konduktor', value: '23 AWG Solid Bare Copper' },
-            { label: 'Frekuensi Maksimal', value: 'Up to 250 MHz' },
-            { label: 'Jacket Material', value: 'PVC Flame Retardant' },
-            { label: 'Standardisasi', value: 'ANSI/TIA-568-C.2, ISO/IEC 11801' },
-        ],
-        datasheet_title: 'Spesifikasi Teknis Kabel UTP Cat6 Belden 7814A',
-        datasheet_size: 'PDF • 950 KB',
-        warranty_title: 'Jaminan Keaslian Produk Belden',
-        warranty_desc: 'Sertifikasi keaslian tembaga murni 100% Belden original dengan barcode hologram resmi.',
-    },
-};
-
-// Aliases agar id 101-104 juga berfungsi konsisten
-PRODUCTS_DATABASE[101] = PRODUCTS_DATABASE[3];
-PRODUCTS_DATABASE[102] = PRODUCTS_DATABASE[2];
-PRODUCTS_DATABASE[103] = PRODUCTS_DATABASE[4];
-PRODUCTS_DATABASE[104] = PRODUCTS_DATABASE[5];
-
 export default function ProductDetail({ 
-    product: serverProduct, 
-    related_products: serverRelatedProducts,
+    product,
+    related_products: relatedProducts = [],
+    categories: serverCategories = [],
     cartCount: serverCartCount = 0,
-    id 
 }) {
     const { props } = usePage();
     const auth = props?.auth;
 
-    // Resolusi produk aktif secara dinamis berdasarkan prop `id` atau `serverProduct`
-    const currentId = Number(id || serverProduct?.id || 1);
-    const defaultProduct = PRODUCTS_DATABASE[currentId] || PRODUCTS_DATABASE[1];
-    const product = serverProduct || defaultProduct;
-
     // Gallery state
-    const [activeImage, setActiveImage] = useState(product.images?.[0] || '/images/detail-server-main.png');
+    const [activeImage, setActiveImage] = useState(product.images?.[0] || null);
     
     // Auto sync gambar aktif ketika id produk berubah
     useEffect(() => {
-        if (product.images?.[0]) {
-            setActiveImage(product.images[0]);
-        }
-    }, [product.id]);
+        setActiveImage(product.images?.[0] || null);
+        setQuantity(Math.max(1, product.moq || 1));
+        setIncludeInstallation(false);
+        setIsAdded(false);
+    }, [product.id, product.images?.[0]]);
 
     // Procurement configuration state
-    const [quantity, setQuantity] = useState(1);
+    const [quantity, setQuantity] = useState(Math.max(1, product.moq || 1));
     const [includeInstallation, setIncludeInstallation] = useState(false);
     const [isAdding, setIsAdding] = useState(false);
     const [isAdded, setIsAdded] = useState(false);
@@ -280,53 +60,26 @@ export default function ProductDetail({
     const [searchQuery, setSearchQuery] = useState('');
     const [accountMenuOpen, setAccountMenuOpen] = useState(false);
 
-    const categories = [
-        { id: 'hardware', name: 'Hardware', icon: Server },
-        { id: 'networking', name: 'Networking & Router', icon: Network },
-        { id: 'services', name: 'Jasa Instalasi & Servis', icon: Wrench },
-        { id: 'accessories', name: 'Aksesoris IT', icon: HardDrive },
-        { id: 'procurement', name: 'Paket Pengadaan Kantor', icon: Briefcase },
-    ];
-
-    // Filter produk pelengkap (rekomendasi) agar produk yang sedang dibuka tidak muncul dobel
-    const relatedProducts = useMemo(() => {
-        if (serverRelatedProducts && serverRelatedProducts.length > 0) {
-            return serverRelatedProducts.filter(p => Number(p.id) !== Number(product.id));
-        }
-        return [
-            PRODUCTS_DATABASE[1],
-            PRODUCTS_DATABASE[2],
-            PRODUCTS_DATABASE[3],
-            PRODUCTS_DATABASE[4],
-            PRODUCTS_DATABASE[5],
-        ].filter(p => Number(p.id) !== Number(product.id)).slice(0, 4);
-    }, [serverRelatedProducts, product.id]);
-
-    // Hitung harga satuan berdasarkan tier quantity dinamis
-    const unitPrice = useMemo(() => {
-        if (!product?.tier_prices || product.tier_prices.length === 0) {
-            return product?.base_price || 0;
-        }
-        if (quantity >= 6) {
-            return product.tier_prices[2]?.price || Math.round((product.base_price || 0) * 0.95);
-        } else if (quantity >= 3) {
-            return product.tier_prices[1]?.price || Math.round((product.base_price || 0) * 0.975);
-        }
-        return product.base_price || 0;
-    }, [quantity, product]);
+    const categories = serverCategories.map(category => ({ ...category, icon: Briefcase }));
+    const unitPrice = product.base_price;
 
     // Hitung total estimasi subtotal
     const subtotal = useMemo(() => {
+        if (unitPrice === null) return null;
         const productTotal = unitPrice * quantity;
         const installationTotal = includeInstallation ? ((product.installation_price || 0) * quantity) : 0;
         return productTotal + installationTotal;
     }, [unitPrice, quantity, includeInstallation, product.installation_price]);
 
     const handleQuantityChange = (delta) => {
-        setQuantity(prev => Math.max(1, Math.min(product.stock, prev + delta)));
+        setQuantity(prev => {
+            const next = Math.max(product.moq || 1, prev + delta);
+            return product.stock === null ? next : Math.min(Number(product.stock), next);
+        });
     };
 
     const handleAddToCart = () => {
+        if (product.cart_enabled === false || isAdding) return;
         setIsAdding(true);
         router.post('/buyer/cart', {
             product_id: product.id,
@@ -342,9 +95,7 @@ export default function ProductDetail({
             },
             onError: () => {
                 setIsAdding(false);
-                setIsAdded(true);
-                setCartCount(prev => prev + quantity);
-                setTimeout(() => setIsAdded(false), 2500);
+                setIsAdded(false);
             }
         });
     };
@@ -518,11 +269,11 @@ export default function ProductDetail({
                         
                         {/* Main Image Box (White Rounded Container Sesuai Figma) */}
                         <div className="w-full h-72 sm:h-96 bg-white dark:bg-[#171B26] rounded-2xl p-6 flex items-center justify-center overflow-hidden shadow-sm dark:shadow-lg border border-slate-200 dark:border-slate-800 transition-colors">
-                            <img
+                            {activeImage ? <img
                                 src={activeImage}
                                 alt={product.name}
                                 className="max-h-full max-w-full object-contain transition-all duration-300 hover:scale-105"
-                            />
+                            /> : <span className="text-sm text-slate-500">Foto belum tersedia</span>}
                         </div>
 
                         {/* Thumbnails Row + Warranty Badge */}
@@ -544,7 +295,7 @@ export default function ProductDetail({
                                         />
                                     </button>
                                 ))
-                            ) : (
+                            ) : product.images?.length === 1 ? (
                                 <button
                                     type="button"
                                     onClick={() => setActiveImage(product.images?.[0] || activeImage)}
@@ -556,20 +307,20 @@ export default function ProductDetail({
                                         className="max-h-full max-w-full object-contain"
                                     />
                                 </button>
-                            )}
+                            ) : null}
 
                             {/* Slot cadangan jika gambar tunggal agar susunan grid 4 kolom tetap rapi */}
                             {product.images && product.images.length === 1 && (
                                 <>
                                     <div className="h-14 sm:h-16 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1E2434] p-1 flex flex-col items-center justify-center text-center shadow-sm">
                                         <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-500 dark:text-emerald-400 mb-0.5" />
-                                        <span className="text-[9px] sm:text-[10px] font-bold text-slate-900 dark:text-white leading-tight">100% Asli</span>
-                                        <span className="text-[7px] sm:text-[8px] text-slate-500 dark:text-slate-400 uppercase">Resmi CV</span>
+                                        <span className="text-[9px] sm:text-[10px] font-bold text-slate-900 dark:text-white leading-tight">Foto produk</span>
+                                        <span className="text-[7px] sm:text-[8px] text-slate-500 dark:text-slate-400 uppercase">Katalog</span>
                                     </div>
                                     <div className="h-14 sm:h-16 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1E2434] p-1 flex flex-col items-center justify-center text-center shadow-sm">
                                         <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-600 dark:text-blue-400 mb-0.5" />
-                                        <span className="text-[9px] sm:text-[10px] font-bold text-slate-900 dark:text-white leading-tight">Faktur Pajak</span>
-                                        <span className="text-[7px] sm:text-[8px] text-blue-600 dark:text-blue-400 uppercase font-semibold">PPN 11%</span>
+                                        <span className="text-[9px] sm:text-[10px] font-bold text-slate-900 dark:text-white leading-tight">Informasi</span>
+                                        <span className="text-[7px] sm:text-[8px] text-blue-600 dark:text-blue-400 uppercase font-semibold">Hubungi penjual</span>
                                     </div>
                                 </>
                             )}
@@ -578,10 +329,10 @@ export default function ProductDetail({
                             <div className="h-14 sm:h-16 rounded-xl border border-blue-200 dark:border-blue-500/30 bg-blue-50/50 dark:bg-[#1E2434] p-1 flex flex-col items-center justify-center text-center">
                                 <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-600 dark:text-blue-400 mb-0.5" />
                                 <span className="text-[10px] sm:text-[11px] font-bold text-blue-900 dark:text-white leading-tight">
-                                    {product.warranty_badge_top || '3 Tahun'}
+                                    {product.warranty_badge_top || 'Belum tersedia'}
                                 </span>
                                 <span className="text-[7px] sm:text-[8px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-tight">
-                                    {product.warranty_badge_sub || 'GARANSI RESMI'}
+                                    {product.warranty_badge_sub || 'Informasi garansi'}
                                 </span>
                             </div>
                         </div>
@@ -589,7 +340,7 @@ export default function ProductDetail({
                         {/* Official Product Guarantee Note */}
                         <div className="flex items-center gap-2 pt-1 text-xs text-slate-500 dark:text-slate-400">
                             <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0" />
-                            <span>Produk resmi • Garansi Parts, Labor, Onsite</span>
+                            <span>{product.warranty || 'Informasi garansi belum tersedia.'}</span>
                         </div>
 
                     </div>
@@ -602,11 +353,11 @@ export default function ProductDetail({
                             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium badge-sage">
                                 <span className={`h-1.5 w-1.5 rounded-full ${product.stock_status === 'ready_stock' ? 'dot-sage' : 'dot-azure'}`} />
                                 <span>
-                                    {product.badge_label || (product.stock_status === 'ready_stock' ? 'Ready Stock' : 'Jasa Resmi')}
+                                    {product.badge_label}
                                 </span>
                             </div>
                             <span className="px-2.5 py-1 rounded-md text-xs font-medium badge-azure">
-                                {product.tax_badge || 'B2B • S&K Pajak Aktif (Faktur Pajak)'}
+                                {product.type === 'goods' ? 'Barang' : 'Jasa'}
                             </span>
                         </div>
 
@@ -617,7 +368,7 @@ export default function ProductDetail({
 
                         {/* SKU & Brand Metadata */}
                         <p className="text-xs text-slate-500 dark:text-slate-400">
-                            SKU: <span className="text-slate-700 dark:text-slate-300 font-medium">{product.sku}</span> | Brand: <span className="text-slate-700 dark:text-slate-300 font-medium">{product.brand}</span> | <span className="text-slate-700 dark:text-slate-300 font-medium">{product.warranty}</span>
+                            SKU: <span className="text-slate-700 dark:text-slate-300 font-medium">{product.sku || 'Belum diisi'}</span>
                         </p>
 
                         {/* Price Display */}
@@ -627,11 +378,11 @@ export default function ProductDetail({
                                     {formatRupiah(product.base_price)}
                                 </span>
                                 <span className="text-sm font-normal text-slate-500 dark:text-slate-400">
-                                    / {product.unit || 'unit'}
+                                    {product.unit ? '/ ' + product.unit : ''}
                                 </span>
                             </div>
                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                Harga sudah termasuk PPN 11% (Faktur Pajak Resmi)
+                                Ketentuan pajak belum tersedia.
                             </p>
                         </div>
 
@@ -719,7 +470,7 @@ export default function ProductDetail({
                                     <button
                                         type="button"
                                         onClick={() => handleQuantityChange(-1)}
-                                        disabled={quantity <= 1}
+                                        disabled={quantity <= (product.moq || 1) || Number(product.stock) === 0 && product.stock !== null}
                                         className="h-8 w-8 rounded flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
                                     >
                                         <Minus className="h-3.5 w-3.5" />
@@ -730,14 +481,14 @@ export default function ProductDetail({
                                     <button
                                         type="button"
                                         onClick={() => handleQuantityChange(1)}
-                                        disabled={quantity >= product.stock}
+                                        disabled={product.stock !== null && quantity >= Number(product.stock)}
                                         className="h-8 w-8 rounded flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
                                     >
                                         <Plus className="h-3.5 w-3.5" />
                                     </button>
                                 </div>
                                 <div className="text-[11px] font-medium text-emerald-600 dark:text-[#8cd4b4]">
-                                    Stok Tersedia: {product.stock} {product.unit || 'Unit'}
+                                    {product.stock === null ? 'Ketersediaan belum dikonfirmasi' : 'Stok tercatat: ' + product.stock + ' ' + (product.unit || '')}
                                 </div>
                             </div>
 
@@ -756,7 +507,7 @@ export default function ProductDetail({
                                 <button
                                     type="button"
                                     onClick={handleAddToCart}
-                                    disabled={isAdding}
+                                    disabled={isAdding || product.cart_enabled === false}
                                     className="w-full py-2.5 rounded-lg text-xs font-semibold btn-primary-bespoke flex items-center justify-center gap-1.5 active:scale-[0.98]"
                                 >
                                     {isAdding ? (
@@ -772,7 +523,7 @@ export default function ProductDetail({
                                     ) : (
                                         <>
                                             <Plus className="h-3.5 w-3.5" />
-                                            <span>Tambah ke Keranjang</span>
+                                            <span>{product.cart_enabled === false ? 'Keranjang belum tersedia' : 'Tambah ke Keranjang'}</span>
                                         </>
                                     )}
                                 </button>
@@ -847,6 +598,7 @@ export default function ProductDetail({
                     {/* Tab 1: Spesifikasi Teknis Lengkap */}
                     {activeTab === 'specs' && (
                         <div className="rounded-xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#171B26] overflow-hidden divide-y divide-slate-200 dark:divide-slate-800/80 text-xs sm:text-sm shadow-sm">
+                            {product.specifications.length === 0 && <p className="p-5 text-slate-500">Spesifikasi belum tersedia.</p>}
                             {(product.specifications || []).map((item, idx) => (
                                 <div 
                                     key={item.label} 
@@ -866,7 +618,8 @@ export default function ProductDetail({
                     )}
 
                     {/* Tab 2: Unduh Brosur / Datasheet PDF */}
-                    {activeTab === 'datasheet' && (
+                    {activeTab === 'datasheet' && !product.datasheet_url && <p className="text-sm text-slate-500">Datasheet belum tersedia.</p>}
+                    {activeTab === 'datasheet' && product.datasheet_url && (
                         <div className="rounded-xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#171B26] p-5 sm:p-8 space-y-4 shadow-sm">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800">
                                 <div className="flex items-start gap-3.5">
@@ -898,7 +651,8 @@ export default function ProductDetail({
                     )}
 
                     {/* Tab 3: Info Garansi & Layanan Servis */}
-                    {activeTab === 'warranty' && (
+                    {activeTab === 'warranty' && !product.warranty_desc && <p className="text-sm text-slate-500">Informasi garansi belum tersedia.</p>}
+                    {activeTab === 'warranty' && product.warranty_desc && (
                         <div className="rounded-xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-5 text-xs sm:text-sm shadow-sm">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 space-y-2">
@@ -932,22 +686,20 @@ export default function ProductDetail({
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="font-display text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-                                Produk &amp; Layanan Pelengkap Infrastruktur Server
+                                Produk dan Jasa Terkait
                             </h2>
                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                                Perangkat pendukung integrasi jaringan dan instalasi siap pesan.
+                                Pilihan lain dari kategori yang sama.
                             </p>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                        {relatedProducts.length === 0 && <p className="col-span-full text-sm text-slate-500">Belum ada produk terkait.</p>}
                         {relatedProducts.map((p) => (
                             <ProductCard 
                                 key={p.id} 
                                 product={p}
-                                onAddToCart={() => {
-                                    setCartCount(prev => prev + 1);
-                                }}
                             />
                         ))}
                     </div>
