@@ -123,6 +123,7 @@ class PublicCatalogController extends Controller
             'images' => $product->images->map(fn ($image): array => [
                 'id' => $image->id,
                 'path' => $image->path,
+                'url' => $image->url,
                 'alt_text' => $image->alt_text,
                 'sort_order' => $image->sort_order,
             ])->all(),

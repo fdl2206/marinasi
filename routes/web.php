@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicCatalogController;
+use App\Http\Controllers\SellerCategoryController;
+use App\Http\Controllers\SellerProductController;
+use App\Http\Controllers\SellerProductImageController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -12,6 +15,10 @@ use Inertia\Inertia;
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
+    if (Auth::user()?->is_seller) {
+        return redirect()->route('seller.dashboard');
+    }
+
     if (Auth::check()) {
         return Inertia::render('Buyer/Home');
     }
@@ -21,7 +28,7 @@ Route::get('/', function () {
 
 Route::get('/portal', function () {
     return Inertia::render('Buyer/Home');
-})->name('buyer.home');
+})->middleware(['auth', 'can:access-buyer'])->name('buyer.home');
 
 Route::get('/tentang-kami', function () {
     return Inertia::render('Public/About');
@@ -51,7 +58,7 @@ Route::get('/kebijakan-privasi', function () {
 | Buyer Zone (Dashboard, RFQ Nego, Orders, Invoices)
 |--------------------------------------------------------------------------
 */
-Route::prefix('buyer')->name('buyer.')->group(function () {
+Route::prefix('buyer')->name('buyer.')->middleware(['auth', 'can:access-buyer'])->group(function () {
     Route::get('/dashboard', function () {
         return Inertia::render('Buyer/Dashboard');
     })->name('dashboard');
@@ -84,14 +91,11 @@ Route::prefix('buyer')->name('buyer.')->group(function () {
         return Inertia::render('Buyer/Services/Index');
     })->name('services.index');
 
-    Route::get('/profile', function () {
-        return Inertia::render('Buyer/Profile/Index');
-    })->name('profile.index');
+    Route::get('/profile', [ProfileController::class, 'buyerEdit'])->name('profile.index');
+    Route::patch('/profile', [ProfileController::class, 'buyerUpdate'])->name('profile.update');
 
     Route::get('/products/{id}', function ($id) {
-        return Inertia::render('Buyer/Products/Show', [
-            'id' => $id,
-        ]);
+        return Inertia::render('Buyer/Products/Show', ['id' => $id]);
     })->name('products.show');
 });
 
@@ -100,26 +104,28 @@ Route::prefix('buyer')->name('buyer.')->group(function () {
 | Admin & Seller Zone (Dashboard Operasional, RFQ, Orders, e-Faktur, dsb.)
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:access-seller'])->group(function () {
     Route::get('/', function () {
         return redirect()->route('seller.dashboard');
     });
     Route::get('/dashboard', function () {
-        return Inertia::render('Seller/Dashboard');
+        return redirect()->route('seller.dashboard');
     })->name('dashboard');
     Route::get('/orders', function () {
-        return Inertia::render('Seller/Orders/Index');
+        return redirect()->route('seller.orders.index');
     })->name('orders.index');
 });
 
-Route::prefix('seller')->name('seller.')->group(function () {
+Route::prefix('seller')->name('seller.')->middleware(['auth', 'can:access-seller'])->group(function () {
     Route::get('/dashboard', function () {
         return Inertia::render('Seller/Dashboard');
     })->name('dashboard');
 
-    Route::get('/catalog', function () {
-        return Inertia::render('Seller/Catalog/Index');
-    })->name('catalog.index');
+    Route::get('/catalog', [SellerProductController::class, 'index'])->name('catalog.index');
+    Route::resource('products', SellerProductController::class)->only(['store', 'update', 'destroy']);
+    Route::resource('categories', SellerCategoryController::class)->only(['store', 'update', 'destroy']);
+    Route::delete('/products/{product}/images/{image}', [SellerProductImageController::class, 'destroy'])
+        ->scopeBindings()->name('products.images.destroy');
 
     Route::get('/negotiations', function () {
         return Inertia::render('Seller/Negotiations/Index');
@@ -152,7 +158,7 @@ Route::prefix('seller')->name('seller.')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::get('/dashboard', function () {
-    return redirect()->route('buyer.dashboard');
+    return redirect()->route(Auth::user()->is_seller ? 'seller.dashboard' : 'buyer.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
