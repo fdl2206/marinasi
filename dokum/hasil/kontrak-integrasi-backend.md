@@ -166,7 +166,24 @@ Respons JSON daftar memuat data, links (first/last/prev/next), meta pagination, 
 
 Respons JSON detail memuat objek product. Objek produk berisi id, category (id/name), name, type, sku, description, specifications, price, stock_quantity, stock_unit, moq, is_active dan images. Gambar berisi id, path, url, alt_text serta sort_order. Produk/kategori nonaktif dan produk tidak ditemukan menghasilkan 404 pada detail.
 
-Halaman Buyer/Home dan Buyer/Products saat ini masih memerlukan integrasi data dari FE. Layout serta JSX-nya dipertahankan. Endpoint cart, RFQ, checkout dan transaksi belum menyediakan persistensi domain.
+### Integrasi Buyer/Home dan Buyer/Products
+
+Setelah persetujuan pengguna, GET portal (buyer.home) dan GET buyer/products/{product} (buyer.products.show) memakai BuyerCatalogController dan merender halaman buyer existing.
+
+- Daftar menerima products berupa array, categories (id/name), filters (search/sort/kategori), pagination (current_page/last_page/total), paginationLinks (previous/next), serta cartCount=0 selama cart belum memiliki persistensi.
+- Query search mencari nama/SKU. kategori adalah ID kategori aktual. sort menerima newest, price_asc, price_desc, atau ready_stock. page minimal 1, dengan 12 item per halaman. Harga null diletakkan terakhir pada pengurutan harga. ready_stock hanya menampilkan stock_quantity yang diketahui lebih dari nol.
+- Detail menerima product, categories, related_products dan cartCount. related_products maksimal empat produk aktif dari kategori sama, selain produk yang dibuka. Tidak ada fallback rekomendasi contoh. Produk/kategori nonaktif dan produk tidak ada menghasilkan 404.
+- Produk buyer memuat id, name, type, category_id, category berupa nama, sku, description, price/base_price, stock, unit, moq, stock_status, badge_label, image_url, images berupa array URL dan specifications berupa array label/value. Field ini dipetakan dari model agar sesuai komponen existing.
+- stock null menjadi status unknown dan label ketersediaan belum dikonfirmasi. Nilai nol menjadi out_of_stock, nilai positif menjadi ready_stock. Harga null ditampilkan sebagai permintaan menghubungi penjual. Foto kosong tidak diganti foto produk lain.
+- tier_prices dan tags dikirim sebagai array kosong. Data pajak, garansi dan biaya instalasi belum disediakan. Perhitungan diskon otomatis dari mock FE dihapus. cart_enabled=false menonaktifkan aksi cart pada produk terintegrasi.
+
+Endpoint cart, RFQ, checkout dan transaksi belum menyediakan persistensi domain. Pengikatan ini menyajikan katalog aktual; alur transaksi mengikuti keputusan mitra.
+
+### Sampel katalog sumber
+
+XlsxCatalogSampleSeeder memuat snapshot lima item sheet Katalog Aktif pada workbook lokal. SSD WD Blue 500GB Rp850.000 (baris 43), SSD V-GeN 512GB Rp775.000 (44), SSD V-GeN 256GB Rp450.000 (45), Jasa Recovery Back Up Data Rp50.000 (5) dan Jasa Service Printer Ringan Rp50.000 (18).
+
+Seeder sudah dijalankan pada database lokal dan diperiksa menghasilkan tiga kategori serta lima produk aktif. Stok seluruh item null sesuai persetujuan pengguna karena sumber tidak mencatat stok. Foto, SKU, spesifikasi dan MOQ tidak diisi dengan data buatan. firstOrCreate mempertahankan item yang sudah ada pada eksekusi ulang. DatabaseSeeder utama tidak diubah.
 
 ## 5. Aktivasi dan pemeriksaan tim
 
@@ -177,3 +194,5 @@ Halaman Buyer/Home dan Buyer/Products saat ini masih memerlukan integrasi data d
 5. Catat hasil uji MySQL dan UAT bersama pemilik. Test SQLite in-memory memverifikasi logika yang tersedia, sedangkan target aplikasi tetap MySQL sesuai keputusan tim.
 
 Verifikasi pengerjaan ini menghasilkan 140 test dan 552 assertions lulus pada SQLite in-memory, serta Pint berhasil. Migration aditif berhasil pada koneksi database lokal aplikasi. Test suite yang menggunakan refresh database tidak dijalankan pada database lokal berisi akun pengguna.
+
+Verifikasi setelah integrasi buyer menghasilkan 149 test dan 735 assertions lulus pada SQLite in-memory, build Vite dan Pint berhasil. Penambahan lima item sumber juga diverifikasi read-only pada database lokal.

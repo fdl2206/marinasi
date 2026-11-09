@@ -4,11 +4,19 @@
 
 ## Katalog operasional tahap 3
 
+### Integrasi katalog buyer
+
+Portal Buyer/Home dan detail Buyer/Products kini menerima data dari BuyerCatalogController. Pencarian nama/SKU, kategori aktual, urutan terbaru/harga/stok diketahui dan pagination diproses server. Detail produk/kategori nonaktif atau produk tidak ditemukan menghasilkan 404.
+
+Lima item pilihan dari XLSX telah dimasukkan ke database lokal melalui XlsxCatalogSampleSeeder, menghasilkan tiga kategori dan lima item aktif. Sumber adalah sheet Katalog Aktif baris 43–45, 5 dan 18. Harga mengikuti sumber dan stok null karena belum tersedia pada workbook. Seeder khusus ini memakai snapshot terpilih dan firstOrCreate, sehingga eksekusi ulang mempertahankan perubahan item yang sudah ada.
+
+Pengikatan data dilakukan pada halaman buyer yang sudah dibuat FE. Fallback produk/rekomendasi contoh dan diskon otomatis dihapus. Foto/spesifikasi/garansi yang belum tersedia diberi keadaan kosong. Keranjang pada data terintegrasi diberi status belum tersedia selama persistensi transaksinya belum dibangun. Verifikasi integrasi lulus 149 test dan 735 assertions pada SQLite in-memory; build Vite serta Pint berhasil.
+
 Endpoint backend tersedia untuk membuat, memperbarui dan menghapus kategori/produk, termasuk status aktif. Kategori yang masih dipakai produk tidak dapat dihapus. Foto JPG/PNG/WebP maksimal 5 MB disimpan pada disk public. Jalankan `php artisan storage:link` pada lingkungan baru agar foto dapat diakses. Tautan tersebut sudah dibuat pada lingkungan lokal saat pengerjaan tahap 3.
 
 Penyimpanan produk/metadata gambar menggunakan transaksi database, dengan pembersihan file unggahan baru jika penyimpanan gagal. Setelah produk/foto dihapus dari database, kegagalan pembersihan file dicatat pada log untuk ditindaklanjuti. Produk/kategori nonaktif disembunyikan dari katalog publik. Harga/stok nullable dan satu nilai harga mengikuti skema yang ada. Kebijakan harga rentang, reservasi stok dan produk yang pernah ditransaksikan masih menunggu keputusan.
 
-Halaman Seller/Catalog tetap menggunakan placeholder asli FE. Portal buyer dan detail buyer menggunakan halaman Buyer/Home dan Buyer/Products yang sudah ada. Integrasi props, form CRUD serta tampilan foto diserahkan kepada FE sesuai arahan pengguna. Data seller tersedia pada props products/categories/filters dari GET seller/catalog; data katalog publik juga tersedia sebagai JSON dari GET katalog dan detailnya. RFQ/cart/checkout belum dihubungkan ke persistensi.
+Halaman Seller/Catalog tetap menggunakan placeholder asli FE. Integrasi buyer di atas dilakukan setelah persetujuan pengguna untuk menghubungkan halaman existing ke data XLSX. Form CRUD seller tetap menjadi pekerjaan FE. Data seller tersedia pada props products/categories/filters dari GET seller/catalog; data katalog publik juga tersedia sebagai JSON dari GET katalog dan detailnya. RFQ/cart/checkout belum dihubungkan ke persistensi.
 
 Perubahan JSX yang sempat dibuat agen pada tahap 3 telah dikembalikan sesuai arahan pengguna. Hasil verifikasi versi backend setelah koreksi dicatat pada respons pengerjaan. UAT integrasi FE dan pengujian pada MySQL masih perlu dilakukan.
 

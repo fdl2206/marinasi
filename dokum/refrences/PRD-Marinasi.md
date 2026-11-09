@@ -12,6 +12,8 @@ Pembaruan tahap 3 menyediakan endpoint CRUD kategori/produk dan unggahan/hapus f
 
 Pekerjaan backend lanjutan sebelum meeting menyimpan phone, company_name dan company_address dari form registrasi yang sudah ada serta menyediakan baca/perbarui profil dasar buyer. Field kontak dibuat opsional untuk mendukung akun lama dan pembeli umum; status wajib final dapat ditetapkan mitra. Migration kontak telah dijalankan pada database lokal. Kontrak bagi FE tersedia pada [dokumen integrasi](../hasil/kontrak-integrasi-backend.md). JSX tidak diubah. Jenis buyer, perpajakan, PIC tambahan, alamat terpisah dan termin pembayaran masih perlu konfirmasi.
 
+Integrasi buyer kemudian disetujui pengguna dengan lima item terpilih dari katalog XLSX dan stok null. Halaman Buyer/Home dan Buyer/Products yang sudah tersedia kini terhubung ke data aktif melalui BuyerCatalogController. Pengikatan JSX disesuaikan untuk hasil kosong, harga/stok null, foto kosong dan penghapusan fallback dummy/diskon otomatis. Tidak ada halaman baru yang dibuat. Database lokal terisi tiga kategori dan lima produk/jasa aktif. Kontrak integrasi mencatat props dan sumber sel yang dipakai. Test akhir integrasi lulus 149 test dan 735 assertions pada SQLite in-memory.
+
 ## 1. Tujuan produk
 
 Pengunjung perlu mengenal perusahaan dan menemukan barang atau jasa yang sesuai. Pembeli umum dan instansi perlu memesan atau meminta harga khusus, lalu mengetahui apa yang disepakati dan sejauh mana pesanan telah diproses. Pengelola perusahaan perlu memperbarui katalog dan menangani transaksi sendiri, tanpa meminta tim pengembang mengubah kode setiap kali harga, foto, atau status pesanan berubah.
