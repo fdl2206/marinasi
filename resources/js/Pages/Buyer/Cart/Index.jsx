@@ -1,34 +1,28 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Head, Link, usePage, router } from '@inertiajs/react';
-import { 
-    Search, 
-    ShoppingCart, 
-    User, 
-    Server, 
-    Network, 
-    Wrench, 
-    HardDrive, 
-    Briefcase, 
-    LogOut, 
+import {
+    Search,
+    ShoppingCart,
+    User,
+    Server,
+    Network,
+    Wrench,
+    HardDrive,
+    Briefcase,
+    LogOut,
     LayoutDashboard,
-    Plus, 
-    Minus, 
-    Trash2, 
-    FileText, 
-    ShieldCheck, 
-    Phone, 
-    MapPin, 
+    Plus,
+    Minus,
+    Trash2,
+    FileText,
+    ShieldCheck,
+    Phone,
+    MapPin,
     ArrowRight,
-    Check,
-    Download
 } from 'lucide-react';
 import { formatRupiah } from '@/Components/Buyer/ProductCard';
 import ThemeToggle from '@/Components/Common/ThemeToggle';
 
-/**
- * Data default keranjang pengadaan B2B sesuai mockup Figma.
- * Backend dapat langsung mengirimkan prop `cart_items` dari CartController / Database.
- */
 const DEFAULT_CART_ITEMS = [
     {
         id: 1,
@@ -77,13 +71,43 @@ const DEFAULT_CART_ITEMS = [
     },
 ];
 
+function resolveCartItemUrl(action, cartItemId) {
+    if (typeof window !== 'undefined' && typeof window.route === 'function') {
+        const routeName =
+            action === 'update' ? 'buyer.cart.items.update' : 'buyer.cart.items.destroy';
+        try {
+            return window.route(routeName, cartItemId);
+        } catch {
+            // Fallback ke URL langsung bila route helper belum memuat route ini
+        }
+    }
+
+    return `/buyer/cart/items/${cartItemId}`;
+}
+
+function normalizeCartItems(rawItems, previousSelectionMap = {}) {
+    const source = Array.isArray(rawItems) ? rawItems : DEFAULT_CART_ITEMS;
+    return source.map((item) => ({
+        ...item,
+        quantity: Number(item.quantity) || 1,
+        price: Number(item.price) || 0,
+        stock: Number(item.stock) || 99,
+        selected:
+            Object.prototype.hasOwnProperty.call(previousSelectionMap, item.id)
+                ? previousSelectionMap[item.id]
+                : item.selected ?? true,
+    }));
+}
+
 export default function CartIndex({ cart_items: serverCartItems }) {
     const { props } = usePage();
     const auth = props?.auth;
 
-    // Cart Items State
-    const [items, setItems] = useState(serverCartItems || DEFAULT_CART_ITEMS);
-    
+    const [items, setItems] = useState(() => normalizeCartItems(serverCartItems));
+    const [busyItemIds, setBusyItemIds] = useState([]);
+    const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+    const [feedbackMessage, setFeedbackMessage] = useState(null);
+
     // Procurement & Tax Form Data (Backend-ready)
     const [prReference, setPrReference] = useState('');
     const [companyNpwp, setCompanyNpwp] = useState('');
@@ -97,6 +121,17 @@ export default function CartIndex({ cart_items: serverCartItems }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [accountMenuOpen, setAccountMenuOpen] = useState(false);
 
+    useEffect(() => {
+        if (Array.isArray(serverCartItems)) {
+            setItems((prev) => {
+                const selectionMap = Object.fromEntries(
+                    prev.map((entry) => [entry.id, entry.selected])
+                );
+                return normalizeCartItems(serverCartItems, selectionMap);
+            });
+        }
+    }, [serverCartItems]);
+
     const categories = [
         { id: 'hardware', name: 'Hardware', icon: Server },
         { id: 'networking', name: 'Networking & Router', icon: Network },
@@ -105,47 +140,144 @@ export default function CartIndex({ cart_items: serverCartItems }) {
         { id: 'procurement', name: 'Paket Pengadaan Kantor', icon: Briefcase },
     ];
 
+    const setItemBusy = (id, busy) => {
+        setBusyItemIds((prev) =>
+            busy ? [...new Set([...prev, id])] : prev.filter((itemId) => itemId !== id)
+        );
+    };
+
+    const isItemBusy = (id) => busyItemIds.includes(id) || isBulkDeleting;
+
     // Checkbox toggles
-    const allSelected = useMemo(() => items.length > 0 && items.every(i => i.selected), [items]);
-    
+    const allSelected = useMemo(
+        () => items.length > 0 && items.every((i) => i.selected),
+        [items]
+    );
+
     const toggleSelectAll = () => {
         const nextState = !allSelected;
-        setItems(prev => prev.map(item => ({ ...item, selected: nextState })));
+        setItems((prev) => prev.map((item) => ({ ...item, selected: nextState })));
     };
 
     const toggleSelectItem = (id) => {
-        setItems(prev => prev.map(item => item.id === id ? { ...item, selected: !item.selected } : item));
+        setItems((prev) =>
+            prev.map((item) => (item.id === id ? { ...item, selected: !item.selected } : item))
+        );
     };
 
-    const handleQuantityChange = (id, delta) => {
-        setItems(prev => prev.map(item => {
-            if (item.id === id) {
-                const nextQty = Math.max(1, Math.min(item.stock, item.quantity + delta));
-                return { ...item, quantity: nextQty };
+    const handleQuantityChange = (item, delta) => {
+        if (isItemBusy(item.id)) return;
+
+        const nextQty = Math.max(1, Math.min(item.stock, item.quantity + delta));
+        if (nextQty === item.quantity) return;
+
+        const previousItems = items;
+        setFeedbackMessage(null);
+        setItemBusy(item.id, true);
+
+        setItems((prev) =>
+            prev.map((entry) =>
+                entry.id === item.id ? { ...entry, quantity: nextQty } : entry
+            )
+        );
+
+        router.patch(
+            resolveCartItemUrl('update', item.id),
+            { quantity: nextQty },
+            {
+                preserveScroll: true,
+                onError: (errors) => {
+                    setItems(previousItems);
+                    const errorText =
+                        errors?.quantity ||
+                        errors?.product_id ||
+                        'Gagal memperbarui jumlah item di keranjang.';
+                    setFeedbackMessage({ type: 'error', text: errorText });
+                },
+                onFinish: () => {
+                    setItemBusy(item.id, false);
+                },
             }
-            return item;
-        }));
+        );
+    };
+
+    const handleRemoveItem = (item) => {
+        if (isItemBusy(item.id)) return;
+
+        const previousItems = items;
+        setFeedbackMessage(null);
+        setItemBusy(item.id, true);
+
+        setItems((prev) => prev.filter((entry) => entry.id !== item.id));
+
+        router.delete(resolveCartItemUrl('destroy', item.id), {
+            preserveScroll: true,
+            onError: () => {
+                setItems(previousItems);
+                setFeedbackMessage({
+                    type: 'error',
+                    text: 'Gagal menghapus item dari keranjang.',
+                });
+            },
+            onFinish: () => {
+                setItemBusy(item.id, false);
+            },
+        });
     };
 
     const handleRemoveSelected = () => {
-        setItems(prev => prev.filter(item => !item.selected));
+        const targets = items.filter((item) => item.selected);
+        if (targets.length === 0 || isBulkDeleting) return;
+
+        const previousItems = items;
+        const targetIds = new Set(targets.map((t) => t.id));
+
+        setFeedbackMessage(null);
+        setIsBulkDeleting(true);
+        setItems((prev) => prev.filter((entry) => !targetIds.has(entry.id)));
+
+        const deleteSequentially = (index) => {
+            if (index >= targets.length) {
+                setIsBulkDeleting(false);
+                return;
+            }
+
+            const currentTarget = targets[index];
+            router.delete(resolveCartItemUrl('destroy', currentTarget.id), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    deleteSequentially(index + 1);
+                },
+                onError: () => {
+                    setItems(previousItems);
+                    setIsBulkDeleting(false);
+                    setFeedbackMessage({
+                        type: 'error',
+                        text: 'Sebagian atau seluruh item pilihan gagal dihapus dari keranjang.',
+                    });
+                },
+            });
+        };
+
+        deleteSequentially(0);
     };
 
     // Selected items metrics
-    const selectedItems = useMemo(() => items.filter(i => i.selected), [items]);
-    const totalUnits = useMemo(() => selectedItems.reduce((acc, curr) => acc + curr.quantity, 0), [selectedItems]);
+    const selectedItems = useMemo(() => items.filter((i) => i.selected), [items]);
+    const totalUnits = useMemo(
+        () => selectedItems.reduce((acc, curr) => acc + curr.quantity, 0),
+        [selectedItems]
+    );
 
     // Financial calculations (PPN 11% Inklusif)
     const totalPrice = useMemo(() => {
-        return selectedItems.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
+        return selectedItems.reduce((acc, curr) => acc + curr.price * curr.quantity, 0);
     }, [selectedItems]);
 
-    // DPP = Total / 1.11
     const dppAmount = useMemo(() => {
         return Math.round(totalPrice / 1.11);
     }, [totalPrice]);
 
-    // PPN 11% = Total - DPP
     const ppnAmount = useMemo(() => {
         return totalPrice - dppAmount;
     }, [totalPrice, dppAmount]);
@@ -165,7 +297,6 @@ export default function CartIndex({ cart_items: serverCartItems }) {
             {/* ========================================================= */}
             <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-[#12161F] backdrop-blur transition-colors duration-150">
                 <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-6 px-3 sm:px-6 lg:px-8 h-16 sm:h-20">
-                    
                     {/* Brand Logo */}
                     <Link href="/portal" className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
                         <img
@@ -231,8 +362,12 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                             {accountMenuOpen && (
                                 <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
                                     <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
-                                        <div className="font-bold text-slate-900 dark:text-white truncate">{auth?.user?.name || 'Klien B2B'}</div>
-                                        <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{auth?.user?.email || 'klien@instansi.co.id'}</div>
+                                        <div className="font-bold text-slate-900 dark:text-white truncate">
+                                            {auth?.user?.name || 'Klien B2B'}
+                                        </div>
+                                        <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                                            {auth?.user?.email || 'klien@instansi.co.id'}
+                                        </div>
                                     </div>
                                     <Link
                                         href="/buyer/dashboard"
@@ -254,7 +389,6 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                             )}
                         </div>
                     </div>
-
                 </div>
 
                 {/* Sub-nav */}
@@ -283,7 +417,6 @@ export default function CartIndex({ cart_items: serverCartItems }) {
             {/* MAIN CONTENT AREA */}
             {/* ========================================================= */}
             <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-                
                 {/* Page Title & PPN Badge */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
@@ -299,12 +432,23 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                     </span>
                 </div>
 
+                {feedbackMessage && (
+                    <div
+                        role="alert"
+                        className={`rounded-xl border px-4 py-3 text-xs font-medium ${
+                            feedbackMessage.type === 'error'
+                                ? 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300'
+                                : 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300'
+                        }`}
+                    >
+                        {feedbackMessage.text}
+                    </div>
+                )}
+
                 {/* 2-Column Cart Layout */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    
                     {/* LEFT COLUMN: ITEM LIST & PROCUREMENT FORM (8 COLS) */}
                     <div className="lg:col-span-8 space-y-6">
-                        
                         {/* Select All Bar */}
                         <div className="flex items-center justify-between px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] text-xs shadow-sm">
                             <label className="flex items-center gap-3 cursor-pointer">
@@ -323,9 +467,10 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                 <button
                                     type="button"
                                     onClick={handleRemoveSelected}
-                                    className="text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 transition font-medium"
+                                    disabled={isBulkDeleting}
+                                    className="text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 disabled:opacity-40 transition font-medium"
                                 >
-                                    Hapus Pilihan
+                                    {isBulkDeleting ? 'Menghapus...' : 'Hapus Pilihan'}
                                 </button>
                             )}
                         </div>
@@ -335,7 +480,9 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                             {items.length === 0 ? (
                                 <div className="p-12 text-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] space-y-3 shadow-sm">
                                     <ShoppingCart className="h-12 w-12 text-slate-400 dark:text-slate-600 mx-auto" />
-                                    <h3 className="text-base font-bold text-slate-900 dark:text-white">Keranjang Pengadaan Kosong</h3>
+                                    <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                                        Keranjang Pengadaan Kosong
+                                    </h3>
                                     <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
                                         Belum ada barang atau jasa yang ditambahkan ke keranjang pengadaan.
                                     </p>
@@ -347,121 +494,144 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                     </Link>
                                 </div>
                             ) : (
-                                items.map((item) => (
-                                    <div
-                                        key={item.id}
-                                        className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 transition hover:border-slate-300 dark:hover:border-slate-700/80 shadow-sm"
-                                    >
-                                        <div className="flex items-start gap-4">
-                                            {/* Item Checkbox */}
-                                            <input
-                                                type="checkbox"
-                                                checked={item.selected}
-                                                onChange={() => toggleSelectItem(item.id)}
-                                                className="h-4 w-4 mt-1 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0C0D12] text-blue-600 focus:ring-0 focus:ring-offset-0 cursor-pointer"
-                                            />
+                                items.map((item) => {
+                                    const itemBusy = isItemBusy(item.id);
 
-                                            {/* Thumbnail Image Box */}
-                                            <div className="h-20 w-20 sm:h-24 sm:w-24 bg-slate-50 dark:bg-white rounded-xl p-2 flex items-center justify-center shrink-0 overflow-hidden border border-slate-100 dark:border-slate-700/50">
-                                                <img
-                                                    src={item.image_url}
-                                                    alt={item.name}
-                                                    className="max-h-full max-w-full object-contain"
+                                    return (
+                                        <div
+                                            key={item.id}
+                                            className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 transition hover:border-slate-300 dark:hover:border-slate-700/80 shadow-sm"
+                                        >
+                                            <div className="flex items-start gap-4">
+                                                {/* Item Checkbox */}
+                                                <input
+                                                    type="checkbox"
+                                                    checked={item.selected}
+                                                    onChange={() => toggleSelectItem(item.id)}
+                                                    className="h-4 w-4 mt-1 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0C0D12] text-blue-600 focus:ring-0 focus:ring-offset-0 cursor-pointer"
                                                 />
-                                            </div>
 
-                                            {/* Details */}
-                                            <div className="flex-1 min-w-0 space-y-2">
-                                                
-                                                {/* Title & SKU */}
-                                                <div>
-                                                    <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white leading-snug">
-                                                        {item.name}
-                                                    </h3>
-                                                    {item.sku && (
-                                                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                                                            SKU: {item.sku}
-                                                        </p>
-                                                    )}
+                                                {/* Thumbnail Image Box */}
+                                                <div className="h-20 w-20 sm:h-24 sm:w-24 bg-slate-50 dark:bg-white rounded-xl p-2 flex items-center justify-center shrink-0 overflow-hidden border border-slate-100 dark:border-slate-700/50">
+                                                    <img
+                                                        src={item.image_url}
+                                                        alt={item.name}
+                                                        className="max-h-full max-w-full object-contain"
+                                                    />
                                                 </div>
 
-                                                {/* Badges */}
-                                                <div className="flex items-center gap-2 flex-wrap">
-                                                    {item.stock_status === 'ready_stock' ? (
-                                                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium badge-sage">
-                                                            <span className="h-1.5 w-1.5 rounded-full dot-sage shrink-0" />
-                                                            <span>Ready Stock</span>
+                                                {/* Details */}
+                                                <div className="flex-1 min-w-0 space-y-2">
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <div>
+                                                            <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white leading-snug">
+                                                                {item.name}
+                                                            </h3>
+                                                            {item.sku && (
+                                                                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                                                    SKU: {item.sku}
+                                                                </p>
+                                                            )}
                                                         </div>
-                                                    ) : (
-                                                        <span className="px-2 py-0.5 rounded text-[10px] font-medium badge-azure">
-                                                            {item.badge_label}
-                                                        </span>
-                                                    )}
 
-                                                    {item.tax_badge && (
-                                                        <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-blue-50 dark:bg-[#1E2434] text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-600/30">
-                                                            {item.tax_badge}
-                                                        </span>
-                                                    )}
-                                                </div>
-
-                                                {/* Price, Stepper & Subtotal Row */}
-                                                <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-100 dark:border-slate-800/80">
-                                                    <div>
-                                                        <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                                                            {item.unit === 'paket' ? 'Harga per paket:' : 'Harga satuan:'}
-                                                        </span>
-                                                        <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
-                                                            {formatRupiah(item.price)}
-                                                            {item.unit === 'paket' && <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400"> / paket</span>}
-                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveItem(item)}
+                                                            disabled={itemBusy}
+                                                            aria-label={`Hapus ${item.name}`}
+                                                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 disabled:opacity-40 transition"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
                                                     </div>
 
-                                                    {/* Quantity Stepper & Item Subtotal */}
-                                                    <div className="flex items-center justify-between sm:justify-end gap-5">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">Jumlah</span>
-                                                            <div className="flex items-center rounded-lg bg-slate-100 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 p-0.5">
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => handleQuantityChange(item.id, -1)}
-                                                                    disabled={item.quantity <= 1}
-                                                                    className="h-6 w-6 rounded flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
-                                                                >
-                                                                    <Minus className="h-3 w-3" />
-                                                                </button>
-                                                                <span className="font-bold text-xs text-slate-900 dark:text-white px-2.5">
-                                                                    {item.quantity}
-                                                                </span>
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => handleQuantityChange(item.id, 1)}
-                                                                    disabled={item.quantity >= item.stock}
-                                                                    className="h-6 w-6 rounded flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
-                                                                >
-                                                                    <Plus className="h-3 w-3" />
-                                                                </button>
+                                                    {/* Badges */}
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        {item.stock_status === 'ready_stock' ? (
+                                                            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium badge-sage">
+                                                                <span className="h-1.5 w-1.5 rounded-full dot-sage shrink-0" />
+                                                                <span>Ready Stock</span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="px-2 py-0.5 rounded text-[10px] font-medium badge-azure">
+                                                                {item.badge_label}
+                                                            </span>
+                                                        )}
+
+                                                        {item.tax_badge && (
+                                                            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-blue-50 dark:bg-[#1E2434] text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-600/30">
+                                                                {item.tax_badge}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Price, Stepper & Subtotal Row */}
+                                                    <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-100 dark:border-slate-800/80">
+                                                        <div>
+                                                            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                                                                {item.unit === 'paket'
+                                                                    ? 'Harga per paket:'
+                                                                    : 'Harga satuan:'}
+                                                            </span>
+                                                            <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                                                                {formatRupiah(item.price)}
+                                                                {item.unit === 'paket' && (
+                                                                    <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
+                                                                        {' '}
+                                                                        / paket
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                         </div>
 
-                                                        <div className="text-right">
-                                                            <span className="text-[10px] text-slate-500 dark:text-slate-400 block sm:hidden">Subtotal</span>
-                                                            <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
-                                                                {formatRupiah(item.price * item.quantity)}
-                                                            </span>
+                                                        {/* Quantity Stepper & Item Subtotal */}
+                                                        <div className="flex items-center justify-between sm:justify-end gap-5">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">
+                                                                    Jumlah
+                                                                </span>
+                                                                <div className="flex items-center rounded-lg bg-slate-100 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 p-0.5">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleQuantityChange(item, -1)}
+                                                                        disabled={itemBusy || item.quantity <= 1}
+                                                                        className="h-6 w-6 rounded flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
+                                                                    >
+                                                                        <Minus className="h-3 w-3" />
+                                                                    </button>
+                                                                    <span className="font-bold text-xs text-slate-900 dark:text-white px-2.5">
+                                                                        {item.quantity}
+                                                                    </span>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleQuantityChange(item, 1)}
+                                                                        disabled={itemBusy || item.quantity >= item.stock}
+                                                                        className="h-6 w-6 rounded flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
+                                                                    >
+                                                                        <Plus className="h-3 w-3" />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="text-right">
+                                                                <span className="text-[10px] text-slate-500 dark:text-slate-400 block sm:hidden">
+                                                                    Subtotal
+                                                                </span>
+                                                                <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                                                                    {formatRupiah(item.price * item.quantity)}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     </div>
-
                                                 </div>
-
                                             </div>
                                         </div>
-                                    </div>
-                                ))
+                                    );
+                                })
                             )}
                         </div>
 
-                        {/* Informasi Pengadaan & Pajak Card (Sesuai Mockup) */}
+                        {/* Informasi Pengadaan & Pajak Card */}
                         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-4 shadow-sm">
                             <div className="flex items-center gap-2.5 text-slate-900 dark:text-white font-bold text-sm">
                                 <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -509,13 +679,11 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                 />
                             </div>
                         </div>
-
                     </div>
 
                     {/* RIGHT COLUMN: STICKY ORDER SUMMARY (4 COLS) */}
                     <div className="lg:col-span-4">
                         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-6 space-y-5 sticky top-24 shadow-sm dark:shadow-xl">
-                            
                             <div>
                                 <h3 className="font-bold text-slate-900 dark:text-white text-base">
                                     Ringkasan Pengadaan B2B
@@ -558,21 +726,28 @@ export default function CartIndex({ cart_items: serverCartItems }) {
 
                                 <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span>DPP (Dasar Pengenaan Pajak):</span>
-                                    <span className="text-slate-700 dark:text-slate-300">{formatRupiah(dppAmount)}</span>
+                                    <span className="text-slate-700 dark:text-slate-300">
+                                        {formatRupiah(dppAmount)}
+                                    </span>
                                 </div>
 
                                 <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span>PPN 11% (Faktur Pajak Resmi):</span>
                                     <span className="text-slate-700 dark:text-slate-300">
                                         {formatRupiah(ppnAmount)}{' '}
-                                        <span className="text-[10px] text-slate-400 dark:text-slate-500">(Termasuk)</span>
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                                            (Termasuk)
+                                        </span>
                                     </span>
                                 </div>
 
                                 <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span>Estimasi Pengiriman &amp; Survei:</span>
                                     <span className="text-emerald-600 dark:text-[#8cd4b4] font-medium">
-                                        Gratis <span className="text-[10px] font-normal text-slate-400 dark:text-slate-500">(Area Bandung)</span>
+                                        Gratis{' '}
+                                        <span className="text-[10px] font-normal text-slate-400 dark:text-slate-500">
+                                            (Area Bandung)
+                                        </span>
                                     </span>
                                 </div>
                             </div>
@@ -619,12 +794,9 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                     Bantuan WhatsApp: (+62) 813-2077-7874
                                 </p>
                             </div>
-
                         </div>
                     </div>
-
                 </div>
-
             </main>
 
             {/* ========================================================= */}
@@ -633,7 +805,6 @@ export default function CartIndex({ cart_items: serverCartItems }) {
             <footer className="border-t border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#12161F] text-slate-500 dark:text-slate-400 mt-20 transition-colors duration-150">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-
                         {/* Col 1 */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-3">
@@ -722,7 +893,6 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                 Melayani kebutuhan barang dan jasa IT perusahaan.
                             </p>
                         </div>
-
                     </div>
                 </div>
 
@@ -744,11 +914,9 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                 className="fixed bottom-6 right-6 z-50 flex items-center justify-center h-13 w-13 p-3.5 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-white shadow-2xl shadow-emerald-950/60 transition-transform duration-200 hover:scale-110 active:scale-95"
             >
                 <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current">
-                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
                 </svg>
             </a>
-
         </div>
     );
 }
-
