@@ -13,7 +13,7 @@ class StoreProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('access-seller') ?? false;
     }
 
     /**
@@ -30,10 +30,10 @@ class StoreProductRequest extends FormRequest
             'sku' => ['nullable', 'string', 'max:255', Rule::unique('products', 'sku')],
             'description' => ['nullable', 'string'],
             'specifications' => ['nullable', 'array'],
-            'price' => ['nullable', 'numeric', 'min:0'],
-            'stock_quantity' => ['nullable', 'numeric', 'min:0'],
+            'price' => ['nullable', 'numeric', 'min:0', 'max:9999999999999.99', 'decimal:0,2'],
+            'stock_quantity' => ['nullable', 'numeric', 'min:0', 'max:999999999.999', 'decimal:0,3'],
             'stock_unit' => ['nullable', 'string', 'max:50'],
-            'moq' => ['nullable', 'integer', 'min:1'],
+            'moq' => ['nullable', 'integer', 'min:1', 'max:4294967295'],
             'is_active' => ['sometimes', 'boolean'],
             'images' => ['sometimes', 'array'],
             'images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],

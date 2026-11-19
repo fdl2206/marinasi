@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Http\Requests\UpdateBuyerProfileRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +15,43 @@ use Inertia\Response;
 
 class ProfileController extends Controller
 {
+    public function buyerEdit(Request $request): Response|JsonResponse
+    {
+        $user = $request->user();
+        $data = [
+            'profile' => $user->only(['name', 'email', 'phone', 'company_name', 'company_address']),
+            'companyProfile' => [
+                'company_name' => $user->company_name ?? '',
+                'company_address' => $user->company_address ?? '',
+                'phone' => $user->phone ?? '',
+                'business_entity' => '',
+                'npwp_number' => '',
+                'npwp_name' => '',
+                'npwp_address' => '',
+                'tax_status' => '',
+                'sppkp_file' => '',
+                'nib_number' => '',
+                'top_terms' => '',
+                'top_status' => '',
+            ],
+            'pics' => [],
+            'addresses' => [],
+        ];
+
+        if ($request->expectsJson()) {
+            return response()->json($data);
+        }
+
+        return Inertia::render('Buyer/Profile/Index', $data);
+    }
+
+    public function buyerUpdate(UpdateBuyerProfileRequest $request): RedirectResponse
+    {
+        $request->user()->update($request->validated());
+
+        return to_route('buyer.profile.index');
+    }
+
     /**
      * Display the user's profile form.
      */

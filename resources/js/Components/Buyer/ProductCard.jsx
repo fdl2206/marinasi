@@ -7,6 +7,9 @@ import { Plus, Check, Loader2 } from 'lucide-react';
  * Backend bisa kirim integer murni (cth: 32500000) atau string terformat.
  */
 export function formatRupiah(value) {
+    if (value === null || value === undefined || value === '') {
+        return 'Hubungi untuk penawaran';
+    }
     if (typeof value === 'string' && value.includes('Rp')) {
         return value;
     }
@@ -41,18 +44,16 @@ export default function ProductCard({ product, onAddToCart }) {
 
     // Deteksi badge status dan dot color
     const isReadyStock = product.stock_status === 'ready_stock' || product.badge_label?.toLowerCase().includes('ready');
-    const badgeText = product.badge_label || (isReadyStock ? 'Ready Stock' : 'Jasa Resmi');
+    const badgeText = product.badge_label || 'Ketersediaan belum dikonfirmasi';
     const dotColor = isReadyStock ? 'dot-sage' : 'dot-azure';
     const badgeColor = isReadyStock ? 'text-[#8cd4b4]' : 'text-[#9bb8f5]';
 
-    const tags = Array.isArray(product.tags) && product.tags.length > 0 
-        ? product.tags 
-        : ['B2B', 'Faktur Pajak'];
+    const tags = product.tags || [];
 
     // Handler Tambah ke Keranjang siap pakai untuk Backend
     const handleAddToCart = (e) => {
         e.preventDefault();
-        if (isAdding) return;
+        if (isAdding || product.cart_enabled === false) return;
 
         setIsAdding(true);
 
@@ -76,10 +77,8 @@ export default function ProductCard({ product, onAddToCart }) {
                 setTimeout(() => setIsAdded(false), 2000);
             },
             onError: () => {
-                // Fallback graceful jika route backend /buyer/cart belum dibuat
                 setIsAdding(false);
-                setIsAdded(true);
-                setTimeout(() => setIsAdded(false), 2000);
+                setIsAdded(false);
             },
         });
     };
@@ -92,12 +91,12 @@ export default function ProductCard({ product, onAddToCart }) {
                 href={`/buyer/products/${product.id}`}
                 className="w-full h-36 sm:h-40 bg-slate-50 dark:bg-white rounded-xl p-3 flex items-center justify-center overflow-hidden shrink-0 cursor-pointer block border border-slate-100 dark:border-transparent"
             >
-                <img
-                    src={product.image_url || '/images/product-lan-services.png'}
+                {product.image_url ? <img
+                    src={product.image_url}
                     alt={product.name}
                     className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-200"
                     loading="lazy"
-                />
+                /> : <span className="text-xs text-slate-500">Foto belum tersedia</span>}
             </Link>
 
             {/* 2. Card Content */}
@@ -147,7 +146,7 @@ export default function ProductCard({ product, onAddToCart }) {
                 <button
                     type="button"
                     onClick={handleAddToCart}
-                    disabled={isAdding}
+                    disabled={isAdding || product.cart_enabled === false}
                     className="mt-4 w-full py-2.5 rounded-lg text-xs font-semibold btn-primary-bespoke flex items-center justify-center gap-1.5 active:scale-[0.98] disabled:opacity-70"
                 >
                     {isAdding ? (
@@ -163,7 +162,7 @@ export default function ProductCard({ product, onAddToCart }) {
                     ) : (
                         <>
                             <Plus className="h-3.5 w-3.5" />
-                            <span>Tambah ke Keranjang</span>
+                            <span>{product.cart_enabled === false ? 'Keranjang belum tersedia' : 'Tambah ke Keranjang'}</span>
                         </>
                     )}
                 </button>
