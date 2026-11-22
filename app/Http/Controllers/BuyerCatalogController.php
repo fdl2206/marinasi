@@ -16,7 +16,9 @@ class BuyerCatalogController extends Controller
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
             'kategori' => ['nullable', 'integer', 'exists:categories,id'],
-            'sort' => ['nullable', 'in:newest,price_asc,price_desc,ready_stock'],
+            'sort' => ['nullable', 'in:newest,price_asc,price_desc,ready_stock,terkait'],
+            'min_price' => ['nullable', 'numeric', 'min:0'],
+            'max_price' => ['nullable', 'numeric', 'min:0'],
             'page' => ['nullable', 'integer', 'min:1'],
         ]);
         $sort = $filters['sort'] ?? 'newest';
@@ -25,6 +27,8 @@ class BuyerCatalogController extends Controller
                 $query->where('name', 'like', "%{$search}%")->orWhere('sku', 'like', "%{$search}%");
             }))
             ->when($filters['kategori'] ?? null, fn ($query, int $categoryId) => $query->where('category_id', $categoryId))
+            ->when($filters['min_price'] ?? null, fn ($query, $minPrice) => $query->where('price', '>=', $minPrice))
+            ->when($filters['max_price'] ?? null, fn ($query, $maxPrice) => $query->where('price', '<=', $maxPrice))
             ->when($sort === 'ready_stock', fn ($query) => $query->where('stock_quantity', '>', 0));
 
         if (in_array($sort, ['price_asc', 'price_desc'], true)) {
@@ -36,7 +40,13 @@ class BuyerCatalogController extends Controller
         return Inertia::render('Buyer/Home', [
             'products' => $products->getCollection()->map(fn (Product $product): array => $this->productData($product))->all(),
             'categories' => $this->categories(),
-            'filters' => ['search' => $filters['search'] ?? '', 'sort' => $sort, 'kategori' => $filters['kategori'] ?? null],
+            'filters' => [
+                'search' => $filters['search'] ?? '',
+                'sort' => $sort,
+                'kategori' => $filters['kategori'] ?? null,
+                'min_price' => $filters['min_price'] ?? null,
+                'max_price' => $filters['max_price'] ?? null,
+            ],
             'pagination' => ['current_page' => $products->currentPage(), 'last_page' => $products->lastPage(), 'total' => $products->total()],
             'paginationLinks' => ['previous' => $products->previousPageUrl(), 'next' => $products->nextPageUrl()],
             'cartCount' => 0,
@@ -64,10 +74,19 @@ class BuyerCatalogController extends Controller
             ->whereHas('category', fn ($query) => $query->where('is_active', true));
     }
 
-    /** @return array<int, array{id: int, name: string}> */
+    /** @return array<int, array{id: int, name: string, products_count?: int}> */
     private function categories(): array
     {
-        return Category::query()->where('is_active', true)->orderBy('name')->get(['id', 'name'])->toArray();
+        return Category::query()->where('is_active', true)
+            ->withCount(['products' => fn ($query) => $query->where('is_active', true)])
+            ->orderBy('name')
+            ->get(['id', 'name', 'products_count'])
+            ->map(fn (Category $category) => [
+                'id' => $category->id,
+                'name' => $category->name,
+                'products_count' => (int) $category->products_count,
+            ])
+            ->toArray();
     }
 
     /** @return array<string, mixed> */

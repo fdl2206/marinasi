@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { Phone, MapPin, Mail, ArrowUpRight } from 'lucide-react';
+import ApplicationLogo from '@/Components/ApplicationLogo';
 
 export default function Footer() {
     return (
@@ -10,20 +11,8 @@ export default function Footer() {
                     {/* LEFT COLUMN: Brand Identity & Summary */}
                     <div className="lg:col-span-7 space-y-6">
                         {/* Logo & Name */}
-                        <div className="flex items-center gap-3">
-                            <img
-                                src="/images/logo-pn.png"
-                                alt="Logo CV. Putra Nugraha"
-                                className="h-11 w-11 rounded-lg object-contain shadow-sm"
-                            />
-                            <div className="flex flex-col">
-                                <span className="text-base font-bold tracking-tight text-slate-900 dark:text-white uppercase">
-                                    CV. PUTRA NUGRAHA
-                                </span>
-                                <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
-                                    Perdagangan Barang dan Jasa
-                                </span>
-                            </div>
+                        <div className="flex items-center">
+                            <ApplicationLogo className="h-10 sm:h-11 w-auto" />
                         </div>
 
                         {/* Company Mission / Intro */}

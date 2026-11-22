@@ -30,7 +30,8 @@ import {
     Building
 } from 'lucide-react';
 import { formatRupiah } from '@/Components/Buyer/ProductCard';
-import ThemeToggle from '@/Components/Common/ThemeToggle';
+import BuyerNavbar from '@/Components/Buyer/BuyerNavbar';
+import BuyerFooter from '@/Components/Buyer/BuyerFooter';
 
 /**
  * Data mock dokumen faktur pajak & invoice resmi CV. Putra Nugraha
@@ -230,127 +231,13 @@ export default function InvoicesIndex({
     }, [initialDocuments, selectedTab, selectedPeriod, searchQuery]);
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-[#0C0D12] text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col transition-colors duration-150">
+        <div className="min-h-screen bg-[#f3f7fa] dark:bg-[#0C0D12] text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col transition-colors duration-150">
             <Head title="Dokumen & Faktur Pajak (e-Faktur) — CV. Putra Nugraha" />
 
             {/* ========================================================= */}
             {/* HEADER NAVBAR                                             */}
             {/* ========================================================= */}
-            <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-[#12161F] backdrop-blur transition-colors duration-150">
-                <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-6 px-3 sm:px-6 lg:px-8 h-16 sm:h-20">
-                    
-                    {/* Brand Identity / Logo */}
-                    <Link href="/portal" className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
-                        <img
-                            src="/images/logo-pn.png"
-                            alt="Logo CV. Putra Nugraha"
-                            className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-contain shrink-0"
-                        />
-                        <div className="flex flex-col min-w-0">
-                            <span className="text-xs sm:text-sm font-bold tracking-tight text-slate-900 dark:text-white uppercase truncate">
-                                <span className="sm:hidden">CV. PN</span>
-                                <span className="hidden sm:inline">CV. PUTRA NUGRAHA -</span>
-                            </span>
-                            <span className="hidden sm:inline text-[11px] font-normal text-slate-500 dark:text-slate-400">
-                                Perdagangan Barang dan Jasa
-                            </span>
-                        </div>
-                    </Link>
-
-                    {/* Search Bar (Desktop) */}
-                    <div className="hidden md:flex flex-1 max-w-xl mx-4">
-                        <div className="relative w-full">
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Cari nomor Faktur Pajak (010.xxx), No. Invoice, atau nama barang..."
-                                className="w-full h-10 rounded-lg bg-slate-100 dark:bg-white border border-slate-200 dark:border-transparent pl-4 pr-11 text-xs text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-                            />
-                            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
-                                <Search className="h-4 w-4" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right Actions: Theme Toggle, Keranjang & Akun */}
-                    <div className="flex items-center gap-1.5 sm:gap-5 shrink-0">
-                        <ThemeToggle />
-
-                        <Link
-                            href="/buyer/cart"
-                            className="relative flex items-center gap-1.5 sm:gap-2 p-2 sm:p-0 text-xs font-medium text-slate-700 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white transition-colors"
-                        >
-                            <ShoppingCart className="h-4 w-4 text-slate-500 dark:text-slate-300" />
-                            <span className="hidden sm:inline">Keranjang</span>
-                            {cartCount > 0 && (
-                                <span className="flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-blue-600 text-[10px] font-bold text-white">
-                                    {cartCount}
-                                </span>
-                            )}
-                        </Link>
-
-                        {/* Akun Button */}
-                        <div className="relative">
-                            <button
-                                type="button"
-                                onClick={() => setAccountMenuOpen(!accountMenuOpen)}
-                                className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-colors"
-                            >
-                                <User className="h-4 w-4" />
-                                <span className="hidden sm:inline">Akun</span>
-                            </button>
-
-                            {accountMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-52 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1E2434] p-2 shadow-2xl space-y-1 text-xs z-50">
-                                    <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
-                                        <div className="font-bold text-slate-900 dark:text-white truncate">{client.company_name}</div>
-                                        <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{client.pic_name}</div>
-                                    </div>
-                                    <Link
-                                        href="/buyer/dashboard"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
-                                    >
-                                        <LayoutDashboard className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                                        <span>Dashboard Pengadaan</span>
-                                    </Link>
-                                    <Link
-                                        href="/buyer/orders"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
-                                    >
-                                        <Package className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                                        <span>Riwayat Pesanan</span>
-                                    </Link>
-                                    <Link
-                                        href="/buyer/quotations"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
-                                    >
-                                        <FileText className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                                        <span>Pengajuan RFQ &amp; SPH</span>
-                                    </Link>
-                                    <Link
-                                        href="/portal"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white transition"
-                                    >
-                                        <Receipt className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                                        <span>Katalog Pengadaan B2B</span>
-                                    </Link>
-                                    <Link
-                                        href="/logout"
-                                        method="post"
-                                        as="button"
-                                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition text-left"
-                                    >
-                                        <LogOut className="h-3.5 w-3.5" />
-                                        <span>Keluar (Logout)</span>
-                                    </Link>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                </div>
-            </header>
+            <BuyerNavbar />
 
             {/* ========================================================= */}
             {/* MAIN CONTENT AREA                                         */}
@@ -365,25 +252,25 @@ export default function InvoicesIndex({
                     <aside className="lg:col-span-3 space-y-5">
                         
                         {/* 1. Akun Perusahaan Card */}
-                        <div className="rounded-2xl border border-slate-800 bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-lg">
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 space-y-3 shadow-sm">
                             <div className="flex items-start gap-3">
-                                <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5 border border-blue-200 dark:border-blue-500/20">
+                                <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-[#086f8e] dark:text-[#38bdf8] shrink-0 mt-0.5 border border-slate-200 dark:border-slate-700">
                                     <Building2 className="h-5 w-5" />
                                 </div>
                                 <div className="space-y-1 min-w-0">
                                     <h2 className="text-sm font-bold text-slate-900 dark:text-white leading-tight truncate">
-                                        {client.company_name}
+                                        {client.company_name || 'PT Maju Jaya Teknologi'}
                                     </h2>
                                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                                        PIC: {client.pic_name}
+                                        PIC: {client.pic_name || 'Budi Santoso'}
                                     </p>
                                 </div>
                             </div>
 
                             {/* Verification Pill */}
-                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-blue-950/60 border border-emerald-200 dark:border-blue-500/30 text-emerald-700 dark:text-blue-400 text-[10px] font-semibold w-full">
-                                <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-600 dark:text-blue-400" />
-                                <span className="truncate">{client.tax_status}</span>
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-semibold w-full">
+                                <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                <span className="truncate">{client.tax_status || 'PKP & NPWP Terverifikasi'}</span>
                             </div>
                         </div>
 
@@ -734,28 +621,28 @@ export default function InvoicesIndex({
                         </div>
 
                         {/* 6. Legalitas Kepatuhan Pajak CV. Putra Nugraha */}
-                        <div className="p-5 rounded-2xl border border-slate-800 bg-[#171B26] space-y-3 shadow-md">
-                            <div className="flex items-center gap-2.5 text-[#9bb8f5] font-semibold text-xs uppercase tracking-wider">
+                        <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] space-y-3 shadow-sm">
+                            <div className="flex items-center gap-2.5 text-[#086f8e] dark:text-[#38bdf8] font-semibold text-xs uppercase tracking-wider">
                                 <ShieldCheck className="h-4 w-4" />
                                 <span>Informasi Perpajakan &amp; Legalitas PKP CV. Putra Nugraha</span>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs pt-1">
-                                <div className="p-3 rounded-xl bg-[#0C0D12] border border-slate-800 space-y-1">
-                                    <div className="text-[11px] text-slate-400">NPWP Resmi Perusahaan:</div>
-                                    <div className="font-mono font-bold text-white">08.765.432.1-429.000</div>
+                                <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 space-y-1">
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400">NPWP Resmi Perusahaan:</div>
+                                    <div className="font-mono font-bold text-slate-900 dark:text-white">08.765.432.1-429.000</div>
                                 </div>
-                                <div className="p-3 rounded-xl bg-[#0C0D12] border border-slate-800 space-y-1">
-                                    <div className="text-[11px] text-slate-400">Surat Pengukuhan PKP:</div>
-                                    <div className="font-mono font-bold text-white">S-124PKP/WPJ.09/KP.0303/2020</div>
+                                <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 space-y-1">
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400">Surat Pengukuhan PKP:</div>
+                                    <div className="font-mono font-bold text-slate-900 dark:text-white">S-124PKP/WPJ.09/KP.0303/2020</div>
                                 </div>
-                                <div className="p-3 rounded-xl bg-[#0C0D12] border border-slate-800 space-y-1">
-                                    <div className="text-[11px] text-slate-400">Aplikasi e-Faktur:</div>
-                                    <div className="font-semibold text-[#8cd4b4]">DJP Online e-Faktur Host-to-Host</div>
+                                <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 space-y-1">
+                                    <div className="text-[11px] text-slate-500 dark:text-slate-400">Aplikasi e-Faktur:</div>
+                                    <div className="font-semibold text-emerald-600 dark:text-[#8cd4b4]">DJP Online e-Faktur Host-to-Host</div>
                                 </div>
                             </div>
 
-                            <p className="text-xs text-slate-400 leading-relaxed pt-1">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed pt-1">
                                 Seluruh faktur pajak diterbitkan dengan barcode QR resmi Direktorat Jenderal Pajak (DJP) yang dapat dipindai secara langsung. Dokumen sah sebagai Pajak Masukan resmi untuk pelaporan SPT Masa PPN instansi Anda.
                             </p>
                         </div>
@@ -767,137 +654,9 @@ export default function InvoicesIndex({
             </main>
 
             {/* ========================================================= */}
-            {/* FOOTER B2B CORPORATE 4 KOLOM                              */}
+            {/* FOOTER B2B CORPORATE 4 KOLOM & WA HOTLINE                 */}
             {/* ========================================================= */}
-            <footer className="mt-16 border-t border-slate-800/80 bg-[#12161F] text-slate-400 text-xs">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        
-                        {/* Col 1: Brand & Profil */}
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-3">
-                                <img
-                                    src="/images/logo-pn.png"
-                                    alt="Logo CV. Putra Nugraha"
-                                    className="h-9 w-9 rounded-lg object-contain"
-                                />
-                                <div className="flex flex-col">
-                                    <span className="text-xs font-bold tracking-tight text-white uppercase">
-                                        CV. PUTRA NUGRAHA -
-                                    </span>
-                                    <span className="text-[10px] text-slate-400">
-                                        Perdagangan Barang dan Jasa
-                                    </span>
-                                </div>
-                            </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
-                                Pengadaan perangkat IT dan layanan profesional untuk mendukung kebutuhan perusahaan Anda.
-                            </p>
-                        </div>
-
-                        {/* Col 2: Panduan Pengadaan */}
-                        <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                                Panduan Pengadaan B2B
-                            </h4>
-                            <ul className="space-y-2 text-xs">
-                                <li>
-                                    <Link href="/panduan/cara-belanja" className="text-slate-400 hover:text-white transition">
-                                        Cara Belanja &amp; Pengajuan RFQ
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="/panduan/faktur-pajak" className="text-slate-400 hover:text-white transition">
-                                        Ketentuan Faktur Pajak
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="/panduan/pembayaran" className="text-slate-400 hover:text-white transition">
-                                        Pembayaran &amp; Pengiriman
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="/panduan/garansi" className="text-slate-400 hover:text-white transition">
-                                        Garansi &amp; Layanan Purnajual
-                                    </Link>
-                                </li>
-                            </ul>
-                        </div>
-
-                        {/* Col 3: Layanan Pelanggan */}
-                        <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                                Layanan Pelanggan
-                            </h4>
-                            <div className="flex items-center gap-2 text-white font-bold text-sm">
-                                <Phone className="h-4 w-4 text-emerald-400" />
-                                <a 
-                                    href="https://wa.me/6281320777874" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="hover:text-emerald-400 transition"
-                                >
-                                    (+62) 813-2077-7874
-                                </a>
-                            </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
-                                Hubungi tim kami untuk konsultasi produk, penawaran, dan status pengadaan.
-                            </p>
-                            <div>
-                                <a
-                                    href="https://wa.me/6281320777874"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
-                                >
-                                    <span>Konsultasikan kebutuhan Anda</span>
-                                    <ArrowRight className="h-3 w-3" />
-                                </a>
-                            </div>
-                        </div>
-
-                        {/* Col 4: Alamat Kantor */}
-                        <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                                Alamat Kantor
-                            </h4>
-                            <div className="flex items-start gap-2.5">
-                                <MapPin className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
-                                <p className="text-xs text-slate-400 leading-relaxed">
-                                    Jl. Cinangka Kavling 2, RT 03, RW 05 Kel. Pasir Wangi Kec. Ujung Berung
-                                </p>
-                            </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
-                                Melayani kebutuhan barang dan jasa IT perusahaan.
-                            </p>
-                        </div>
-
-                    </div>
-                </div>
-
-                {/* Bottom Bar */}
-                <div className="border-t border-slate-800/80">
-                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-                        <p>© 2026 CV. Putra Nugraha. All Right Reserved.</p>
-                        <p className="hidden sm:block">Perdagangan Barang dan Jasa</p>
-                    </div>
-                </div>
-            </footer>
-
-            {/* ========================================================= */}
-            {/* FLOATING WHATSAPP BUTTON                                  */}
-            {/* ========================================================= */}
-            <a
-                href="https://wa.me/6281320777874"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Konsultasi Pengadaan via WhatsApp"
-                className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center justify-center h-11 w-11 sm:h-13 sm:w-13 p-2.5 sm:p-3.5 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-white shadow-2xl shadow-emerald-950/60 transition-transform duration-200 hover:scale-110 active:scale-95"
-            >
-                <svg viewBox="0 0 24 24" className="h-5 w-5 sm:h-6 sm:w-6 fill-current">
-                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-                </svg>
-            </a>
+            <BuyerFooter />
 
         </div>
     );
