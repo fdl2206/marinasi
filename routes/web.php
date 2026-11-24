@@ -9,6 +9,7 @@ use App\Http\Controllers\SellerProductImageController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\BuyerCartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,9 +88,10 @@ Route::prefix('buyer')->name('buyer.')->middleware(['auth', 'can:access-buyer'])
         return Inertia::render('Buyer/Orders/Index');
     })->name('orders.index');
 
-    Route::get('/cart', function () {
-        return Inertia::render('Buyer/Cart/Index');
-    })->name('cart.index');
+    Route::get('/cart', [BuyerCartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/items', [BuyerCartController::class, 'store'])->name('cart.items.store');
+    Route::patch('/cart/items/{cartItem}', [BuyerCartController::class, 'update'])->name('cart.items.update');
+    Route::delete('/cart/items/{cartItem}', [BuyerCartController::class, 'destroy'])->name('cart.items.destroy');
 
     Route::get('/checkout', function () {
         return Inertia::render('Buyer/Checkout/Index');

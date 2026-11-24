@@ -1,35 +1,17 @@
-import { useState, useMemo } from 'react';
-import { Head, Link, usePage, router } from '@inertiajs/react';
-import { 
-    Search, 
-    ShoppingCart, 
-    User, 
-    Server, 
-    Network, 
-    Wrench, 
-    HardDrive, 
-    Briefcase, 
-    LogOut, 
-    LayoutDashboard,
-    Plus, 
-    Minus, 
-    Trash2, 
-    FileText, 
-    ShieldCheck, 
-    Phone, 
-    MapPin, 
-    ArrowRight,
-    Check,
-    Download
+import { useState, useMemo, useEffect } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
+import {
+    ShoppingCart,
+    Plus,
+    Minus,
+    Trash2,
+    FileText,
+    ShieldCheck,
 } from 'lucide-react';
 import { formatRupiah } from '@/Components/Buyer/ProductCard';
 import BuyerNavbar from '@/Components/Buyer/BuyerNavbar';
 import BuyerFooter from '@/Components/Buyer/BuyerFooter';
 
-/**
- * Data default keranjang pengadaan B2B sesuai mockup Figma.
- * Backend dapat langsung mengirimkan prop `cart_items` dari CartController / Database.
- */
 const DEFAULT_CART_ITEMS = [
     {
         id: 1,
@@ -78,71 +60,199 @@ const DEFAULT_CART_ITEMS = [
     },
 ];
 
-export default function CartIndex({ cart_items: serverCartItems }) {
-    const { props } = usePage();
-    const auth = props?.auth;
+function resolveCartItemUrl(action, cartItemId) {
+    if (typeof window !== 'undefined' && typeof window.route === 'function') {
+        const routeName =
+            action === 'update' ? 'buyer.cart.items.update' : 'buyer.cart.items.destroy';
+        try {
+            return window.route(routeName, cartItemId);
+        } catch {
+            // Fallback ke URL langsung bila route helper belum memuat route ini
+        }
+    }
 
-    // Cart Items State
-    const [items, setItems] = useState(serverCartItems || DEFAULT_CART_ITEMS);
-    
+    return `/buyer/cart/items/${cartItemId}`;
+}
+
+function normalizeCartItems(rawItems, previousSelectionMap = {}) {
+    const source = Array.isArray(rawItems) ? rawItems : DEFAULT_CART_ITEMS;
+    return source.map((item) => ({
+        ...item,
+        quantity: Number(item.quantity) || 1,
+        price: Number(item.price) || 0,
+        stock: Number(item.stock) || 99,
+        selected:
+            Object.prototype.hasOwnProperty.call(previousSelectionMap, item.id)
+                ? previousSelectionMap[item.id]
+                : item.selected ?? true,
+    }));
+}
+
+export default function CartIndex({ cart_items: serverCartItems }) {
+    const [items, setItems] = useState(() => normalizeCartItems(serverCartItems));
+    const [busyItemIds, setBusyItemIds] = useState([]);
+    const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+    const [feedbackMessage, setFeedbackMessage] = useState(null);
+
     // Procurement & Tax Form Data (Backend-ready)
     const [prReference, setPrReference] = useState('');
     const [companyNpwp, setCompanyNpwp] = useState('');
     const [deliveryNotes, setDeliveryNotes] = useState('');
 
-    // Navbar state
-    const [searchQuery, setSearchQuery] = useState('');
-    const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+    useEffect(() => {
+        if (Array.isArray(serverCartItems)) {
+            setItems((prev) => {
+                const selectionMap = Object.fromEntries(
+                    prev.map((entry) => [entry.id, entry.selected])
+                );
+                return normalizeCartItems(serverCartItems, selectionMap);
+            });
+        }
+    }, [serverCartItems]);
 
-    const categories = [
-        { id: 'hardware', name: 'Hardware', icon: Server },
-        { id: 'networking', name: 'Networking & Router', icon: Network },
-        { id: 'services', name: 'Jasa Instalasi & Servis', icon: Wrench },
-        { id: 'accessories', name: 'Aksesoris IT', icon: HardDrive },
-        { id: 'procurement', name: 'Paket Pengadaan Kantor', icon: Briefcase },
-    ];
+    const setItemBusy = (id, busy) => {
+        setBusyItemIds((prev) =>
+            busy ? [...new Set([...prev, id])] : prev.filter((itemId) => itemId !== id)
+        );
+    };
+
+    const isItemBusy = (id) => busyItemIds.includes(id) || isBulkDeleting;
 
     // Checkbox toggles
-    const allSelected = useMemo(() => items.length > 0 && items.every(i => i.selected), [items]);
-    
+    const allSelected = useMemo(
+        () => items.length > 0 && items.every((i) => i.selected),
+        [items]
+    );
+
     const toggleSelectAll = () => {
         const nextState = !allSelected;
-        setItems(prev => prev.map(item => ({ ...item, selected: nextState })));
+        setItems((prev) => prev.map((item) => ({ ...item, selected: nextState })));
     };
 
     const toggleSelectItem = (id) => {
-        setItems(prev => prev.map(item => item.id === id ? { ...item, selected: !item.selected } : item));
+        setItems((prev) =>
+            prev.map((item) => (item.id === id ? { ...item, selected: !item.selected } : item))
+        );
     };
 
-    const handleQuantityChange = (id, delta) => {
-        setItems(prev => prev.map(item => {
-            if (item.id === id) {
-                const nextQty = Math.max(1, Math.min(item.stock, item.quantity + delta));
-                return { ...item, quantity: nextQty };
+    const handleQuantityChange = (item, delta) => {
+        if (isItemBusy(item.id)) return;
+
+        const nextQty = Math.max(1, Math.min(item.stock, item.quantity + delta));
+        if (nextQty === item.quantity) return;
+
+        const previousItems = items;
+        setFeedbackMessage(null);
+        setItemBusy(item.id, true);
+
+        setItems((prev) =>
+            prev.map((entry) =>
+                entry.id === item.id ? { ...entry, quantity: nextQty } : entry
+            )
+        );
+
+        router.patch(
+            resolveCartItemUrl('update', item.id),
+            { quantity: nextQty },
+            {
+                preserveScroll: true,
+                onError: (errors) => {
+                    setItems(previousItems);
+                    const errorText =
+                        errors?.quantity ||
+                        errors?.product_id ||
+                        'Gagal memperbarui jumlah item di keranjang.';
+                    setFeedbackMessage({ type: 'error', text: errorText });
+                },
+                onFinish: () => {
+                    setItemBusy(item.id, false);
+                },
             }
-            return item;
-        }));
+        );
+    };
+
+    const handleRemoveItem = (item) => {
+        if (isItemBusy(item.id)) return;
+
+        const previousItems = items;
+        setFeedbackMessage(null);
+        setItemBusy(item.id, true);
+
+        setItems((prev) => prev.filter((entry) => entry.id !== item.id));
+
+        router.delete(resolveCartItemUrl('destroy', item.id), {
+            preserveScroll: true,
+            onError: () => {
+                setItems(previousItems);
+                setFeedbackMessage({
+                    type: 'error',
+                    text: 'Gagal menghapus item dari keranjang.',
+                });
+            },
+            onFinish: () => {
+                setItemBusy(item.id, false);
+            },
+        });
     };
 
     const handleRemoveSelected = () => {
-        setItems(prev => prev.filter(item => !item.selected));
+        const targets = items.filter((item) => item.selected);
+        if (targets.length === 0 || isBulkDeleting) return;
+
+        const previousItems = items;
+        const targetIds = new Set(targets.map((t) => t.id));
+
+        setFeedbackMessage(null);
+        setIsBulkDeleting(true);
+        setItems((prev) => prev.filter((entry) => !targetIds.has(entry.id)));
+
+        const deleteSequentially = (index) => {
+            if (index >= targets.length) {
+                setIsBulkDeleting(false);
+                return;
+            }
+
+            const currentTarget = targets[index];
+            router.delete(resolveCartItemUrl('destroy', currentTarget.id), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    deleteSequentially(index + 1);
+                },
+                onError: () => {
+                    setItems(previousItems);
+                    setIsBulkDeleting(false);
+                    setFeedbackMessage({
+                        type: 'error',
+                        text: 'Sebagian atau seluruh item pilihan gagal dihapus dari keranjang.',
+                    });
+                },
+            });
+        };
+
+        deleteSequentially(0);
     };
 
+    const cartCount = useMemo(
+        () => items.reduce((acc, curr) => acc + curr.quantity, 0),
+        [items]
+    );
+
     // Selected items metrics
-    const selectedItems = useMemo(() => items.filter(i => i.selected), [items]);
-    const totalUnits = useMemo(() => selectedItems.reduce((acc, curr) => acc + curr.quantity, 0), [selectedItems]);
+    const selectedItems = useMemo(() => items.filter((i) => i.selected), [items]);
+    const totalUnits = useMemo(
+        () => selectedItems.reduce((acc, curr) => acc + curr.quantity, 0),
+        [selectedItems]
+    );
 
     // Financial calculations (PPN 11% Inklusif)
     const totalPrice = useMemo(() => {
-        return selectedItems.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
+        return selectedItems.reduce((acc, curr) => acc + curr.price * curr.quantity, 0);
     }, [selectedItems]);
 
-    // DPP = Total / 1.11
     const dppAmount = useMemo(() => {
         return Math.round(totalPrice / 1.11);
     }, [totalPrice]);
 
-    // PPN 11% = Total - DPP
     const ppnAmount = useMemo(() => {
         return totalPrice - dppAmount;
     }, [totalPrice, dppAmount]);
@@ -154,13 +264,12 @@ export default function CartIndex({ cart_items: serverCartItems }) {
             {/* ========================================================= */}
             {/* HEADER NAVBAR                                             */}
             {/* ========================================================= */}
-            <BuyerNavbar cartCount={items.length} />
+            <BuyerNavbar cartCount={cartCount} />
 
             {/* ========================================================= */}
-            {/* MAIN CONTENT AREA */}
+            {/* MAIN CONTENT AREA                                         */}
             {/* ========================================================= */}
             <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-                
                 {/* Page Title & PPN Badge */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
@@ -176,12 +285,23 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                     </span>
                 </div>
 
+                {feedbackMessage && (
+                    <div
+                        role="alert"
+                        className={`rounded-xl border px-4 py-3 text-xs font-medium ${
+                            feedbackMessage.type === 'error'
+                                ? 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300'
+                                : 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300'
+                        }`}
+                    >
+                        {feedbackMessage.text}
+                    </div>
+                )}
+
                 {/* 2-Column Cart Layout */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    
                     {/* LEFT COLUMN: ITEM LIST & PROCUREMENT FORM (8 COLS) */}
                     <div className="lg:col-span-8 space-y-6">
-                        
                         {/* Select All Bar */}
                         <div className="flex items-center justify-between px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] text-xs shadow-sm">
                             <label className="flex items-center gap-3 cursor-pointer">
@@ -200,9 +320,10 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                 <button
                                     type="button"
                                     onClick={handleRemoveSelected}
-                                    className="text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 transition font-medium"
+                                    disabled={isBulkDeleting}
+                                    className="text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 disabled:opacity-40 transition font-medium cursor-pointer"
                                 >
-                                    Hapus Pilihan
+                                    {isBulkDeleting ? 'Menghapus...' : 'Hapus Pilihan'}
                                 </button>
                             )}
                         </div>
@@ -212,7 +333,9 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                             {items.length === 0 ? (
                                 <div className="p-12 text-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] space-y-3 shadow-sm">
                                     <ShoppingCart className="h-12 w-12 text-slate-400 dark:text-slate-600 mx-auto" />
-                                    <h3 className="text-base font-bold text-slate-900 dark:text-white">Keranjang Pengadaan Kosong</h3>
+                                    <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                                        Keranjang Pengadaan Kosong
+                                    </h3>
                                     <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
                                         Belum ada barang atau jasa yang ditambahkan ke keranjang pengadaan.
                                     </p>
@@ -224,121 +347,144 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                     </Link>
                                 </div>
                             ) : (
-                                items.map((item) => (
-                                    <div
-                                        key={item.id}
-                                        className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 transition hover:border-slate-300 dark:hover:border-slate-700/80 shadow-sm"
-                                    >
-                                        <div className="flex items-start gap-4">
-                                            {/* Item Checkbox */}
-                                            <input
-                                                type="checkbox"
-                                                checked={item.selected}
-                                                onChange={() => toggleSelectItem(item.id)}
-                                                className="h-4 w-4 mt-1 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0C0D12] text-blue-600 focus:ring-0 focus:ring-offset-0 cursor-pointer"
-                                            />
+                                items.map((item) => {
+                                    const itemBusy = isItemBusy(item.id);
 
-                                            {/* Thumbnail Image Box */}
-                                            <div className="h-20 w-20 sm:h-24 sm:w-24 bg-slate-50 dark:bg-white rounded-xl p-2 flex items-center justify-center shrink-0 overflow-hidden border border-slate-100 dark:border-slate-700/50">
-                                                <img
-                                                    src={item.image_url}
-                                                    alt={item.name}
-                                                    className="max-h-full max-w-full object-contain"
+                                    return (
+                                        <div
+                                            key={item.id}
+                                            className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-4 sm:p-5 transition hover:border-slate-300 dark:hover:border-slate-700/80 shadow-sm"
+                                        >
+                                            <div className="flex items-start gap-4">
+                                                {/* Item Checkbox */}
+                                                <input
+                                                    type="checkbox"
+                                                    checked={item.selected}
+                                                    onChange={() => toggleSelectItem(item.id)}
+                                                    className="h-4 w-4 mt-1 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0C0D12] text-blue-600 focus:ring-0 focus:ring-offset-0 cursor-pointer"
                                                 />
-                                            </div>
 
-                                            {/* Details */}
-                                            <div className="flex-1 min-w-0 space-y-2">
-                                                
-                                                {/* Title & SKU */}
-                                                <div>
-                                                    <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white leading-snug">
-                                                        {item.name}
-                                                    </h3>
-                                                    {item.sku && (
-                                                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                                                            SKU: {item.sku}
-                                                        </p>
-                                                    )}
+                                                {/* Thumbnail Image Box */}
+                                                <div className="h-20 w-20 sm:h-24 sm:w-24 bg-slate-50 dark:bg-white rounded-xl p-2 flex items-center justify-center shrink-0 overflow-hidden border border-slate-100 dark:border-slate-700/50">
+                                                    <img
+                                                        src={item.image_url}
+                                                        alt={item.name}
+                                                        className="max-h-full max-w-full object-contain"
+                                                    />
                                                 </div>
 
-                                                {/* Badges */}
-                                                <div className="flex items-center gap-2 flex-wrap">
-                                                    {item.stock_status === 'ready_stock' ? (
-                                                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium badge-sage">
-                                                            <span className="h-1.5 w-1.5 rounded-full dot-sage shrink-0" />
-                                                            <span>Ready Stock</span>
+                                                {/* Details */}
+                                                <div className="flex-1 min-w-0 space-y-2">
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <div>
+                                                            <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white leading-snug">
+                                                                {item.name}
+                                                            </h3>
+                                                            {item.sku && (
+                                                                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                                                    SKU: {item.sku}
+                                                                </p>
+                                                            )}
                                                         </div>
-                                                    ) : (
-                                                        <span className="px-2 py-0.5 rounded text-[10px] font-medium badge-azure">
-                                                            {item.badge_label}
-                                                        </span>
-                                                    )}
 
-                                                    {item.tax_badge && (
-                                                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                                                            {item.tax_badge}
-                                                        </span>
-                                                    )}
-                                                </div>
-
-                                                {/* Price, Stepper & Subtotal Row */}
-                                                <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-100 dark:border-slate-800/80">
-                                                    <div>
-                                                        <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                                                            {item.unit === 'paket' ? 'Harga per paket:' : 'Harga satuan:'}
-                                                        </span>
-                                                        <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
-                                                            {formatRupiah(item.price)}
-                                                            {item.unit === 'paket' && <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400"> / paket</span>}
-                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveItem(item)}
+                                                            disabled={itemBusy}
+                                                            aria-label={`Hapus ${item.name}`}
+                                                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 disabled:opacity-40 transition cursor-pointer"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
                                                     </div>
 
-                                                    {/* Quantity Stepper & Item Subtotal */}
-                                                    <div className="flex items-center justify-between sm:justify-end gap-5">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">Jumlah</span>
-                                                            <div className="flex items-center rounded-lg bg-slate-100 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 p-0.5">
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => handleQuantityChange(item.id, -1)}
-                                                                    disabled={item.quantity <= 1}
-                                                                    className="h-6 w-6 rounded flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
-                                                                >
-                                                                    <Minus className="h-3 w-3" />
-                                                                </button>
-                                                                <span className="font-bold text-xs text-slate-900 dark:text-white px-2.5">
-                                                                    {item.quantity}
-                                                                </span>
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => handleQuantityChange(item.id, 1)}
-                                                                    disabled={item.quantity >= item.stock}
-                                                                    className="h-6 w-6 rounded flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
-                                                                >
-                                                                    <Plus className="h-3 w-3" />
-                                                                </button>
+                                                    {/* Badges */}
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        {item.stock_status === 'ready_stock' ? (
+                                                            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium badge-sage">
+                                                                <span className="h-1.5 w-1.5 rounded-full dot-sage shrink-0" />
+                                                                <span>Ready Stock</span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="px-2 py-0.5 rounded text-[10px] font-medium badge-azure">
+                                                                {item.badge_label}
+                                                            </span>
+                                                        )}
+
+                                                        {item.tax_badge && (
+                                                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                                                {item.tax_badge}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Price, Stepper & Subtotal Row */}
+                                                    <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-100 dark:border-slate-800/80">
+                                                        <div>
+                                                            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                                                                {item.unit === 'paket'
+                                                                    ? 'Harga per paket:'
+                                                                    : 'Harga satuan:'}
+                                                            </span>
+                                                            <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                                                                {formatRupiah(item.price)}
+                                                                {item.unit === 'paket' && (
+                                                                    <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
+                                                                        {' '}
+                                                                        / paket
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                         </div>
 
-                                                        <div className="text-right">
-                                                            <span className="text-[10px] text-slate-500 dark:text-slate-400 block sm:hidden">Subtotal</span>
-                                                            <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
-                                                                {formatRupiah(item.price * item.quantity)}
-                                                            </span>
+                                                        {/* Quantity Stepper & Item Subtotal */}
+                                                        <div className="flex items-center justify-between sm:justify-end gap-5">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">
+                                                                    Jumlah
+                                                                </span>
+                                                                <div className="flex items-center rounded-lg bg-slate-100 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 p-0.5">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleQuantityChange(item, -1)}
+                                                                        disabled={itemBusy || item.quantity <= 1}
+                                                                        className="h-6 w-6 rounded flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed"
+                                                                    >
+                                                                        <Minus className="h-3 w-3" />
+                                                                    </button>
+                                                                    <span className="font-bold text-xs text-slate-900 dark:text-white px-2.5">
+                                                                        {item.quantity}
+                                                                    </span>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleQuantityChange(item, 1)}
+                                                                        disabled={itemBusy || item.quantity >= item.stock}
+                                                                        className="h-6 w-6 rounded flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed"
+                                                                    >
+                                                                        <Plus className="h-3 w-3" />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="text-right">
+                                                                <span className="text-[10px] text-slate-500 dark:text-slate-400 block sm:hidden">
+                                                                    Subtotal
+                                                                </span>
+                                                                <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                                                                    {formatRupiah(item.price * item.quantity)}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     </div>
-
                                                 </div>
-
                                             </div>
                                         </div>
-                                    </div>
-                                ))
+                                    );
+                                })
                             )}
                         </div>
 
-                        {/* Informasi Pengadaan & Pajak Card (Sesuai Mockup) */}
+                        {/* Informasi Pengadaan & Pajak Card */}
                         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-4 shadow-sm">
                             <div className="flex items-center gap-2.5 text-slate-900 dark:text-white font-bold text-sm">
                                 <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -386,13 +532,11 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                 />
                             </div>
                         </div>
-
                     </div>
 
                     {/* RIGHT COLUMN: STICKY ORDER SUMMARY (4 COLS) */}
                     <div className="lg:col-span-4">
                         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-6 space-y-5 sticky top-24 shadow-sm dark:shadow-xl">
-                            
                             <div>
                                 <h3 className="font-bold text-slate-900 dark:text-white text-base">
                                     Ringkasan Pengadaan B2B
@@ -413,21 +557,28 @@ export default function CartIndex({ cart_items: serverCartItems }) {
 
                                 <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span>DPP (Dasar Pengenaan Pajak):</span>
-                                    <span className="text-slate-700 dark:text-slate-300">{formatRupiah(dppAmount)}</span>
+                                    <span className="text-slate-700 dark:text-slate-300">
+                                        {formatRupiah(dppAmount)}
+                                    </span>
                                 </div>
 
                                 <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span>PPN 11% (Faktur Pajak Resmi):</span>
                                     <span className="text-slate-700 dark:text-slate-300">
                                         {formatRupiah(ppnAmount)}{' '}
-                                        <span className="text-[10px] text-slate-400 dark:text-slate-500">(Termasuk)</span>
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                                            (Termasuk)
+                                        </span>
                                     </span>
                                 </div>
 
                                 <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
                                     <span>Estimasi Pengiriman &amp; Survei:</span>
                                     <span className="text-emerald-600 dark:text-[#8cd4b4] font-medium">
-                                        Gratis <span className="text-[10px] font-normal text-slate-400 dark:text-slate-500">(Area Bandung)</span>
+                                        Gratis{' '}
+                                        <span className="text-[10px] font-normal text-slate-400 dark:text-slate-500">
+                                            (Area Bandung)
+                                        </span>
                                     </span>
                                 </div>
                             </div>
@@ -474,20 +625,15 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                     Bantuan WhatsApp: (+62) 813-2077-7874
                                 </p>
                             </div>
-
                         </div>
                     </div>
-
                 </div>
-
             </main>
 
             {/* ========================================================= */}
             {/* FOOTER PORTAL B2B & WA HOTLINE                            */}
             {/* ========================================================= */}
             <BuyerFooter />
-
         </div>
     );
 }
-
