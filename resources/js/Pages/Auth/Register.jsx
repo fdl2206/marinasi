@@ -201,6 +201,7 @@ export default function Register() {
                                             onChange={(e) => setData('phone', e.target.value)}
                                             className="w-full rounded-xl border border-slate-300 dark:border-slate-700/80 bg-slate-50 dark:bg-[#12161F] px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:bg-white dark:focus:bg-[#12161F] focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
                                         />
+                                        {errors.phone && <p className="text-xs text-rose-500 dark:text-rose-400 mt-1.5">{errors.phone}</p>}
                                     </div>
                                 </div>
                             </div>
@@ -225,6 +226,7 @@ export default function Register() {
                                         onChange={(e) => setData('company_name', e.target.value)}
                                         className="w-full rounded-xl border border-slate-300 dark:border-slate-700/80 bg-slate-50 dark:bg-[#12161F] px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:bg-white dark:focus:bg-[#12161F] focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
                                     />
+                                    {errors.company_name && <p className="text-xs text-rose-500 dark:text-rose-400 mt-1.5">{errors.company_name}</p>}
                                 </div>
 
                                 {/* Alamat Lengkap Perusahaan */}
@@ -241,6 +243,7 @@ export default function Register() {
                                         onChange={(e) => setData('company_address', e.target.value)}
                                         className="w-full rounded-xl border border-slate-300 dark:border-slate-700/80 bg-slate-50 dark:bg-[#12161F] px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:bg-white dark:focus:bg-[#12161F] focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors"
                                     />
+                                    {errors.company_address && <p className="text-xs text-rose-500 dark:text-rose-400 mt-1.5">{errors.company_address}</p>}
                                 </div>
                             </div>
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CartItem;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
@@ -49,11 +50,11 @@ class BuyerCatalogController extends Controller
             ],
             'pagination' => ['current_page' => $products->currentPage(), 'last_page' => $products->lastPage(), 'total' => $products->total()],
             'paginationLinks' => ['previous' => $products->previousPageUrl(), 'next' => $products->nextPageUrl()],
-            'cartCount' => 0,
+            'cartCount' => $this->cartCount($request),
         ]);
     }
 
-    public function show(Product $product): Response
+    public function show(Request $request, Product $product): Response
     {
         abort_unless($product->is_active && $product->category()->where('is_active', true)->exists(), 404);
         $product->load(['category', 'images']);
@@ -64,8 +65,13 @@ class BuyerCatalogController extends Controller
             'related_products' => $this->publicProducts()->where('category_id', $product->category_id)
                 ->whereKeyNot($product->id)->latest('id')->limit(4)->get()
                 ->map(fn (Product $related): array => $this->productData($related))->all(),
-            'cartCount' => 0,
+            'cartCount' => $this->cartCount($request),
         ]);
+    }
+
+    private function cartCount(Request $request): int
+    {
+        return CartItem::activeCountForUser($request->user());
     }
 
     private function publicProducts(): Builder
@@ -92,7 +98,8 @@ class BuyerCatalogController extends Controller
     /** @return array<string, mixed> */
     private function productData(Product $product): array
     {
-        $stockStatus = $product->stock_quantity === null ? 'unknown' : ((float) $product->stock_quantity > 0 ? 'ready_stock' : 'out_of_stock');
+        $stockQty = $product->stock_quantity !== null ? (float) $product->stock_quantity : null;
+        $stockStatus = $stockQty === null ? 'unknown' : ($stockQty >= 1 ? 'ready_stock' : 'out_of_stock');
 
         return [
             'id' => $product->id,
@@ -121,7 +128,7 @@ class BuyerCatalogController extends Controller
             ])->values()->all(),
             'tags' => [],
             'tier_prices' => [],
-            'cart_enabled' => false,
+            'cart_enabled' => $stockStatus !== 'out_of_stock',
         ];
     }
 }

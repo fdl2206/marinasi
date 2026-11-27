@@ -1,499 +1,447 @@
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import SellerLayout from '@/Layouts/SellerLayout';
-import { Head } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import {
     Search,
     Plus,
-    FileSpreadsheet,
     Box,
     AlertTriangle,
     CheckCircle2,
-    Check,
     SlidersHorizontal,
     Edit3,
     Trash2,
     RefreshCw,
     X,
-    UploadCloud,
-    Download,
     ChevronLeft,
     ChevronRight,
-    CheckCircle
+    CheckCircle,
+    FolderTree,
+    ImagePlus,
 } from 'lucide-react';
 
-export default function SellerCatalogIndex() {
-    // -------------------------------------------------------------------------
-    // FILTER & SEARCH STATES
-    // -------------------------------------------------------------------------
-    const [activeTab, setActiveTab] = useState('all'); // 'all', 'hardware', 'networking', 'services', 'accessories'
-    const [searchQuery, setSearchQuery] = useState('');
-    const [stockFilter, setStockFilter] = useState('all'); // 'all', 'ready', 'critical'
-    const [ppnOnlyFilter, setPpnOnlyFilter] = useState(false);
-    const [selectedIds, setSelectedIds] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
+function specsObjectToRows(specs) {
+    if (!specs || typeof specs !== 'object') {
+        return [];
+    }
 
-    // Toast notification state
-    const [toastMessage, setToastMessage] = useState(null);
-    const showToast = (msg) => {
-        setToastMessage(msg);
-        setTimeout(() => setToastMessage(null), 3500);
-    };
+    return Object.entries(specs).map(([key, value]) => ({
+        key,
+        value: typeof value === 'object' ? JSON.stringify(value) : String(value ?? ''),
+    }));
+}
 
-    // -------------------------------------------------------------------------
-    // CATALOG PRODUCTS & SERVICES DATA (24 SKUs: 19 Hardware/IT + 5 Jasa)
-    // Synchronized strictly with design mockups, company assets, and color palette
-    // -------------------------------------------------------------------------
-    const [products, setProducts] = useState([
-        {
-            id: 1,
-            sku: 'PN-SRV-ML30G10',
-            name: 'Server HPE ProLiant ML30 Gen10',
-            category: 'Hardware & Server',
-            category_slug: 'hardware',
-            price_unit: 32500000,
-            price_wholesale: 31750000,
-            stock: 12,
-            unit: 'Unit',
-            is_service: false,
-            is_active: true,
-            is_critical: false,
-            tax_badge: 'e-Faktur Aktif',
-            image: '/images/product-server-hpe.png',
-        },
-        {
-            id: 2,
-            sku: 'PN-NET-CSC24',
-            name: 'Cisco Catalyst Switch 24-Port Gigabit',
-            category: 'Networking & Router',
-            category_slug: 'networking',
-            price_unit: 15450000,
-            price_wholesale: 14900000,
-            stock: 8,
-            unit: 'Unit',
-            is_service: false,
-            is_active: true,
-            is_critical: false,
-            tax_badge: 'e-Faktur Aktif',
-            image: '/images/product-cisco-switch.png',
-        },
-        {
-            id: 3,
-            sku: 'PN-SRV-LAN10',
-            name: 'Paket Jasa Instalasi Jaringan LAN Kantor (10 Titik)',
-            category: 'Jasa Instalasi & Servis',
-            category_slug: 'services',
-            price_unit: 8500000,
-            price_wholesale: 8000000,
-            unit_label: '/ paket',
-            stock: null,
-            stock_text: 'Tim Tersedia',
-            is_service: true,
-            is_active: true,
-            is_critical: false,
-            tax_badge: 'Faktur Pajak',
-            image: '/images/service-technician-lan.png',
-        },
-        {
-            id: 4,
-            sku: 'PN-NET-UAPAC',
-            name: 'Ubiquiti UniFi AP AC Pro',
-            category: 'Networking & Router',
-            category_slug: 'networking',
-            price_unit: 2450000,
-            price_wholesale: 2300000,
-            stock: 15,
-            unit: 'Unit',
-            is_service: false,
-            is_active: true,
-            is_critical: false,
-            tax_badge: null,
-            image: '/images/product-ubiquiti-ap.png',
-        },
-        {
-            id: 5,
-            sku: 'PN-ACC-BLD6',
-            name: 'Kabel UTP Cat6 Belden 305m',
-            category: 'Aksesoris IT',
-            category_slug: 'accessories',
-            price_unit: 3100000,
-            price_wholesale: 2950000,
-            stock: 2,
-            unit: 'Roll',
-            is_service: false,
-            is_active: true,
-            is_critical: true,
-            tax_badge: null,
-            image: '/images/product-belden-cable.png',
-        },
-        // Remaining items to represent the 24 SKU catalog
-        {
-            id: 6,
-            sku: 'PN-SRV-DL380G10',
-            name: 'Server HPE ProLiant DL380 Gen10 2U Rack',
-            category: 'Hardware & Server',
-            category_slug: 'hardware',
-            price_unit: 68500000,
-            price_wholesale: 66000000,
-            stock: 4,
-            unit: 'Unit',
-            is_service: false,
-            is_active: true,
-            is_critical: false,
-            tax_badge: 'e-Faktur Aktif',
-            image: '/images/product-server-hpe.png',
-        },
-        {
-            id: 7,
-            sku: 'PN-NET-MKTRB4011',
-            name: 'MikroTik RouterBOARD RB4011iGS+RM Gigabit',
-            category: 'Networking & Router',
-            category_slug: 'networking',
-            price_unit: 4250000,
-            price_wholesale: 4050000,
-            stock: 11,
-            unit: 'Unit',
-            is_service: false,
-            is_active: true,
-            is_critical: false,
-            tax_badge: 'e-Faktur Aktif',
-            image: '/images/product-cisco-switch.png',
-        },
-        {
-            id: 8,
-            sku: 'PN-SRV-CCTV8',
-            name: 'Paket Jasa Pemasangan & Konfigurasi CCTV IP (8 Titik)',
-            category: 'Jasa Instalasi & Servis',
-            category_slug: 'services',
-            price_unit: 4500000,
-            price_wholesale: 4200000,
-            unit_label: '/ paket',
-            stock: null,
-            stock_text: 'Tim Tersedia',
-            is_service: true,
-            is_active: true,
-            is_critical: false,
-            tax_badge: 'Faktur Pajak',
-            image: '/images/service-technician-lan.png',
-        },
-        {
-            id: 9,
-            sku: 'PN-ACC-RCK12U',
-            name: 'Rack Server Wallmount 12U Indorack Depth 600mm',
-            category: 'Aksesoris IT',
-            category_slug: 'accessories',
-            price_unit: 2650000,
-            price_wholesale: 2450000,
-            stock: 1,
-            unit: 'Unit',
-            is_service: false,
-            is_active: true,
-            is_critical: true,
-            tax_badge: 'e-Faktur Aktif',
-            image: '/images/product-belden-cable.png',
-        },
-        {
-            id: 10,
-            sku: 'PN-SRV-FIBER',
-            name: 'Jasa Penarikan & Splicing Kabel Fiber Optic Back-bone',
-            category: 'Jasa Instalasi & Servis',
-            category_slug: 'services',
-            price_unit: 6500000,
-            price_wholesale: 6000000,
-            unit_label: '/ proyek',
-            stock: null,
-            stock_text: 'Tim Tersedia',
-            is_service: true,
-            is_active: true,
-            is_critical: false,
-            tax_badge: 'Faktur Pajak',
-            image: '/images/service-technician-lan.png',
-        },
-        {
-            id: 11,
-            sku: 'PN-SRV-RAM32G',
-            name: 'RAM Server HPE 32GB DDR4 ECC Registered',
-            category: 'Hardware & Server',
-            category_slug: 'hardware',
-            price_unit: 4800000,
-            price_wholesale: 4550000,
-            stock: 14,
-            unit: 'Keping',
-            is_service: false,
-            is_active: true,
-            is_critical: false,
-            tax_badge: 'e-Faktur Aktif',
-            image: '/images/product-server-hpe.png',
-        },
-        {
-            id: 12,
-            sku: 'PN-NET-CRS328',
-            name: 'MikroTik Cloud Router Switch CRS328-24P-4S+RM PoE',
-            category: 'Networking & Router',
-            category_slug: 'networking',
-            price_unit: 7850000,
-            price_wholesale: 7500000,
-            stock: 6,
-            unit: 'Unit',
-            is_service: false,
-            is_active: true,
-            is_critical: false,
-            tax_badge: 'e-Faktur Aktif',
-            image: '/images/product-cisco-switch.png',
-        },
-    ]);
-
-    // -------------------------------------------------------------------------
-    // MODAL STATES
-    // -------------------------------------------------------------------------
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isRestockModalOpen, setIsRestockModalOpen] = useState(false);
-    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-    // Selected item for Edit / Restock / Delete
-    const [activeItem, setActiveItem] = useState(null);
-
-    // Form State for Add / Edit
-    const [formData, setFormData] = useState({
-        sku: '',
-        name: '',
-        category: 'Hardware & Server',
-        category_slug: 'hardware',
-        price_unit: '',
-        price_wholesale: '',
-        stock: '',
-        unit: 'Unit',
-        is_service: false,
-        tax_badge: 'e-Faktur Aktif',
+function specRowsToObject(rows) {
+    const obj = {};
+    rows.forEach((row) => {
+        const k = (row.key || '').trim();
+        if (k) {
+            obj[k] = (row.value || '').trim();
+        }
     });
 
-    // Form State for Restock
+    return Object.keys(obj).length > 0 ? obj : '';
+}
+
+function formatRp(num) {
+    if (num === null || num === undefined || num === '') {
+        return 'Hubungi untuk penawaran';
+    }
+
+    return 'Rp ' + Number(num).toLocaleString('id-ID');
+}
+
+function formatStock(qty, unit) {
+    if (qty === null || qty === undefined || qty === '') {
+        return 'Belum dikonfirmasi';
+    }
+
+    const numeric = Number(qty);
+    const formatted = Number.isInteger(numeric) ? String(numeric) : String(numeric);
+    return `${formatted}${unit ? ` ${unit}` : ''}`;
+}
+
+export default function SellerCatalogIndex({
+    products: paginatedProducts = { data: [], current_page: 1, last_page: 1, total: 0, from: 0, to: 0 },
+    categories = [],
+    filters = {},
+    stats = {},
+}) {
+    const productRows = Array.isArray(paginatedProducts?.data) ? paginatedProducts.data : [];
+    const activeCategories = useMemo(
+        () => categories.filter((cat) => cat.is_active),
+        [categories]
+    );
+
+    // Filter & Search States (synced with server query)
+    const [searchQuery, setSearchQuery] = useState(filters.search || '');
+    const [selectedCategoryId, setSelectedCategoryId] = useState(filters.category_id || '');
+    const [selectedType, setSelectedType] = useState(filters.type || '');
+    const [stockFilter, setStockFilter] = useState(filters.stock_status || 'all');
+
+    useEffect(() => {
+        setSearchQuery(filters.search || '');
+        setSelectedCategoryId(filters.category_id || '');
+        setSelectedType(filters.type || '');
+        setStockFilter(filters.stock_status || 'all');
+    }, [filters.search, filters.category_id, filters.type, filters.stock_status]);
+
+    // Toast notification state
+    const [toast, setToast] = useState(null);
+    const showToast = (message, type = 'success') => {
+        setToast({ message, type });
+        setTimeout(() => setToast(null), 3500);
+    };
+
+    // Modal states
+    const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+    const [editingProduct, setEditingProduct] = useState(null);
+    const [specRows, setSpecRows] = useState([]);
+    const [deletingImageId, setDeletingImageId] = useState(null);
+
+    const [isRestockModalOpen, setIsRestockModalOpen] = useState(false);
+    const [restockTarget, setRestockTarget] = useState(null);
     const [restockQty, setRestockQty] = useState(10);
-    const [restockPoRef, setRestockPoRef] = useState('PO-IN-2026-089');
+    const [restockBusy, setRestockBusy] = useState(false);
 
-    // Format currency helper
-    const formatRp = (num) => {
-        if (!num) return 'Rp 0';
-        return 'Rp ' + Number(num).toLocaleString('id-ID');
-    };
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [deleteBusy, setDeleteBusy] = useState(false);
 
-    // Explicit, rock-solid grid template styling matching design mockup (vertical status & action)
-    const catalogGridStyle = {
-        display: 'grid',
-        gridTemplateColumns: 'minmax(260px, 2.5fr) minmax(115px, 1fr) minmax(120px, 1fr) minmax(125px, 1fr) minmax(85px, 0.8fr) 95px 60px',
-        gap: '0.75rem',
-        alignItems: 'center',
-    };
+    const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+    const [editingCategory, setEditingCategory] = useState(null);
+    const [categoryError, setCategoryError] = useState('');
 
-    // -------------------------------------------------------------------------
-    // FILTERING LOGIC
-    // -------------------------------------------------------------------------
-    const filteredProducts = useMemo(() => {
-        return products.filter((item) => {
-            // Tab filter
-            if (activeTab !== 'all' && item.category_slug !== activeTab) {
-                return false;
-            }
+    const productForm = useForm({
+        category_id: activeCategories[0]?.id ? String(activeCategories[0].id) : '',
+        name: '',
+        type: 'goods',
+        sku: '',
+        description: '',
+        price: '',
+        stock_quantity: '',
+        stock_unit: 'Unit',
+        moq: '',
+        is_active: true,
+        images: [],
+    });
 
-            // Search query
-            if (searchQuery.trim()) {
-                const query = searchQuery.toLowerCase();
-                const matchName = item.name.toLowerCase().includes(query);
-                const matchSku = item.sku.toLowerCase().includes(query);
-                const matchCategory = item.category.toLowerCase().includes(query);
-                if (!matchName && !matchSku && !matchCategory) return false;
-            }
+    const categoryForm = useForm({
+        name: '',
+        is_active: true,
+    });
 
-            // Stock filter
-            if (stockFilter === 'ready' && (item.is_critical || item.stock <= 2)) return false;
-            if (stockFilter === 'critical' && !item.is_critical) return false;
-
-            // PPN filter
-            if (ppnOnlyFilter && !item.tax_badge) return false;
-
-            return true;
-        });
-    }, [products, activeTab, searchQuery, stockFilter, ppnOnlyFilter]);
-
-    // Paginated slice
-    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage) || 1;
-    const paginatedItems = useMemo(() => {
-        const start = (currentPage - 1) * itemsPerPage;
-        return filteredProducts.slice(start, start + itemsPerPage);
-    }, [filteredProducts, currentPage]);
-
-    // Selection handlers
-    const toggleSelectAll = () => {
-        if (selectedIds.length === paginatedItems.length) {
-            setSelectedIds([]);
-        } else {
-            setSelectedIds(paginatedItems.map((p) => p.id));
-        }
-    };
-
-    const toggleSelectItem = (id) => {
-        if (selectedIds.includes(id)) {
-            setSelectedIds(selectedIds.filter((item) => item !== id));
-        } else {
-            setSelectedIds([...selectedIds, id]);
-        }
-    };
-
-    // Toggle active switch
-    const handleToggleStatus = (id) => {
-        setProducts(
-            products.map((p) => {
-                if (p.id === id) {
-                    const newStatus = !p.is_active;
-                    showToast(`Status "${p.name}" diubah ke ${newStatus ? 'Ready Stock' : 'Non-Aktif'}.`);
-                    return { ...p, is_active: newStatus };
-                }
-                return p;
-            })
-        );
-    };
-
-    // Open Edit modal
-    const handleOpenEdit = (item) => {
-        setActiveItem(item);
-        setFormData({
-            sku: item.sku,
-            name: item.name,
-            category: item.category,
-            category_slug: item.category_slug,
-            price_unit: item.price_unit,
-            price_wholesale: item.price_wholesale,
-            stock: item.stock ?? '',
-            unit: item.unit || 'Unit',
-            is_service: item.is_service,
-            tax_badge: item.tax_badge || '',
-        });
-        setIsEditModalOpen(true);
-    };
-
-    // Save Edit
-    const handleSaveEdit = (e) => {
-        e.preventDefault();
-        setProducts(
-            products.map((p) => {
-                if (p.id === activeItem.id) {
-                    return {
-                        ...p,
-                        name: formData.name,
-                        sku: formData.sku,
-                        category: formData.category,
-                        category_slug: formData.category_slug,
-                        price_unit: Number(formData.price_unit),
-                        price_wholesale: Number(formData.price_wholesale),
-                        stock: formData.is_service ? null : Number(formData.stock),
-                        unit: formData.unit,
-                        tax_badge: formData.tax_badge || null,
-                    };
-                }
-                return p;
-            })
-        );
-        setIsEditModalOpen(false);
-        showToast(`SKU ${formData.sku} berhasil diperbarui.`);
-    };
-
-    // Open Add Modal
-    const handleOpenAdd = () => {
-        setFormData({
-            sku: 'PN-ACC-' + Math.floor(1000 + Math.random() * 9000),
-            name: '',
-            category: 'Hardware & Server',
-            category_slug: 'hardware',
-            price_unit: '',
-            price_wholesale: '',
-            stock: 10,
-            unit: 'Unit',
-            is_service: false,
-            tax_badge: 'e-Faktur Aktif',
-        });
-        setIsAddModalOpen(true);
-    };
-
-    // Save Add
-    const handleSaveAdd = (e) => {
-        e.preventDefault();
-        const newItem = {
-            id: Date.now(),
-            sku: formData.sku,
-            name: formData.name,
-            category: formData.category,
-            category_slug: formData.category_slug,
-            price_unit: Number(formData.price_unit) || 0,
-            price_wholesale: Number(formData.price_wholesale) || 0,
-            stock: formData.is_service ? null : Number(formData.stock) || 0,
-            stock_text: formData.is_service ? 'Tim Tersedia' : undefined,
-            unit: formData.unit,
-            is_service: formData.is_service,
-            is_active: true,
-            is_critical: !formData.is_service && Number(formData.stock) <= 2,
-            tax_badge: formData.tax_badge || null,
-            image: formData.is_service
-                ? '/images/service-technician-lan.png'
-                : '/images/product-cisco-switch.png',
+    const applyServerFilters = (overrides = {}) => {
+        const next = {
+            search: searchQuery,
+            category_id: selectedCategoryId,
+            type: selectedType,
+            stock_status: stockFilter,
+            ...overrides,
         };
 
-        setProducts([newItem, ...products]);
-        setIsAddModalOpen(false);
-        showToast(`SKU baru ${newItem.sku} berhasil ditambahkan ke katalog.`);
+        router.get(
+            route('seller.catalog.index'),
+            {
+                search: next.search || undefined,
+                category_id: next.category_id || undefined,
+                type: next.type || undefined,
+                stock_status: next.stock_status && next.stock_status !== 'all' ? next.stock_status : undefined,
+            },
+            { preserveState: true, preserveScroll: true, replace: true }
+        );
     };
 
-    // Open Restock Modal
+    // Keep editingProduct in sync after image deletion / server reload
+    useEffect(() => {
+        if (editingProduct) {
+            const refreshed = productRows.find((row) => row.id === editingProduct.id);
+            if (refreshed) {
+                setEditingProduct(refreshed);
+            }
+        }
+    }, [productRows]);
+
+    const openAddProductModal = () => {
+        setEditingProduct(null);
+        productForm.clearErrors();
+        productForm.setData({
+            category_id: activeCategories[0]?.id ? String(activeCategories[0].id) : '',
+            name: '',
+            type: 'goods',
+            sku: '',
+            description: '',
+            price: '',
+            stock_quantity: '',
+            stock_unit: 'Unit',
+            moq: '',
+            is_active: true,
+            images: [],
+        });
+        setSpecRows([]);
+        setIsProductModalOpen(true);
+    };
+
+    const openEditProductModal = (item) => {
+        setEditingProduct(item);
+        productForm.clearErrors();
+        productForm.setData({
+            category_id: String(item.category_id ?? ''),
+            name: item.name ?? '',
+            type: item.type ?? 'goods',
+            sku: item.sku ?? '',
+            description: item.description ?? '',
+            price: item.price !== null && item.price !== undefined ? String(Number(item.price)) : '',
+            stock_quantity: item.stock_quantity !== null && item.stock_quantity !== undefined ? String(Number(item.stock_quantity)) : '',
+            stock_unit: item.stock_unit ?? '',
+            moq: item.moq !== null && item.moq !== undefined ? String(item.moq) : '',
+            is_active: Boolean(item.is_active),
+            images: [],
+        });
+        setSpecRows(specsObjectToRows(item.specifications));
+        setIsProductModalOpen(true);
+    };
+
+    const handleProductSubmit = (e) => {
+        e.preventDefault();
+
+        const payloadBuilder = (data) => {
+            const payload = {
+                category_id: data.category_id,
+                name: data.name,
+                type: data.type,
+                sku: data.sku,
+                description: data.description,
+                specifications: specRowsToObject(specRows),
+                price: data.price,
+                stock_quantity: data.stock_quantity,
+                stock_unit: data.stock_unit,
+                moq: data.moq,
+                is_active: data.is_active ? 1 : 0,
+            };
+
+            if (Array.isArray(data.images) && data.images.length > 0) {
+                payload.images = data.images;
+            }
+
+            if (editingProduct) {
+                payload._method = 'put';
+            }
+
+            return payload;
+        };
+
+        productForm.transform(payloadBuilder);
+
+        const targetUrl = editingProduct
+            ? route('seller.products.update', editingProduct.id)
+            : route('seller.products.store');
+
+        productForm.post(targetUrl, {
+            forceFormData: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsProductModalOpen(false);
+                productForm.setData('images', []);
+                showToast(
+                    editingProduct
+                        ? `Produk "${productForm.data.name}" berhasil diperbarui.`
+                        : `Produk "${productForm.data.name}" berhasil ditambahkan ke katalog.`
+                );
+            },
+        });
+    };
+
+    const handleDeleteProductImage = (productId, imageId) => {
+        setDeletingImageId(imageId);
+        router.delete(route('seller.products.images.destroy', [productId, imageId]), {
+            preserveScroll: true,
+            onSuccess: () => {
+                showToast('Foto produk berhasil dihapus.');
+            },
+            onError: () => {
+                showToast('Gagal menghapus foto produk.', 'error');
+            },
+            onFinish: () => {
+                setDeletingImageId(null);
+            },
+        });
+    };
+
+    const handleToggleProductActive = (item) => {
+        const nextStatus = !item.is_active;
+        router.put(
+            route('seller.products.update', item.id),
+            {
+                category_id: item.category_id,
+                name: item.name,
+                type: item.type,
+                sku: item.sku,
+                is_active: nextStatus,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    showToast(`Status "${item.name}" diubah menjadi ${nextStatus ? 'Aktif' : 'Nonaktif'}.`);
+                },
+                onError: () => {
+                    showToast('Gagal mengubah status produk.', 'error');
+                },
+            }
+        );
+    };
+
     const handleOpenRestock = (item) => {
-        setActiveItem(item);
+        setRestockTarget(item);
         setRestockQty(10);
         setIsRestockModalOpen(true);
     };
 
-    // Confirm Restock
-    const handleConfirmRestock = () => {
-        setProducts(
-            products.map((p) => {
-                if (p.id === activeItem.id) {
-                    const newStock = (p.stock || 0) + Number(restockQty);
-                    return {
-                        ...p,
-                        stock: newStock,
-                        is_critical: false,
-                    };
-                }
-                return p;
-            })
+    const handleConfirmRestock = (e) => {
+        e.preventDefault();
+        if (!restockTarget) return;
+
+        const currentStock = restockTarget.stock_quantity !== null ? Number(restockTarget.stock_quantity) : 0;
+        const added = Number(restockQty) || 0;
+        if (added <= 0) return;
+
+        setRestockBusy(true);
+        router.put(
+            route('seller.products.update', restockTarget.id),
+            {
+                category_id: restockTarget.category_id,
+                name: restockTarget.name,
+                type: restockTarget.type,
+                sku: restockTarget.sku,
+                stock_quantity: currentStock + added,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setIsRestockModalOpen(false);
+                    showToast(`Stok "${restockTarget.name}" bertambah +${added} ${restockTarget.stock_unit || 'unit'}.`);
+                },
+                onError: () => {
+                    showToast('Gagal memperbarui stok produk.', 'error');
+                },
+                onFinish: () => {
+                    setRestockBusy(false);
+                },
+            }
         );
-        setIsRestockModalOpen(false);
-        showToast(`Restock berhasil! Stok ${activeItem.name} bertambah ${restockQty} ${activeItem.unit}.`);
     };
 
-    // Delete SKU
-    const handleOpenDelete = (item) => {
-        setActiveItem(item);
-        setIsDeleteModalOpen(true);
+    const handleConfirmDeleteProduct = () => {
+        if (!deleteTarget) return;
+
+        setDeleteBusy(true);
+        router.delete(route('seller.products.destroy', deleteTarget.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsDeleteModalOpen(false);
+                showToast(`Produk "${deleteTarget.name}" berhasil dihapus.`);
+                setDeleteTarget(null);
+            },
+            onError: () => {
+                showToast('Gagal menghapus produk.', 'error');
+            },
+            onFinish: () => {
+                setDeleteBusy(false);
+            },
+        });
     };
 
-    const handleConfirmDelete = () => {
-        setProducts(products.filter((p) => p.id !== activeItem.id));
-        setIsDeleteModalOpen(false);
-        showToast(`SKU ${activeItem.sku} berhasil dihapus dari katalog.`);
+    // Category CRUD handlers
+    const openCategoryModal = () => {
+        setEditingCategory(null);
+        setCategoryError('');
+        categoryForm.clearErrors();
+        categoryForm.setData({ name: '', is_active: true });
+        setIsCategoryModalOpen(true);
     };
+
+    const startEditCategory = (cat) => {
+        setEditingCategory(cat);
+        setCategoryError('');
+        categoryForm.clearErrors();
+        categoryForm.setData({ name: cat.name, is_active: Boolean(cat.is_active) });
+    };
+
+    const handleCategorySubmit = (e) => {
+        e.preventDefault();
+        setCategoryError('');
+
+        if (editingCategory) {
+            categoryForm.patch(route('seller.categories.update', editingCategory.id), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    showToast(`Kategori "${categoryForm.data.name}" berhasil diperbarui.`);
+                    setEditingCategory(null);
+                    categoryForm.reset();
+                    categoryForm.setData('is_active', true);
+                },
+            });
+            return;
+        }
+
+        categoryForm.post(route('seller.categories.store'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                showToast(`Kategori "${categoryForm.data.name}" berhasil ditambahkan.`);
+                categoryForm.reset();
+                categoryForm.setData('is_active', true);
+            },
+        });
+    };
+
+    const handleDeleteCategory = (cat) => {
+        setCategoryError('');
+        router.delete(route('seller.categories.destroy', cat.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                showToast(`Kategori "${cat.name}" berhasil dihapus.`);
+            },
+            onError: (errors) => {
+                setCategoryError(errors?.category || 'Kategori tidak dapat dihapus.');
+            },
+        });
+    };
+
+    // Collect image upload validation errors
+    const imageErrors = Object.entries(productForm.errors)
+        .filter(([key]) => key === 'images' || key.startsWith('images.'))
+        .map(([, msg]) => msg);
+
+    const catalogGridStyle = {
+        display: 'grid',
+        gridTemplateColumns: 'minmax(260px, 2.5fr) minmax(130px, 1.1fr) minmax(130px, 1fr) minmax(105px, 0.9fr) 105px 80px',
+        gap: '0.75rem',
+        alignItems: 'center',
+    };
+
+    const totalKpi = stats.total ?? paginatedProducts.total ?? productRows.length;
+    const goodsKpi = stats.goods ?? 0;
+    const servicesKpi = stats.services ?? 0;
+    const readyStockKpi = stats.ready_stock ?? 0;
+    const criticalStockKpi = stats.critical_stock ?? 0;
 
     return (
         <SellerLayout title="Katalog Produk, Jasa & Stok B2B">
             <Head title="Manajemen Katalog Produk, Jasa & Stok B2B — Back-Office" />
 
-            {/* TOAST ALERT NOTIFICATION */}
-            {toastMessage && (
-                <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-[#0a2540] text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-sky-500/40 animate-fade-in text-xs font-semibold">
-                    <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
-                    <span>{toastMessage}</span>
+            {/* TOAST ALERT */}
+            {toast && (
+                <div
+                    className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border text-xs font-semibold ${
+                        toast.type === 'error'
+                            ? 'bg-rose-950 text-rose-100 border-rose-500/40'
+                            : 'bg-[#0a2540] text-white border-sky-500/40'
+                    }`}
+                >
+                    <CheckCircle2 className={`h-5 w-5 shrink-0 ${toast.type === 'error' ? 'text-rose-400' : 'text-emerald-400'}`} />
+                    <span>{toast.message}</span>
                     <button
                         type="button"
-                        onClick={() => setToastMessage(null)}
+                        onClick={() => setToast(null)}
                         className="ml-2 text-slate-400 hover:text-white cursor-pointer"
                     >
                         <X className="h-4 w-4" />
@@ -502,10 +450,7 @@ export default function SellerCatalogIndex() {
             )}
 
             <div className="space-y-6">
-
-                {/* ========================================================= */}
-                {/* 1. TOP HEADER & ACTION BUTTONS                            */}
-                {/* ========================================================= */}
+                {/* 1. HEADER & ACTION BUTTONS */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
@@ -515,782 +460,733 @@ export default function SellerCatalogIndex() {
                             Manajemen Katalog Produk, Jasa &amp; Stok B2B
                         </h1>
                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                            Atur ketersediaan stok gudang, harga grosir berjenjang, dan label Faktur Pajak PPN 11%.
+                            Kelola kategori, produk/jasa, foto katalog, harga acuan, dan ketersediaan stok secara langsung.
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-2.5 shrink-0">
-                        {/* Import Massal Button */}
+                    <div className="flex flex-wrap items-center gap-2.5 shrink-0">
                         <button
                             type="button"
-                            onClick={() => setIsImportModalOpen(true)}
+                            onClick={openCategoryModal}
                             className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] hover:bg-slate-50 dark:hover:bg-slate-800/60 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-2xs transition cursor-pointer"
                         >
-                            <FileSpreadsheet className="h-4 w-4 text-[#086f8e]" />
-                            <span>Import Massal (Excel/CSV)</span>
+                            <FolderTree className="h-4 w-4 text-[#086f8e]" />
+                            <span>Kelola Kategori ({categories.length})</span>
                         </button>
 
-                        {/* Tambah SKU Baru Button (Solid Teal) */}
                         <button
                             type="button"
-                            onClick={handleOpenAdd}
+                            onClick={openAddProductModal}
                             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#086f8e] hover:bg-[#065871] text-white text-xs font-bold shadow-xs transition cursor-pointer"
                         >
                             <Plus className="h-4 w-4 stroke-[2.5]" />
-                            <span>Tambah SKU Baru</span>
+                            <span>Tambah Produk / Jasa</span>
                         </button>
                     </div>
                 </div>
 
-                {/* ========================================================= */}
-                {/* 2. THREE TOP KPI STAT CARDS (Sesuai Mockup)               */}
-                {/* ========================================================= */}
+                {/* 2. KPI STAT CARDS */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6">
-
-                    {/* Card 1: Total Katalog Aktif */}
                     <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 space-y-2 shadow-2xs">
                         <div className="flex items-center justify-between">
                             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                                Total Katalog Aktif
+                                Total Item Katalog
                             </span>
                             <div className="p-1 rounded-lg text-[#086f8e] dark:text-[#38bdf8]">
                                 <Box className="h-4 w-4" />
                             </div>
                         </div>
                         <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                            24 SKU
+                            {totalKpi} Item
                         </div>
                         <div className="text-[11px] text-slate-400">
-                            19 Hardware + 5 Paket Jasa
+                            {goodsKpi} Barang + {servicesKpi} Jasa ({stats.active ?? 0} aktif)
                         </div>
                     </div>
 
-                    {/* Card 2: Status Ready Stock */}
                     <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 space-y-2 shadow-2xs">
                         <div className="flex items-center justify-between">
                             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                                Status Ready Stock
+                                Stok Tercatat Tersedia
                             </span>
                             <div className="p-1 rounded-lg text-emerald-600 dark:text-emerald-400">
                                 <CheckCircle className="h-4 w-4" />
                             </div>
                         </div>
                         <div className="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight">
-                            18 Produk
+                            {readyStockKpi} Produk
                         </div>
                         <div className="text-[11px] text-slate-400">
-                            Siap kirim dari gudang
+                            Item dengan jumlah stok lebih dari 0
                         </div>
                     </div>
 
-                    {/* Card 3: Peringatan Stok Kritis */}
                     <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 space-y-2 shadow-2xs">
                         <div className="flex items-center justify-between">
                             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                                Peringatan Stok Kritis
+                                Peringatan Stok Kritis / Habis
                             </span>
                             <div className="p-1 rounded-lg text-rose-600 dark:text-rose-400">
                                 <AlertTriangle className="h-4 w-4" />
                             </div>
                         </div>
                         <div className="text-2xl sm:text-3xl font-extrabold text-rose-600 dark:text-rose-400 tracking-tight">
-                            2 Produk
+                            {criticalStockKpi} Produk
                         </div>
                         <div className="text-[11px] text-slate-400">
-                            Stok di bawah batas minimum
+                            Barang dengan stok tercatat ≤ 2 unit
                         </div>
                     </div>
-
                 </div>
 
-                {/* ========================================================= */}
-                {/* 3. CATEGORY PILL TABS                                     */}
-                {/* ========================================================= */}
+                {/* 3. CATEGORY PILL TABS */}
                 <div className="flex flex-wrap items-center gap-2">
                     <button
                         type="button"
-                        onClick={() => { setActiveTab('all'); setCurrentPage(1); }}
+                        onClick={() => {
+                            setSelectedCategoryId('');
+                            applyServerFilters({ category_id: '' });
+                        }}
                         className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer ${
-                            activeTab === 'all'
+                            !selectedCategoryId
                                 ? 'bg-[#086f8e] text-white shadow-2xs'
                                 : 'bg-white dark:bg-[#171B26] border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60'
                         }`}
                     >
-                        Semua Katalog (24)
+                        Semua Kategori ({totalKpi})
                     </button>
 
-                    <button
-                        type="button"
-                        onClick={() => { setActiveTab('hardware'); setCurrentPage(1); }}
-                        className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer ${
-                            activeTab === 'hardware'
-                                ? 'bg-[#086f8e] text-white shadow-2xs'
-                                : 'bg-white dark:bg-[#171B26] border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60'
-                        }`}
-                    >
-                        Hardware &amp; Server (8)
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => { setActiveTab('networking'); setCurrentPage(1); }}
-                        className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer ${
-                            activeTab === 'networking'
-                                ? 'bg-[#086f8e] text-white shadow-2xs'
-                                : 'bg-white dark:bg-[#171B26] border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60'
-                        }`}
-                    >
-                        Networking &amp; Router (7)
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => { setActiveTab('services'); setCurrentPage(1); }}
-                        className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer ${
-                            activeTab === 'services'
-                                ? 'bg-[#086f8e] text-white shadow-2xs'
-                                : 'bg-white dark:bg-[#171B26] border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60'
-                        }`}
-                    >
-                        Jasa Instalasi &amp; Servis (5)
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => { setActiveTab('accessories'); setCurrentPage(1); }}
-                        className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer ${
-                            activeTab === 'accessories'
-                                ? 'bg-[#086f8e] text-white shadow-2xs'
-                                : 'bg-white dark:bg-[#171B26] border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60'
-                        }`}
-                    >
-                        Aksesoris IT (4)
-                    </button>
+                    {categories.map((cat) => (
+                        <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => {
+                                setSelectedCategoryId(cat.id);
+                                applyServerFilters({ category_id: cat.id });
+                            }}
+                            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer ${
+                                Number(selectedCategoryId) === cat.id
+                                    ? 'bg-[#086f8e] text-white shadow-2xs'
+                                    : 'bg-white dark:bg-[#171B26] border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60'
+                            }`}
+                        >
+                            {cat.name} ({cat.products_count ?? 0})
+                            {!cat.is_active ? ' • Nonaktif' : ''}
+                        </button>
+                    ))}
                 </div>
 
-                {/* ========================================================= */}
-                {/* 4. SEARCH & QUICK CONTROLS BAR                            */}
-                {/* ========================================================= */}
+                {/* 4. SEARCH & FILTER BAR */}
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                    
-                    {/* Live Search Input */}
-                    <div className="relative flex-1">
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            applyServerFilters();
+                        }}
+                        className="relative flex-1"
+                    >
                         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                         <input
                             type="text"
                             value={searchQuery}
-                            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                            placeholder="Filter cepat SKU atau nama barang..."
-                            className="w-full pl-9 pr-4 h-9.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Cari nama produk atau SKU lalu tekan Enter..."
+                            className="w-full pl-9 pr-20 h-10 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
                         />
-                    </div>
+                        <button
+                            type="submit"
+                            className="absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-lg bg-[#086f8e] hover:bg-[#065871] text-white text-[11px] font-semibold cursor-pointer"
+                        >
+                            Cari
+                        </button>
+                    </form>
 
-                    {/* Stock Filter Dropdown */}
+                    <select
+                        value={selectedType}
+                        onChange={(e) => {
+                            setSelectedType(e.target.value);
+                            applyServerFilters({ type: e.target.value });
+                        }}
+                        className="h-10 px-3.5 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#086f8e] cursor-pointer"
+                    >
+                        <option value="">Semua Tipe</option>
+                        <option value="goods">Barang</option>
+                        <option value="service">Jasa</option>
+                    </select>
+
                     <div className="relative shrink-0">
                         <select
                             value={stockFilter}
-                            onChange={(e) => { setStockFilter(e.target.value); setCurrentPage(1); }}
-                            className="h-9.5 px-3.5 pr-8 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#086f8e] cursor-pointer appearance-none"
+                            onChange={(e) => {
+                                setStockFilter(e.target.value);
+                                applyServerFilters({ stock_status: e.target.value });
+                            }}
+                            className="h-10 px-3.5 pr-8 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#086f8e] cursor-pointer appearance-none"
                         >
                             <option value="all">Semua Status Stok</option>
-                            <option value="ready">Ready Stock</option>
-                            <option value="critical">Stok Kritis</option>
+                            <option value="ready">Ready Stock (&gt;2)</option>
+                            <option value="critical">Stok Kritis (1–2)</option>
+                            <option value="out_of_stock">Stok Habis (0)</option>
+                            <option value="unknown">Stok Belum Diisi</option>
                         </select>
                         <SlidersHorizontal className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
                     </div>
-
-                    {/* PPN 11% Toggle Pill */}
-                    <button
-                        type="button"
-                        onClick={() => { setPpnOnlyFilter(!ppnOnlyFilter); setCurrentPage(1); }}
-                        className={`h-9.5 px-3.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shrink-0 ${
-                            ppnOnlyFilter
-                                ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-400 text-emerald-700 dark:text-emerald-300'
-                                : 'bg-white dark:bg-[#171B26] border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50'
-                        }`}
-                    >
-                        <CheckCircle2 className={`h-3.5 w-3.5 ${ppnOnlyFilter ? 'text-emerald-600' : 'text-slate-400'}`} />
-                        <span>PPN 11% Aktif</span>
-                    </button>
-
                 </div>
 
-                {/* ========================================================= */}
-                {/* 5. MAIN CATALOG TABLE CONTAINER (EXPLICIT GRID TRACKS)    */}
-                {/* Impossible to overlap, perfectly aligned, high UX comfort */}
-                {/* ========================================================= */}
+                {/* 5. MAIN CATALOG TABLE */}
                 <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] shadow-2xs overflow-hidden">
-                    
-                    {/* Header bar within card */}
                     <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800/80">
                         <h2 className="text-sm font-bold text-slate-900 dark:text-white">
                             Daftar Produk &amp; Layanan
                         </h2>
                         <span className="text-xs text-slate-400">
-                            24 SKU katalog aktif
+                            {paginatedProducts.total ?? productRows.length} item ditemukan
                         </span>
                     </div>
 
-                    {/* Scrollable Container with Min-Width for Responsive Cleanliness */}
                     <div className="overflow-x-auto p-4 sm:p-5 no-scrollbar">
-                        <div className="min-w-[880px] space-y-3">
-
-                            {/* Table Column Titles Bar (EXACT SAME GRID TRACKS) */}
+                        <div className="min-w-[820px] space-y-3">
                             <div
                                 style={catalogGridStyle}
-                                className="catalog-grid-row px-5 py-2 text-[11px] font-semibold text-slate-400 select-none items-center"
+                                className="px-5 py-2 text-[11px] font-semibold text-slate-400 select-none items-center"
                             >
-                                <div className="flex items-center gap-3">
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedIds.length === paginatedItems.length && paginatedItems.length > 0}
-                                        onChange={toggleSelectAll}
-                                        className="h-4 w-4 rounded border-slate-300 text-[#086f8e] focus:ring-0 cursor-pointer shrink-0"
-                                    />
-                                    <span>Info Produk / Layanan &amp; SKU</span>
-                                </div>
+                                <div>Info Produk / Layanan &amp; SKU</div>
                                 <div>Kategori</div>
-                                <div>Harga Satuan (1-2 Unit)</div>
-                                <div>Harga Grosir B2B (≥3 Unit)</div>
+                                <div>Harga Acuan</div>
                                 <div>Stok Gudang</div>
-                                <div className="text-center">Status Katalog</div>
+                                <div className="text-center">Status Publikasi</div>
                                 <div className="text-center">Aksi</div>
                             </div>
 
-                            {/* Empty State */}
-                            {paginatedItems.length === 0 ? (
+                            {productRows.length === 0 ? (
                                 <div className="py-12 text-center space-y-2">
                                     <Box className="h-10 w-10 text-slate-300 dark:text-slate-600 mx-auto" />
                                     <div className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                                        Tidak ada produk atau SKU yang cocok
+                                        Belum ada produk atau SKU yang cocok
                                     </div>
                                     <p className="text-xs text-slate-400">
-                                        Coba ubah kata kunci pencarian atau ganti filter kategori di atas.
+                                        Tambahkan produk baru atau ubah kata kunci pencarian di atas.
                                     </p>
                                 </div>
                             ) : (
-                                /* List of Product Card Rows with Rock-Solid Columns */
-                                paginatedItems.map((item) => {
-                                    const isSelected = selectedIds.includes(item.id);
-                                    const isCritical = item.is_critical;
+                                productRows.map((item) => {
+                                    const stockNum = item.stock_quantity !== null && item.stock_quantity !== undefined ? Number(item.stock_quantity) : null;
+                                    const isCritical = item.type === 'goods' && stockNum !== null && stockNum <= 2;
+                                    const coverUrl = item.images?.[0]?.url || null;
 
                                     return (
                                         <div
                                             key={item.id}
                                             style={catalogGridStyle}
-                                            className={`catalog-grid-row px-5 py-3.5 rounded-2xl border transition-all duration-150 ${
+                                            className={`px-5 py-3.5 rounded-2xl border transition-all duration-150 ${
                                                 isCritical
                                                     ? 'border-rose-300/80 dark:border-rose-900/60 bg-[#fffbfc] dark:bg-rose-950/20'
-                                                    : isSelected
-                                                    ? 'border-[#086f8e]/50 bg-sky-50/30 dark:bg-sky-950/20 shadow-2xs'
                                                     : 'border-slate-200/90 dark:border-slate-800 bg-white dark:bg-[#171B26] hover:border-slate-300 dark:hover:border-slate-700 shadow-2xs'
                                             }`}
                                         >
-                                            {/* Column 1: Checkbox + Thumbnail + Details (SKU, Full Title, Tax) */}
+                                            {/* Col 1: Thumbnail + SKU + Name */}
                                             <div className="flex items-center gap-3.5 min-w-0 pr-2">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={isSelected}
-                                                    onChange={() => toggleSelectItem(item.id)}
-                                                    className="h-4 w-4 rounded border-slate-300 text-[#086f8e] focus:ring-0 cursor-pointer shrink-0"
-                                                />
-
-                                                {/* Thumbnail Image */}
-                                                <div className="h-12 w-12 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center p-1.5 shrink-0 overflow-hidden">
-                                                    <img
-                                                        src={item.image}
-                                                        alt={item.name}
-                                                        className="h-full w-full object-contain"
-                                                        onError={(e) => {
-                                                            e.target.style.display = 'none';
-                                                        }}
-                                                    />
+                                                <div className="h-12 w-12 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center p-1 shrink-0 overflow-hidden">
+                                                    {coverUrl ? (
+                                                        <img
+                                                            src={coverUrl}
+                                                            alt={item.name}
+                                                            className="h-full w-full object-contain"
+                                                        />
+                                                    ) : (
+                                                        <Box className="h-5 w-5 text-slate-300 dark:text-slate-600" />
+                                                    )}
                                                 </div>
 
-                                                {/* SKU, Full Title, Tax Badge */}
                                                 <div className="min-w-0 space-y-1">
-                                                    <div className="inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#f0f9ff] dark:bg-sky-950/60 text-[#0284c7] dark:text-[#38bdf8] border border-[#bae6fd] dark:border-sky-800/50">
-                                                        {item.sku}
+                                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                                        {item.sku && (
+                                                            <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#f0f9ff] dark:bg-sky-950/60 text-[#0284c7] dark:text-[#38bdf8] border border-[#bae6fd] dark:border-sky-800/50">
+                                                                {item.sku}
+                                                            </span>
+                                                        )}
+                                                        <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                                                            {item.type === 'goods' ? 'Barang' : 'Jasa'}
+                                                        </span>
+                                                        {item.images?.length > 0 && (
+                                                            <span className="text-[10px] text-slate-400">
+                                                                {item.images.length} foto
+                                                            </span>
+                                                        )}
                                                     </div>
                                                     <div className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white leading-snug">
                                                         {item.name}
                                                     </div>
-                                                    {item.tax_badge && (
-                                                        <div className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 px-2 py-0.5 rounded-full">
-                                                            <Check className="h-2.5 w-2.5 stroke-[2.5]" />
-                                                            <span>{item.tax_badge}</span>
-                                                        </div>
-                                                    )}
                                                 </div>
                                             </div>
 
-                                            {/* Column 2: Kategori */}
+                                            {/* Col 2: Category */}
                                             <div className="text-xs text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
-                                                {item.category}
-                                            </div>
-
-                                            {/* Column 3: Harga Satuan */}
-                                            <div className="text-xs text-slate-600 dark:text-slate-300 font-medium whitespace-nowrap">
-                                                {formatRp(item.price_unit)} {item.unit_label || ''}
-                                            </div>
-
-                                            {/* Column 4: Harga Grosir B2B */}
-                                            <div className="text-xs font-bold text-slate-900 dark:text-white whitespace-nowrap">
-                                                {formatRp(item.price_wholesale)}
-                                            </div>
-
-                                            {/* Column 5: Stok Gudang */}
-                                            <div className="text-xs">
-                                                {item.is_service ? (
-                                                    <span className="text-slate-600 dark:text-slate-400 font-medium whitespace-nowrap">
-                                                        {item.stock_text}
-                                                    </span>
-                                                ) : isCritical ? (
-                                                    <div className="text-rose-600 dark:text-rose-400 font-bold leading-tight">
-                                                        <div>{item.stock} {item.unit}</div>
-                                                        <div className="text-[10px] font-semibold">(Stok Kritis!)</div>
-                                                    </div>
-                                                ) : (
-                                                    <span className="text-slate-800 dark:text-slate-200 font-semibold whitespace-nowrap">
-                                                        {item.stock} {item.unit}
+                                                <div>{item.category?.name || '-'}</div>
+                                                {item.category && !item.category.is_active && (
+                                                    <span className="text-[10px] font-semibold text-amber-600 dark:text-amber-400">
+                                                        Kategori nonaktif
                                                     </span>
                                                 )}
                                             </div>
 
-                                            {/* Column 6: Status Katalog (Vertikal Sesuai Mockup) */}
-                                            <div className="flex flex-col items-center justify-center text-center">
-                                                {item.is_service ? (
-                                                    <div className="flex flex-col items-center justify-center gap-1">
-                                                        <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                                                        <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-                                                            Jasa Resmi
-                                                        </span>
-                                                    </div>
-                                                ) : isCritical ? (
-                                                    <div className="flex flex-col items-center justify-center gap-1">
-                                                        <div className="text-[10px] font-bold text-rose-600 dark:text-rose-400 flex items-center justify-center gap-1 whitespace-nowrap">
-                                                            <AlertTriangle className="h-3 w-3 shrink-0" />
-                                                            <span>Stok Kritis</span>
-                                                        </div>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleOpenRestock(item)}
-                                                            className="px-2.5 py-0.5 bg-[#086f8e] hover:bg-[#065871] text-white text-[10px] font-bold rounded shadow-2xs transition cursor-pointer text-center whitespace-nowrap"
-                                                        >
-                                                            + Restock
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex flex-col items-center justify-center gap-1">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleToggleStatus(item.id)}
-                                                            className={`relative inline-flex h-4.5 w-8 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                                                                item.is_active ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'
-                                                            }`}
-                                                            role="switch"
-                                                            aria-checked={item.is_active}
-                                                        >
-                                                            <span
-                                                                className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                                                                    item.is_active ? 'translate-x-3.5' : 'translate-x-0'
-                                                                }`}
-                                                            />
-                                                        </button>
-                                                        <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-                                                            Ready Stock
-                                                        </span>
+                                            {/* Col 3: Price */}
+                                            <div className="text-xs font-bold text-slate-900 dark:text-white">
+                                                <div>{formatRp(item.price)}</div>
+                                                {item.moq && (
+                                                    <div className="text-[10px] font-normal text-slate-400">
+                                                        Min. {item.moq} {item.stock_unit || 'unit'}
                                                     </div>
                                                 )}
                                             </div>
 
-                                            {/* Column 7: Aksi (Vertikal Sesuai Mockup: Edit di atas, Trash di bawah) */}
+                                            {/* Col 4: Stock */}
+                                            <div className="text-xs space-y-1">
+                                                <div
+                                                    className={
+                                                        isCritical
+                                                            ? 'text-rose-600 dark:text-rose-400 font-bold'
+                                                            : 'text-slate-800 dark:text-slate-200 font-semibold'
+                                                    }
+                                                >
+                                                    {formatStock(item.stock_quantity, item.stock_unit)}
+                                                </div>
+                                                {item.type === 'goods' && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleOpenRestock(item)}
+                                                        className="px-2 py-0.5 bg-[#086f8e]/10 hover:bg-[#086f8e] text-[#086f8e] hover:text-white text-[10px] font-bold rounded transition cursor-pointer"
+                                                    >
+                                                        + Restock
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            {/* Col 5: Active Toggle */}
                                             <div className="flex flex-col items-center justify-center gap-1 text-center">
                                                 <button
                                                     type="button"
-                                                    onClick={() => handleOpenEdit(item)}
+                                                    onClick={() => handleToggleProductActive(item)}
+                                                    className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                                                        item.is_active ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'
+                                                    }`}
+                                                    role="switch"
+                                                    aria-checked={item.is_active}
+                                                >
+                                                    <span
+                                                        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                                            item.is_active ? 'translate-x-4' : 'translate-x-0'
+                                                        }`}
+                                                    />
+                                                </button>
+                                                <span
+                                                    className={`text-[10px] font-semibold ${
+                                                        item.is_active
+                                                            ? 'text-emerald-600 dark:text-emerald-400'
+                                                            : 'text-slate-400'
+                                                    }`}
+                                                >
+                                                    {item.is_active ? 'Aktif' : 'Nonaktif'}
+                                                </span>
+                                            </div>
+
+                                            {/* Col 6: Actions */}
+                                            <div className="flex flex-col items-center justify-center gap-1 text-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => openEditProductModal(item)}
                                                     className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#086f8e] hover:underline cursor-pointer"
-                                                    title="Edit SKU"
+                                                    title="Edit Produk"
                                                 >
                                                     <Edit3 className="h-3 w-3" />
                                                     <span>Edit</span>
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    onClick={() => handleOpenDelete(item)}
+                                                    onClick={() => {
+                                                        setDeleteTarget(item);
+                                                        setIsDeleteModalOpen(true);
+                                                    }}
                                                     className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 p-1 rounded-md transition cursor-pointer"
-                                                    title="Hapus SKU"
+                                                    title="Hapus Produk"
                                                 >
                                                     <Trash2 className="h-3.5 w-3.5" />
                                                 </button>
                                             </div>
-
                                         </div>
                                     );
                                 })
                             )}
-
                         </div>
                     </div>
 
-                    {/* Pagination Footer Bar */}
+                    {/* Pagination Footer */}
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-4 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/40 dark:bg-[#12161F]/30 text-xs">
                         <div className="text-slate-500 dark:text-slate-400">
-                            Menampilkan {paginatedItems.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} -{' '}
-                            {Math.min(currentPage * itemsPerPage, filteredProducts.length)} dari 24 SKU Katalog CV. Putra Nugraha
+                            Menampilkan {paginatedProducts.from || 0} - {paginatedProducts.to || 0} dari {paginatedProducts.total || 0} item katalog
                         </div>
 
-                        {/* Page Numbers */}
-                        <div className="flex items-center gap-1">
-                            <button
-                                type="button"
-                                disabled={currentPage === 1}
-                                onClick={() => setCurrentPage(currentPage - 1)}
-                                className="h-8 w-8 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] text-slate-600 dark:text-slate-300 disabled:opacity-40 flex items-center justify-center hover:bg-slate-50 cursor-pointer"
-                            >
-                                <ChevronLeft className="h-4 w-4" />
-                            </button>
-
-                            {[1, 2, 3, 4].map((page) => (
-                                <button
-                                    key={page}
-                                    type="button"
-                                    onClick={() => setCurrentPage(page)}
-                                    className={`h-8 w-8 rounded-lg text-xs font-bold transition cursor-pointer ${
-                                        currentPage === page
-                                            ? 'bg-[#086f8e] text-white shadow-2xs'
-                                            : 'border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] text-slate-600 dark:text-slate-300 hover:bg-slate-50'
-                                    }`}
+                        <div className="flex items-center gap-1.5">
+                            {paginatedProducts.prev_page_url ? (
+                                <Link
+                                    href={paginatedProducts.prev_page_url}
+                                    preserveScroll
+                                    className="h-8 px-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] text-slate-600 dark:text-slate-300 flex items-center gap-1 hover:bg-slate-50"
                                 >
-                                    {page}
-                                </button>
-                            ))}
+                                    <ChevronLeft className="h-4 w-4" />
+                                    <span>Prev</span>
+                                </Link>
+                            ) : (
+                                <span className="h-8 px-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-[#171B26]/50 text-slate-400 flex items-center gap-1 opacity-50">
+                                    <ChevronLeft className="h-4 w-4" />
+                                    <span>Prev</span>
+                                </span>
+                            )}
 
-                            <button
-                                type="button"
-                                disabled={currentPage >= 4}
-                                onClick={() => setCurrentPage(currentPage + 1)}
-                                className="h-8 w-8 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] text-slate-600 dark:text-slate-300 disabled:opacity-40 flex items-center justify-center hover:bg-slate-50 cursor-pointer"
-                            >
-                                <ChevronRight className="h-4 w-4" />
-                            </button>
+                            <span className="px-2.5 text-slate-600 dark:text-slate-300 font-semibold">
+                                {paginatedProducts.current_page || 1} / {paginatedProducts.last_page || 1}
+                            </span>
+
+                            {paginatedProducts.next_page_url ? (
+                                <Link
+                                    href={paginatedProducts.next_page_url}
+                                    preserveScroll
+                                    className="h-8 px-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] text-slate-600 dark:text-slate-300 flex items-center gap-1 hover:bg-slate-50"
+                                >
+                                    <span>Next</span>
+                                    <ChevronRight className="h-4 w-4" />
+                                </Link>
+                            ) : (
+                                <span className="h-8 px-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-[#171B26]/50 text-slate-400 flex items-center gap-1 opacity-50">
+                                    <span>Next</span>
+                                    <ChevronRight className="h-4 w-4" />
+                                </span>
+                            )}
                         </div>
                     </div>
-
                 </div>
-
             </div>
 
-            {/* ========================================================= */}
-            {/* MODAL 1: TAMBAH SKU BARU                                  */}
-            {/* ========================================================= */}
-            {isAddModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-                    <div className="bg-white dark:bg-[#171B26] w-full max-w-xl rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-modal">
+            {/* MODAL 1: TAMBAH / EDIT PRODUK */}
+            {isProductModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
+                    <div className="bg-white dark:bg-[#171B26] w-full max-w-2xl rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-8">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#12161F]">
                             <div>
                                 <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                                    Tambah SKU Produk / Jasa Baru
+                                    {editingProduct ? `Edit Produk: ${editingProduct.name}` : 'Tambah Produk / Jasa Baru'}
                                 </h3>
                                 <p className="text-[11px] text-slate-400">
-                                    Input spesifikasi katalog B2B dan aturan harga grosir CV. Putra Nugraha
+                                    Perubahan langsung tersimpan ke database dan tampil di katalog aktif
                                 </p>
                             </div>
                             <button
                                 type="button"
-                                onClick={() => setIsAddModalOpen(false)}
+                                onClick={() => setIsProductModalOpen(false)}
                                 className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
                             >
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSaveAdd} className="p-6 space-y-4 text-xs">
-                            <div className="grid grid-cols-2 gap-4">
+                        <form onSubmit={handleProductSubmit} className="p-6 space-y-4 text-xs max-h-[80vh] overflow-y-auto">
+                            {activeCategories.length === 0 && !editingProduct && (
+                                <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300">
+                                    Belum ada kategori aktif. Silakan tambahkan kategori terlebih dahulu melalui tombol <strong>Kelola Kategori</strong>.
+                                </div>
+                            )}
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1">
                                     <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                        Kode SKU
+                                        Nama Produk / Jasa <span className="text-rose-500">*</span>
                                     </label>
                                     <input
                                         type="text"
                                         required
-                                        value={formData.sku}
-                                        onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                                        className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-mono font-medium focus:ring-1 focus:ring-[#086f8e]"
+                                        value={productForm.data.name}
+                                        onChange={(e) => productForm.setData('name', e.target.value)}
+                                        placeholder="Contoh: SSD V-GeN 256GB"
+                                        className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
                                     />
+                                    {productForm.errors.name && (
+                                        <p className="text-[11px] text-rose-500">{productForm.errors.name}</p>
+                                    )}
                                 </div>
+
                                 <div className="space-y-1">
                                     <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                        Kategori
+                                        Kategori <span className="text-rose-500">*</span>
                                     </label>
                                     <select
-                                        value={formData.category}
-                                        onChange={(e) => {
-                                            const cat = e.target.value;
-                                            let slug = 'hardware';
-                                            if (cat === 'Networking & Router') slug = 'networking';
-                                            if (cat === 'Jasa Instalasi & Servis') slug = 'services';
-                                            if (cat === 'Aksesoris IT') slug = 'accessories';
-                                            setFormData({
-                                                ...formData,
-                                                category: cat,
-                                                category_slug: slug,
-                                                is_service: slug === 'services',
-                                            });
-                                        }}
+                                        required
+                                        value={productForm.data.category_id}
+                                        onChange={(e) => productForm.setData('category_id', e.target.value)}
                                         className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
                                     >
-                                        <option value="Hardware & Server">Hardware &amp; Server</option>
-                                        <option value="Networking & Router">Networking &amp; Router</option>
-                                        <option value="Jasa Instalasi & Servis">Jasa Instalasi &amp; Servis</option>
-                                        <option value="Aksesoris IT">Aksesoris IT</option>
+                                        <option value="">-- Pilih Kategori --</option>
+                                        {categories
+                                            .filter((cat) => cat.is_active || (editingProduct && cat.id === editingProduct.category_id))
+                                            .map((cat) => (
+                                                <option key={cat.id} value={cat.id}>
+                                                    {cat.name}{!cat.is_active ? ' (Nonaktif)' : ''}
+                                                </option>
+                                            ))}
                                     </select>
+                                    {productForm.errors.category_id && (
+                                        <p className="text-[11px] text-rose-500">{productForm.errors.category_id}</p>
+                                    )}
                                 </div>
                             </div>
 
-                            <div className="space-y-1">
-                                <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                    Nama Produk / Paket Layanan
-                                </label>
-                                <input
-                                    type="text"
-                                    required
-                                    placeholder="Contoh: Cisco Catalyst 2960-X Switch 48 GigE"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1">
                                     <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                        Harga Satuan (1-2 Unit)
+                                        Tipe <span className="text-rose-500">*</span>
+                                    </label>
+                                    <select
+                                        value={productForm.data.type}
+                                        onChange={(e) => productForm.setData('type', e.target.value)}
+                                        className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
+                                    >
+                                        <option value="goods">Barang (Goods)</option>
+                                        <option value="service">Jasa (Service)</option>
+                                    </select>
+                                    {productForm.errors.type && (
+                                        <p className="text-[11px] text-rose-500">{productForm.errors.type}</p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="font-semibold text-slate-700 dark:text-slate-300">
+                                        Kode SKU (Opsional, Unik)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={productForm.data.sku}
+                                        onChange={(e) => productForm.setData('sku', e.target.value)}
+                                        placeholder="Contoh: PN-SSD-256"
+                                        className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-mono font-medium focus:ring-1 focus:ring-[#086f8e]"
+                                    />
+                                    {productForm.errors.sku && (
+                                        <p className="text-[11px] text-rose-500">{productForm.errors.sku}</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div className="space-y-1">
+                                    <label className="font-semibold text-slate-700 dark:text-slate-300">
+                                        Harga Acuan (Rp, Opsional)
                                     </label>
                                     <input
                                         type="number"
-                                        required
-                                        placeholder="Rp"
-                                        value={formData.price_unit}
-                                        onChange={(e) => setFormData({ ...formData, price_unit: e.target.value })}
+                                        min="0"
+                                        step="0.01"
+                                        value={productForm.data.price}
+                                        onChange={(e) => productForm.setData('price', e.target.value)}
+                                        placeholder="Kosongkan jika RFQ"
                                         className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
                                     />
+                                    {productForm.errors.price && (
+                                        <p className="text-[11px] text-rose-500">{productForm.errors.price}</p>
+                                    )}
                                 </div>
+
                                 <div className="space-y-1">
                                     <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                        Harga Grosir B2B (≥3 Unit)
+                                        Stok (Opsional)
                                     </label>
                                     <input
                                         type="number"
-                                        required
-                                        placeholder="Rp"
-                                        value={formData.price_wholesale}
-                                        onChange={(e) => setFormData({ ...formData, price_wholesale: e.target.value })}
+                                        min="0"
+                                        step="0.001"
+                                        value={productForm.data.stock_quantity}
+                                        onChange={(e) => productForm.setData('stock_quantity', e.target.value)}
+                                        placeholder="Kosongkan jika belum dikonfirmasi"
                                         className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
                                     />
+                                    {productForm.errors.stock_quantity && (
+                                        <p className="text-[11px] text-rose-500">{productForm.errors.stock_quantity}</p>
+                                    )}
                                 </div>
-                            </div>
 
-                            {!formData.is_service && (
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1">
-                                        <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                            Stok Awal Gudang
-                                        </label>
-                                        <input
-                                            type="number"
-                                            value={formData.stock}
-                                            onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                                            className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
-                                        />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                            Satuan Unit
-                                        </label>
-                                        <select
-                                            value={formData.unit}
-                                            onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                                            className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
-                                        >
-                                            <option value="Unit">Unit</option>
-                                            <option value="Roll">Roll</option>
-                                            <option value="Box">Box</option>
-                                            <option value="Keping">Keping</option>
-                                            <option value="Paket">Paket</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* PPN Label Checkbox */}
-                            <label className="flex items-center gap-2 pt-1 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={Boolean(formData.tax_badge)}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            tax_badge: e.target.checked
-                                                ? formData.is_service
-                                                    ? 'Faktur Pajak'
-                                                    : 'e-Faktur Aktif'
-                                                : '',
-                                        })
-                                    }
-                                    className="h-4 w-4 rounded border-slate-300 text-[#086f8e] focus:ring-0 cursor-pointer"
-                                />
-                                <span className="font-medium text-slate-700 dark:text-slate-300">
-                                    Aktifkan label PPN 11% (Diterbitkan e-Faktur Resmi PKP)
-                                </span>
-                            </label>
-
-                            <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsAddModalOpen(false)}
-                                    className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-50 cursor-pointer"
-                                >
-                                    Batal
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-5 py-2 rounded-xl bg-[#086f8e] hover:bg-[#065871] text-white font-bold transition shadow-xs cursor-pointer"
-                                >
-                                    Simpan SKU ke Katalog
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {/* ========================================================= */}
-            {/* MODAL 2: EDIT SKU                                         */}
-            {/* ========================================================= */}
-            {isEditModalOpen && activeItem && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-                    <div className="bg-white dark:bg-[#171B26] w-full max-w-xl rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-modal">
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#12161F]">
-                            <div>
-                                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                                    Edit SKU: {activeItem.sku}
-                                </h3>
-                                <p className="text-[11px] text-slate-400">
-                                    Perbarui nama, batas harga grosir B2B, atau stok produk
-                                </p>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => setIsEditModalOpen(false)}
-                                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
-                            >
-                                <X className="h-5 w-5" />
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleSaveEdit} className="p-6 space-y-4 text-xs">
-                            <div className="space-y-1">
-                                <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                    Nama Produk / Layanan
-                                </label>
-                                <input
-                                    type="text"
-                                    required
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1">
                                     <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                        Harga Satuan (1-2 Unit)
+                                        Satuan &amp; MOQ
                                     </label>
-                                    <input
-                                        type="number"
-                                        required
-                                        value={formData.price_unit}
-                                        onChange={(e) => setFormData({ ...formData, price_unit: e.target.value })}
-                                        className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                        Harga Grosir B2B (≥3 Unit)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        required
-                                        value={formData.price_wholesale}
-                                        onChange={(e) => setFormData({ ...formData, price_wholesale: e.target.value })}
-                                        className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
-                                    />
-                                </div>
-                            </div>
-
-                            {!activeItem.is_service && (
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1">
-                                        <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                            Stok Gudang
-                                        </label>
-                                        <input
-                                            type="number"
-                                            value={formData.stock}
-                                            onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                                            className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
-                                        />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                            Satuan Unit
-                                        </label>
+                                    <div className="grid grid-cols-2 gap-2">
                                         <input
                                             type="text"
-                                            value={formData.unit}
-                                            onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                                            className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
+                                            value={productForm.data.stock_unit}
+                                            onChange={(e) => productForm.setData('stock_unit', e.target.value)}
+                                            placeholder="Unit"
+                                            className="w-full h-9 px-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
                                         />
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={productForm.data.moq}
+                                            onChange={(e) => productForm.setData('moq', e.target.value)}
+                                            placeholder="MOQ"
+                                            className="w-full h-9 px-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
+                                        />
+                                    </div>
+                                    {(productForm.errors.stock_unit || productForm.errors.moq) && (
+                                        <p className="text-[11px] text-rose-500">
+                                            {productForm.errors.stock_unit || productForm.errors.moq}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="font-semibold text-slate-700 dark:text-slate-300">
+                                    Deskripsi Produk / Layanan
+                                </label>
+                                <textarea
+                                    rows="3"
+                                    value={productForm.data.description}
+                                    onChange={(e) => productForm.setData('description', e.target.value)}
+                                    placeholder="Jelaskan detail produk, cakupan jasa, atau catatan penting..."
+                                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
+                                />
+                                {productForm.errors.description && (
+                                    <p className="text-[11px] text-rose-500">{productForm.errors.description}</p>
+                                )}
+                            </div>
+
+                            {/* Spesifikasi Key-Value */}
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <label className="font-semibold text-slate-700 dark:text-slate-300">
+                                        Spesifikasi Teknis (Opsional)
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setSpecRows((prev) => [...prev, { key: '', value: '' }])}
+                                        className="text-[11px] font-semibold text-[#086f8e] hover:underline cursor-pointer"
+                                    >
+                                        + Tambah Baris Spesifikasi
+                                    </button>
+                                </div>
+                                {specRows.map((row, index) => (
+                                    <div key={index} className="grid grid-cols-12 gap-2 items-center">
+                                        <input
+                                            type="text"
+                                            value={row.key}
+                                            onChange={(e) =>
+                                                setSpecRows((prev) =>
+                                                    prev.map((r, i) => (i === index ? { ...r, key: e.target.value } : r))
+                                                )
+                                            }
+                                            placeholder="Label (cth: Kapasitas)"
+                                            className="col-span-5 h-8 px-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={row.value}
+                                            onChange={(e) =>
+                                                setSpecRows((prev) =>
+                                                    prev.map((r, i) => (i === index ? { ...r, value: e.target.value } : r))
+                                                )
+                                            }
+                                            placeholder="Nilai (cth: 256 GB)"
+                                            className="col-span-6 h-8 px-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setSpecRows((prev) => prev.filter((_, i) => i !== index))}
+                                            className="col-span-1 flex justify-center text-rose-500 hover:text-rose-700 cursor-pointer"
+                                            aria-label="Hapus spesifikasi"
+                                        >
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Foto Existing (Saat Edit) */}
+                            {editingProduct?.images?.length > 0 && (
+                                <div className="space-y-2">
+                                    <label className="font-semibold text-slate-700 dark:text-slate-300">
+                                        Foto Saat Ini ({editingProduct.images.length})
+                                    </label>
+                                    <div className="flex flex-wrap gap-2.5">
+                                        {editingProduct.images.map((img) => (
+                                            <div
+                                                key={img.id}
+                                                className="relative h-20 w-20 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-white p-1 flex items-center justify-center overflow-hidden"
+                                            >
+                                                <img src={img.url} alt={img.alt_text || editingProduct.name} className="max-h-full max-w-full object-contain" />
+                                                <button
+                                                    type="button"
+                                                    disabled={deletingImageId === img.id}
+                                                    onClick={() => handleDeleteProductImage(editingProduct.id, img.id)}
+                                                    className="absolute top-1 right-1 h-5 w-5 rounded-full bg-rose-600 text-white flex items-center justify-center hover:bg-rose-700 cursor-pointer disabled:opacity-50"
+                                                    title="Hapus foto"
+                                                >
+                                                    <X className="h-3 w-3" />
+                                                </button>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             )}
 
+                            {/* Upload Foto Baru */}
+                            <div className="space-y-1.5">
+                                <label className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                                    <ImagePlus className="h-3.5 w-3.5 text-[#086f8e]" />
+                                    <span>Unggah Foto Produk (JPG/PNG/WebP, maks. 5 MB per berkas)</span>
+                                </label>
+                                <input
+                                    type="file"
+                                    multiple
+                                    accept="image/jpeg,image/png,image/webp"
+                                    onChange={(e) => productForm.setData('images', Array.from(e.target.files || []))}
+                                    className="w-full text-xs text-slate-600 dark:text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#086f8e]/10 file:text-[#086f8e] hover:file:bg-[#086f8e]/20 cursor-pointer"
+                                />
+                                {productForm.data.images.length > 0 && (
+                                    <p className="text-[11px] text-slate-500">
+                                        {productForm.data.images.length} berkas siap diunggah.
+                                    </p>
+                                )}
+                                {imageErrors.map((err, idx) => (
+                                    <p key={idx} className="text-[11px] text-rose-500">{err}</p>
+                                ))}
+                            </div>
+
                             <label className="flex items-center gap-2 pt-1 cursor-pointer">
                                 <input
                                     type="checkbox"
-                                    checked={Boolean(formData.tax_badge)}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            tax_badge: e.target.checked
-                                                ? activeItem.is_service
-                                                    ? 'Faktur Pajak'
-                                                    : 'e-Faktur Aktif'
-                                                : '',
-                                        })
-                                    }
+                                    checked={productForm.data.is_active}
+                                    onChange={(e) => productForm.setData('is_active', e.target.checked)}
                                     className="h-4 w-4 rounded border-slate-300 text-[#086f8e] focus:ring-0 cursor-pointer"
                                 />
                                 <span className="font-medium text-slate-700 dark:text-slate-300">
-                                    Aktifkan label e-Faktur PPN 11% Resmi
+                                    Aktifkan produk (tampil di katalog publik &amp; portal pembeli)
                                 </span>
                             </label>
 
                             <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
                                 <button
                                     type="button"
-                                    onClick={() => setIsEditModalOpen(false)}
+                                    onClick={() => setIsProductModalOpen(false)}
                                     className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-50 cursor-pointer"
                                 >
                                     Batal
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-5 py-2 rounded-xl bg-[#086f8e] hover:bg-[#065871] text-white font-bold transition shadow-xs cursor-pointer"
+                                    disabled={productForm.processing}
+                                    className="px-5 py-2 rounded-xl bg-[#086f8e] hover:bg-[#065871] text-white font-bold transition shadow-xs cursor-pointer disabled:opacity-60"
                                 >
-                                    Simpan Perubahan
+                                    {productForm.processing
+                                        ? 'Menyimpan...'
+                                        : editingProduct
+                                            ? 'Simpan Perubahan'
+                                            : 'Simpan Produk'}
                                 </button>
                             </div>
                         </form>
@@ -1298,181 +1194,205 @@ export default function SellerCatalogIndex() {
                 </div>
             )}
 
-            {/* ========================================================= */}
-            {/* MODAL 3: RESTOCK CEPAT (Khusus Barang Stok Kritis)       */}
-            {/* ========================================================= */}
-            {isRestockModalOpen && activeItem && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-                    <div className="bg-white dark:bg-[#171B26] w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-modal">
-                        <div className="p-6 space-y-4 text-xs">
-                            <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                                    <RefreshCw className="h-5 w-5" />
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                                        Restock Barang Masuk
-                                    </h3>
-                                    <p className="text-[11px] text-slate-400">
-                                        {activeItem.name} ({activeItem.sku})
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#12161F] border border-slate-200/80 dark:border-slate-800 space-y-1">
-                                <div className="text-[11px] text-slate-400">Stok Saat Ini:</div>
-                                <div className="text-sm font-bold text-rose-600 dark:text-rose-400">
-                                    {activeItem.stock} {activeItem.unit} (Di bawah batas minimum)
-                                </div>
-                            </div>
-
-                            <div className="space-y-1">
-                                <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                    Jumlah Restock Masuk ({activeItem.unit})
-                                </label>
-                                <input
-                                    type="number"
-                                    min="1"
-                                    value={restockQty}
-                                    onChange={(e) => setRestockQty(e.target.value)}
-                                    className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-bold focus:ring-1 focus:ring-[#086f8e]"
-                                />
-                            </div>
-
-                            <div className="space-y-1">
-                                <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                    No. Surat Jalan / Purchase Order Distributor
-                                </label>
-                                <input
-                                    type="text"
-                                    value={restockPoRef}
-                                    onChange={(e) => setRestockPoRef(e.target.value)}
-                                    placeholder="Contoh: PO-DIST-BELDEN-2026"
-                                    className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-mono font-medium focus:ring-1 focus:ring-[#086f8e]"
-                                />
-                            </div>
-
-                            <div className="flex items-center justify-end gap-2.5 pt-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsRestockModalOpen(false)}
-                                    className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-50 cursor-pointer"
-                                >
-                                    Batal
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handleConfirmRestock}
-                                    className="px-5 py-2 rounded-xl bg-[#086f8e] hover:bg-[#065871] text-white font-bold transition shadow-xs cursor-pointer"
-                                >
-                                    Konfirmasi Restock (+{restockQty})
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* ========================================================= */}
-            {/* MODAL 4: IMPORT MASSAL EXCEL / CSV                        */}
-            {/* ========================================================= */}
-            {isImportModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-                    <div className="bg-white dark:bg-[#171B26] w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-modal">
+            {/* MODAL 2: KELOLA KATEGORI */}
+            {isCategoryModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-[#171B26] w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#12161F]">
                             <div>
                                 <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                                    Import Katalog Massal (Excel / CSV)
+                                    Kelola Kategori Katalog
                                 </h3>
                                 <p className="text-[11px] text-slate-400">
-                                    Unggah daftar SKU hardware &amp; servis sekaligus ke sistem back-office
+                                    Kategori yang masih dipakai produk hanya dapat dinonaktifkan
                                 </p>
                             </div>
                             <button
                                 type="button"
-                                onClick={() => setIsImportModalOpen(false)}
+                                onClick={() => setIsCategoryModalOpen(false)}
                                 className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
                             >
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
 
-                        <div className="p-6 space-y-4 text-xs">
-                            <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-6 text-center space-y-2 hover:border-[#086f8e] transition cursor-pointer">
-                                <UploadCloud className="h-10 w-10 text-[#086f8e] mx-auto" />
-                                <div className="font-bold text-slate-800 dark:text-slate-200">
-                                    Klik atau seret file spreadsheet ke sini
+                        <div className="p-6 space-y-5 text-xs">
+                            <form onSubmit={handleCategorySubmit} className="space-y-3 p-4 rounded-xl bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-800">
+                                <div className="font-semibold text-slate-800 dark:text-slate-200">
+                                    {editingCategory ? `Edit Kategori: ${editingCategory.name}` : 'Tambah Kategori Baru'}
                                 </div>
-                                <p className="text-[11px] text-slate-400">
-                                    Mendukung format .xlsx, .xls, atau .csv (Maksimal 10 MB)
-                                </p>
-                            </div>
-
-                            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#12161F] border border-slate-200 dark:border-slate-800">
-                                <div className="space-y-0.5">
-                                    <div className="font-semibold text-slate-800 dark:text-slate-200">
-                                        Template Katalog B2B
-                                    </div>
-                                    <div className="text-[11px] text-slate-400">
-                                        Download format standar kolom SKU, harga grosir, dan PPN
-                                    </div>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        required
+                                        value={categoryForm.data.name}
+                                        onChange={(e) => categoryForm.setData('name', e.target.value)}
+                                        placeholder="Nama kategori..."
+                                        className="flex-1 h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] text-slate-900 dark:text-white"
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={categoryForm.processing}
+                                        className="px-4 h-9 rounded-xl bg-[#086f8e] hover:bg-[#065871] text-white font-bold cursor-pointer disabled:opacity-60"
+                                    >
+                                        {editingCategory ? 'Update' : 'Tambah'}
+                                    </button>
+                                    {editingCategory && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setEditingCategory(null);
+                                                categoryForm.reset();
+                                                categoryForm.setData('is_active', true);
+                                            }}
+                                            className="px-3 h-9 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 cursor-pointer"
+                                        >
+                                            Batal
+                                        </button>
+                                    )}
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => showToast('Template_Katalog_Putra_Nugraha.xlsx berhasil diunduh.')}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-                                >
-                                    <Download className="h-3.5 w-3.5" />
-                                    <span>Download</span>
-                                </button>
-                            </div>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={categoryForm.data.is_active}
+                                        onChange={(e) => categoryForm.setData('is_active', e.target.checked)}
+                                        className="h-4 w-4 rounded border-slate-300 text-[#086f8e]"
+                                    />
+                                    <span className="text-slate-600 dark:text-slate-300">Kategori aktif di katalog publik</span>
+                                </label>
+                                {categoryForm.errors.name && (
+                                    <p className="text-[11px] text-rose-500">{categoryForm.errors.name}</p>
+                                )}
+                            </form>
 
-                            <div className="flex items-center justify-end gap-2.5 pt-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsImportModalOpen(false)}
-                                    className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-50 cursor-pointer"
-                                >
-                                    Tutup
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setIsImportModalOpen(false);
-                                        showToast('Data massal berhasil diimpor ke katalog.');
-                                    }}
-                                    className="px-5 py-2 rounded-xl bg-[#086f8e] hover:bg-[#065871] text-white font-bold transition shadow-xs cursor-pointer"
-                                >
-                                    Mulai Proses Import
-                                </button>
+                            {categoryError && (
+                                <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-300">
+                                    {categoryError}
+                                </div>
+                            )}
+
+                            <div className="max-h-64 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl">
+                                {categories.length === 0 ? (
+                                    <p className="p-4 text-center text-slate-400">Belum ada kategori.</p>
+                                ) : (
+                                    categories.map((cat) => (
+                                        <div key={cat.id} className="flex items-center justify-between gap-3 px-4 py-3">
+                                            <div className="min-w-0">
+                                                <div className="font-semibold text-slate-900 dark:text-white truncate">
+                                                    {cat.name}
+                                                </div>
+                                                <div className="text-[11px] text-slate-400">
+                                                    {cat.products_count ?? 0} produk • {cat.is_active ? 'Aktif' : 'Nonaktif'}
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2 shrink-0">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => startEditCategory(cat)}
+                                                    className="text-[#086f8e] hover:underline font-semibold cursor-pointer"
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDeleteCategory(cat)}
+                                                    className="text-rose-500 hover:text-rose-700 p-1 rounded cursor-pointer"
+                                                    title="Hapus Kategori"
+                                                >
+                                                    <Trash2 className="h-3.5 w-3.5" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* ========================================================= */}
-            {/* MODAL 5: KONFIRMASI HAPUS SKU                             */}
-            {/* ========================================================= */}
-            {isDeleteModalOpen && activeItem && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-                    <div className="bg-white dark:bg-[#171B26] w-full max-w-sm rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden p-6 text-xs space-y-4 animate-modal">
+            {/* MODAL 3: RESTOCK CEPAT */}
+            {isRestockModalOpen && restockTarget && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                    <form
+                        onSubmit={handleConfirmRestock}
+                        className="bg-white dark:bg-[#171B26] w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden p-6 space-y-4 text-xs"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                                <RefreshCw className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                                    Tambah Stok Produk
+                                </h3>
+                                <p className="text-[11px] text-slate-400">
+                                    {restockTarget.name}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#12161F] border border-slate-200/80 dark:border-slate-800 space-y-1">
+                            <div className="text-[11px] text-slate-400">Stok Saat Ini:</div>
+                            <div className="text-sm font-bold text-slate-900 dark:text-white">
+                                {formatStock(restockTarget.stock_quantity, restockTarget.stock_unit)}
+                            </div>
+                        </div>
+
+                        <div className="space-y-1">
+                            <label className="font-semibold text-slate-700 dark:text-slate-300">
+                                Jumlah Tambahan Stok ({restockTarget.stock_unit || 'unit'})
+                            </label>
+                            <input
+                                type="number"
+                                min="1"
+                                required
+                                value={restockQty}
+                                onChange={(e) => setRestockQty(e.target.value)}
+                                className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-bold focus:ring-1 focus:ring-[#086f8e]"
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-end gap-2.5 pt-2">
+                            <button
+                                type="button"
+                                onClick={() => setIsRestockModalOpen(false)}
+                                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-50 cursor-pointer"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={restockBusy}
+                                className="px-5 py-2 rounded-xl bg-[#086f8e] hover:bg-[#065871] text-white font-bold transition shadow-xs cursor-pointer disabled:opacity-60"
+                            >
+                                {restockBusy ? 'Menyimpan...' : `Simpan Restock (+${restockQty})`}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
+            {/* MODAL 4: KONFIRMASI HAPUS PRODUK */}
+            {isDeleteModalOpen && deleteTarget && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-[#171B26] w-full max-w-sm rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden p-6 text-xs space-y-4">
                         <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
                                 <Trash2 className="h-5 w-5" />
                             </div>
                             <div>
                                 <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                                    Hapus SKU Katalog?
+                                    Hapus Produk Katalog?
                                 </h3>
                                 <p className="text-[11px] text-slate-400">
-                                    {activeItem.name}
+                                    {deleteTarget.name}
                                 </p>
                             </div>
                         </div>
 
                         <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                            Apakah Anda yakin ingin menghapus item SKU <strong>{activeItem.sku}</strong> dari katalog etalase B2B CV. Putra Nugraha? Tindakan ini dapat dibatalkan sewaktu-waktu.
+                            Produk dan seluruh foto terkait akan dihapus secara permanen dari katalog. Jika hanya ingin menyembunyikan produk sementara, gunakan tombol nonaktifkan.
                         </p>
 
                         <div className="flex items-center justify-end gap-2.5 pt-2">
@@ -1485,16 +1405,16 @@ export default function SellerCatalogIndex() {
                             </button>
                             <button
                                 type="button"
-                                onClick={handleConfirmDelete}
-                                className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold transition shadow-xs cursor-pointer"
+                                disabled={deleteBusy}
+                                onClick={handleConfirmDeleteProduct}
+                                className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold transition shadow-xs cursor-pointer disabled:opacity-60"
                             >
-                                Hapus SKU
+                                {deleteBusy ? 'Menghapus...' : 'Hapus Produk'}
                             </button>
                         </div>
                     </div>
                 </div>
             )}
-
         </SellerLayout>
     );
 }

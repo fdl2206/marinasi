@@ -46,8 +46,14 @@ class BuyerCatalogTest extends TestCase
             ->where('products.0.stock', null)
             ->where('products.0.stock_status', 'unknown')
             ->where('products.0.image_url', null)
-            ->where('products.0.cart_enabled', false)
+            ->where('products.0.cart_enabled', true)
             ->where('pagination.total', 1));
+
+        $outOfStock = Product::factory()->create(['name' => 'Habis SSD', 'stock_quantity' => 0]);
+        $this->get('/portal?search=Habis%20SSD')->assertInertia(fn ($page) => $page
+            ->where('products.0.id', $outOfStock->id)
+            ->where('products.0.stock_status', 'out_of_stock')
+            ->where('products.0.cart_enabled', false));
     }
 
     public function test_empty_catalog_and_no_matches_return_empty_products(): void

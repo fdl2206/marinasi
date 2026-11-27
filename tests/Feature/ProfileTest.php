@@ -96,4 +96,36 @@ class ProfileTest extends TestCase
 
         $this->assertNotNull($user->fresh());
     }
+
+    public function test_seller_account_cannot_be_deleted_via_profile_endpoint(): void
+    {
+        $seller = User::factory()->seller()->create();
+
+        $this->actingAs($seller)
+            ->delete('/profile', ['password' => 'password'])
+            ->assertForbidden();
+
+        $this->assertAuthenticatedAs($seller);
+        $this->assertModelExists($seller);
+    }
+
+    public function test_inertia_shared_auth_user_exposes_only_safe_fields(): void
+    {
+        $buyer = User::factory()->create([
+            'phone' => '08123456789',
+            'company_name' => 'Instansi Contoh',
+        ]);
+
+        $this->actingAs($buyer)
+            ->get('/profile')
+            ->assertInertia(fn ($page) => $page
+                ->where('auth.user.id', $buyer->id)
+                ->where('auth.user.email', $buyer->email)
+                ->where('auth.user.phone', '08123456789')
+                ->where('auth.user.company_name', 'Instansi Contoh')
+                ->missing('auth.user.password')
+                ->missing('auth.user.remember_token')
+                ->missing('auth.user.created_at')
+                ->missing('auth.user.updated_at'));
+    }
 }

@@ -20,16 +20,42 @@ class SellerProductController extends Controller
 {
     public function index(Request $request): Response
     {
-        $filters = $request->validate(['search' => ['nullable', 'string', 'max:255']]);
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:255'],
+            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'type' => ['nullable', 'in:goods,service'],
+            'stock_status' => ['nullable', 'in:all,ready,critical,out_of_stock,unknown'],
+        ]);
+
+        $stockStatus = $filters['stock_status'] ?? 'all';
 
         return Inertia::render('Seller/Catalog/Index', [
             'products' => Product::query()->with(['category', 'images'])
                 ->when($filters['search'] ?? null, fn ($query, string $search) => $query->where(function ($query) use ($search): void {
                     $query->where('name', 'like', "%{$search}%")->orWhere('sku', 'like', "%{$search}%");
                 }))
+                ->when($filters['category_id'] ?? null, fn ($query, int $categoryId) => $query->where('category_id', $categoryId))
+                ->when($filters['type'] ?? null, fn ($query, string $type) => $query->where('type', $type))
+                ->when($stockStatus === 'ready', fn ($query) => $query->where('stock_quantity', '>', 2))
+                ->when($stockStatus === 'critical', fn ($query) => $query->where('type', 'goods')->whereNotNull('stock_quantity')->where('stock_quantity', '>', 0)->where('stock_quantity', '<=', 2))
+                ->when($stockStatus === 'out_of_stock', fn ($query) => $query->whereNotNull('stock_quantity')->where('stock_quantity', '<=', 0))
+                ->when($stockStatus === 'unknown', fn ($query) => $query->whereNull('stock_quantity'))
                 ->latest('id')->paginate(15)->withQueryString(),
             'categories' => Category::query()->withCount('products')->orderBy('name')->get(),
-            'filters' => ['search' => $filters['search'] ?? ''],
+            'filters' => [
+                'search' => $filters['search'] ?? '',
+                'category_id' => isset($filters['category_id']) ? (int) $filters['category_id'] : null,
+                'type' => $filters['type'] ?? '',
+                'stock_status' => $stockStatus,
+            ],
+            'stats' => [
+                'total' => Product::query()->count(),
+                'active' => Product::query()->where('is_active', true)->count(),
+                'goods' => Product::query()->where('type', 'goods')->count(),
+                'services' => Product::query()->where('type', 'service')->count(),
+                'ready_stock' => Product::query()->where('stock_quantity', '>', 0)->count(),
+                'critical_stock' => Product::query()->where('type', 'goods')->whereNotNull('stock_quantity')->where('stock_quantity', '<=', 2)->count(),
+            ],
         ]);
     }
 
