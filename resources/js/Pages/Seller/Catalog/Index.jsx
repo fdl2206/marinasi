@@ -213,7 +213,7 @@ export default function SellerCatalogIndex({
                 description: data.description,
                 specifications: specRowsToObject(specRows),
                 price: data.price,
-                stock_quantity: data.stock_quantity,
+                stock_quantity: data.type === 'service' ? '' : data.stock_quantity,
                 stock_unit: data.stock_unit,
                 moq: data.moq,
                 is_active: data.is_active ? 1 : 0,
@@ -742,23 +742,29 @@ export default function SellerCatalogIndex({
 
                                             {/* Col 4: Stock */}
                                             <div className="text-xs space-y-1">
-                                                <div
-                                                    className={
-                                                        isCritical
-                                                            ? 'text-rose-600 dark:text-rose-400 font-bold'
-                                                            : 'text-slate-800 dark:text-slate-200 font-semibold'
-                                                    }
-                                                >
-                                                    {formatStock(item.stock_quantity, item.stock_unit)}
-                                                </div>
-                                                {item.type === 'goods' && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleOpenRestock(item)}
-                                                        className="px-2 py-0.5 bg-[#086f8e]/10 hover:bg-[#086f8e] text-[#086f8e] hover:text-white text-[10px] font-bold rounded transition cursor-pointer"
-                                                    >
-                                                        + Restock
-                                                    </button>
+                                                {item.type === 'service' ? (
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                                                        Tanpa Stok (Jasa)
+                                                    </span>
+                                                ) : (
+                                                    <>
+                                                        <div
+                                                            className={
+                                                                isCritical
+                                                                    ? 'text-rose-600 dark:text-rose-400 font-bold'
+                                                                    : 'text-slate-800 dark:text-slate-200 font-semibold'
+                                                            }
+                                                        >
+                                                            {formatStock(item.stock_quantity, item.stock_unit)}
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleOpenRestock(item)}
+                                                            className="px-2 py-0.5 bg-[#086f8e]/10 hover:bg-[#086f8e] text-[#086f8e] hover:text-white text-[10px] font-bold rounded transition cursor-pointer"
+                                                        >
+                                                            + Restock
+                                                        </button>
+                                                    </>
                                                 )}
                                             </div>
 
@@ -946,7 +952,20 @@ export default function SellerCatalogIndex({
                                     </label>
                                     <select
                                         value={productForm.data.type}
-                                        onChange={(e) => productForm.setData('type', e.target.value)}
+                                        onChange={(e) => {
+                                            const nextType = e.target.value;
+                                            productForm.setData({
+                                                ...productForm.data,
+                                                type: nextType,
+                                                stock_quantity: nextType === 'service' ? '' : productForm.data.stock_quantity,
+                                                stock_unit:
+                                                    nextType === 'service' && (!productForm.data.stock_unit || productForm.data.stock_unit === 'Unit')
+                                                        ? 'Paket'
+                                                        : nextType === 'goods' && productForm.data.stock_unit === 'Paket'
+                                                            ? 'Unit'
+                                                            : productForm.data.stock_unit,
+                                            });
+                                        }}
                                         className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
                                     >
                                         <option value="goods">Barang (Goods)</option>
@@ -993,23 +1012,34 @@ export default function SellerCatalogIndex({
                                     )}
                                 </div>
 
-                                <div className="space-y-1">
-                                    <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                        Stok (Opsional)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="0.001"
-                                        value={productForm.data.stock_quantity}
-                                        onChange={(e) => productForm.setData('stock_quantity', e.target.value)}
-                                        placeholder="Kosongkan jika belum dikonfirmasi"
-                                        className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
-                                    />
-                                    {productForm.errors.stock_quantity && (
-                                        <p className="text-[11px] text-rose-500">{productForm.errors.stock_quantity}</p>
-                                    )}
-                                </div>
+                                {productForm.data.type === 'goods' ? (
+                                    <div className="space-y-1">
+                                        <label className="font-semibold text-slate-700 dark:text-slate-300">
+                                            Stok (Opsional)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            step="0.001"
+                                            value={productForm.data.stock_quantity}
+                                            onChange={(e) => productForm.setData('stock_quantity', e.target.value)}
+                                            placeholder="Kosongkan jika belum dikonfirmasi"
+                                            className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#12161F] text-slate-900 dark:text-white font-medium focus:ring-1 focus:ring-[#086f8e]"
+                                        />
+                                        {productForm.errors.stock_quantity && (
+                                            <p className="text-[11px] text-rose-500">{productForm.errors.stock_quantity}</p>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="space-y-1">
+                                        <label className="font-semibold text-slate-700 dark:text-slate-300">
+                                            Ketersediaan Jasa
+                                        </label>
+                                        <div className="h-9 px-3 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#12161F]/60 text-[11px] text-slate-500 dark:text-slate-400 flex items-center">
+                                            Tanpa stok — diatur via Aktif/Nonaktif
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div className="space-y-1">
                                     <label className="font-semibold text-slate-700 dark:text-slate-300">

@@ -27,23 +27,24 @@ class BuyerCartController extends Controller
             ->map(function (CartItem $item) {
                 $product = $item->product;
                 $firstImage = $product->images->first();
-                $stockQty = $product->stock_quantity !== null ? (float) $product->stock_quantity : null;
+                $isService = $product->type === 'service';
+                $stockQty = ! $isService && $product->stock_quantity !== null ? (float) $product->stock_quantity : null;
                 $maxStock = $stockQty !== null ? max(0, (int) floor($stockQty)) : null;
 
                 $isProductActive = $product->is_active && (bool) $product->category?->is_active;
-                $isOutOfStock = $maxStock !== null && $maxStock < 1;
+                $isOutOfStock = ! $isService && $maxStock !== null && $maxStock < 1;
                 $stockStatus = 'unknown';
                 $badgeLabel = 'Ketersediaan Belum Dikonfirmasi';
 
                 if (! $isProductActive) {
                     $stockStatus = 'unavailable';
                     $badgeLabel = 'Produk Tidak Tersedia';
+                } elseif ($isService) {
+                    $stockStatus = 'official_service';
+                    $badgeLabel = 'Jasa Resmi CV. Putra Nugraha';
                 } elseif ($isOutOfStock) {
                     $stockStatus = 'out_of_stock';
                     $badgeLabel = 'Stok Habis';
-                } elseif ($product->type === 'service') {
-                    $stockStatus = 'official_service';
-                    $badgeLabel = 'Jasa Resmi CV. Putra Nugraha';
                 } elseif ($stockQty !== null) {
                     $stockStatus = 'ready_stock';
                     $badgeLabel = 'Ready Stock';
@@ -191,6 +192,10 @@ class BuyerCartController extends Controller
 
     private function ensureStockSufficient(Product $product, int $requestedQuantity): void
     {
+        if ($product->type === 'service') {
+            return;
+        }
+
         if ($product->stock_quantity !== null && $requestedQuantity > (int) floor((float) $product->stock_quantity)) {
             throw ValidationException::withMessages([
                 'quantity' => 'Jumlah melebihi stok yang tersedia.',

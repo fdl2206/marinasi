@@ -33,6 +33,7 @@ import {
 import { formatRupiah } from '@/Components/Buyer/ProductCard';
 import BuyerNavbar from '@/Components/Buyer/BuyerNavbar';
 import BuyerFooter from '@/Components/Buyer/BuyerFooter';
+import { getBuyerClientProfile } from '@/Utils/buyerProfile';
 
 /**
  * Data mock default untuk profil klien B2B dan statistik pengadaan
@@ -155,7 +156,7 @@ export default function BuyerDashboard({
     const { props } = usePage();
     const auth = props?.auth;
 
-    const client = serverClient || DEFAULT_CLIENT;
+    const client = serverClient || getBuyerClientProfile(auth?.user);
     const metrics = serverMetrics || DEFAULT_METRICS;
     const activeOrder = serverActiveOrder || DEFAULT_ACTIVE_ORDER;
     const initialTransactions = serverTransactions || DEFAULT_TRANSACTIONS;
@@ -225,7 +226,7 @@ export default function BuyerDashboard({
                             </div>
 
                             {/* Verification Pill */}
-                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-semibold">
+                            <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-[10px] font-semibold ${client.badge_class || 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400'}`}>
                                 <CheckCircle2 className="h-3 w-3 shrink-0" />
                                 <span>{client.tax_status}</span>
                             </div>

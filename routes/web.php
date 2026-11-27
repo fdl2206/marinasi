@@ -1,15 +1,20 @@
 <?php
 
+use App\Http\Controllers\BuyerCartController;
 use App\Http\Controllers\BuyerCatalogController;
+use App\Http\Controllers\BuyerCheckoutController;
+use App\Http\Controllers\BuyerOrderController;
+use App\Http\Controllers\BuyerVerificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicCatalogController;
 use App\Http\Controllers\SellerCategoryController;
+use App\Http\Controllers\SellerClientController;
+use App\Http\Controllers\SellerOrderController;
 use App\Http\Controllers\SellerProductController;
 use App\Http\Controllers\SellerProductImageController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\BuyerCartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -84,18 +89,20 @@ Route::prefix('buyer')->name('buyer.')->middleware(['auth', 'can:access-buyer'])
         return Inertia::render('Buyer/Rfq/Create');
     })->name('rfq.create');
 
-    Route::get('/orders', function () {
-        return Inertia::render('Buyer/Orders/Index');
-    })->name('orders.index');
+    Route::get('/orders', [BuyerOrderController::class, 'index'])->name('orders.index');
+    Route::post('/orders/{order}/cancel', [BuyerOrderController::class, 'cancel'])->name('orders.cancel');
 
     Route::get('/cart', [BuyerCartController::class, 'index'])->name('cart.index');
     Route::post('/cart/items', [BuyerCartController::class, 'store'])->name('cart.items.store');
     Route::patch('/cart/items/{cartItem}', [BuyerCartController::class, 'update'])->name('cart.items.update');
     Route::delete('/cart/items/{cartItem}', [BuyerCartController::class, 'destroy'])->name('cart.items.destroy');
 
-    Route::get('/checkout', function () {
-        return Inertia::render('Buyer/Checkout/Index');
-    })->name('checkout.index');
+    Route::get('/checkout', [BuyerCheckoutController::class, 'index'])
+        ->middleware('verified.buyer')
+        ->name('checkout.index');
+    Route::post('/checkout', [BuyerCheckoutController::class, 'store'])
+        ->middleware('verified.buyer')
+        ->name('checkout.store');
 
     Route::get('/invoices', function () {
         return Inertia::render('Buyer/Invoices/Index');
@@ -107,6 +114,9 @@ Route::prefix('buyer')->name('buyer.')->middleware(['auth', 'can:access-buyer'])
 
     Route::get('/profile', [ProfileController::class, 'buyerEdit'])->name('profile.index');
     Route::patch('/profile', [ProfileController::class, 'buyerUpdate'])->name('profile.update');
+    Route::post('/verification', [BuyerVerificationController::class, 'store'])->name('verification.store');
+    Route::get('/verification/documents/{document}', [BuyerVerificationController::class, 'downloadDocument'])
+        ->name('verification.documents.show');
 
     Route::get('/products/{product}', [BuyerCatalogController::class, 'show'])->name('products.show');
 
@@ -151,9 +161,10 @@ Route::prefix('seller')->name('seller.')->middleware(['auth', 'can:access-seller
         return Inertia::render('Seller/Negotiations/Index');
     })->name('negotiations.index');
 
-    Route::get('/orders', function () {
-        return Inertia::render('Seller/Orders/Index');
-    })->name('orders.index');
+    Route::get('/orders', [SellerOrderController::class, 'index'])->name('orders.index');
+    Route::post('/orders/{order}/status', [SellerOrderController::class, 'advanceStatus'])->name('orders.status.advance');
+    Route::patch('/orders/{order}/shipping', [SellerOrderController::class, 'updateShipping'])->name('orders.shipping.update');
+    Route::post('/orders/{order}/cancel', [SellerOrderController::class, 'cancel'])->name('orders.cancel');
 
     Route::get('/legality', function () {
         return Inertia::render('Seller/Legality/Index');
@@ -163,9 +174,15 @@ Route::prefix('seller')->name('seller.')->middleware(['auth', 'can:access-seller
         return Inertia::render('Seller/Services/Index');
     })->name('services.index');
 
-    Route::get('/clients', function () {
-        return Inertia::render('Seller/Clients/Index');
-    })->name('clients.index');
+    Route::get('/clients', [SellerClientController::class, 'index'])->name('clients.index');
+    Route::post('/clients/{client}/verification/approve', [SellerClientController::class, 'approve'])
+        ->name('clients.verification.approve');
+    Route::post('/clients/{client}/verification/reject', [SellerClientController::class, 'reject'])
+        ->name('clients.verification.reject');
+    Route::patch('/clients/{client}/active', [SellerClientController::class, 'toggleActive'])
+        ->name('clients.active.update');
+    Route::get('/clients/verification-documents/{document}', [SellerClientController::class, 'downloadDocument'])
+        ->name('clients.documents.show');
 
     Route::get('/settings', function () {
         return Inertia::render('Seller/Settings/Index');

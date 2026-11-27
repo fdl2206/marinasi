@@ -30,7 +30,7 @@ class BuyerCatalogController extends Controller
             ->when($filters['kategori'] ?? null, fn ($query, int $categoryId) => $query->where('category_id', $categoryId))
             ->when($filters['min_price'] ?? null, fn ($query, $minPrice) => $query->where('price', '>=', $minPrice))
             ->when($filters['max_price'] ?? null, fn ($query, $maxPrice) => $query->where('price', '<=', $maxPrice))
-            ->when($sort === 'ready_stock', fn ($query) => $query->where('stock_quantity', '>', 0));
+            ->when($sort === 'ready_stock', fn ($query) => $query->where('type', 'goods')->where('stock_quantity', '>', 0));
 
         if (in_array($sort, ['price_asc', 'price_desc'], true)) {
             $query->orderByRaw('price IS NULL')->orderBy('price', $sort === 'price_asc' ? 'asc' : 'desc');
@@ -98,8 +98,11 @@ class BuyerCatalogController extends Controller
     /** @return array<string, mixed> */
     private function productData(Product $product): array
     {
-        $stockQty = $product->stock_quantity !== null ? (float) $product->stock_quantity : null;
-        $stockStatus = $stockQty === null ? 'unknown' : ($stockQty >= 1 ? 'ready_stock' : 'out_of_stock');
+        $isService = $product->type === 'service';
+        $stockQty = ! $isService && $product->stock_quantity !== null ? (float) $product->stock_quantity : null;
+        $stockStatus = $isService
+            ? 'official_service'
+            : ($stockQty === null ? 'unknown' : ($stockQty >= 1 ? 'ready_stock' : 'out_of_stock'));
 
         return [
             'id' => $product->id,
@@ -111,11 +114,12 @@ class BuyerCatalogController extends Controller
             'description' => $product->description,
             'price' => $product->price,
             'base_price' => $product->price,
-            'stock' => $product->stock_quantity,
+            'stock' => $isService ? null : $product->stock_quantity,
             'unit' => $product->stock_unit,
             'moq' => $product->moq,
             'stock_status' => $stockStatus,
             'badge_label' => match ($stockStatus) {
+                'official_service' => 'Jasa Resmi Tersedia',
                 'ready_stock' => 'Stok tersedia',
                 'out_of_stock' => 'Stok habis',
                 default => 'Ketersediaan belum dikonfirmasi',

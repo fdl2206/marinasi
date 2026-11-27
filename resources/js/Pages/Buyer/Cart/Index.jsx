@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     ShoppingCart,
     Plus,
@@ -47,6 +47,8 @@ function normalizeCartItems(rawItems, previousSelectionMap = {}) {
 }
 
 export default function CartIndex({ cart_items: serverCartItems }) {
+    const { props } = usePage();
+    const isVerifiedBuyer = Boolean(props?.auth?.user?.is_verified_buyer);
     const [items, setItems] = useState(() => normalizeCartItems(serverCartItems));
     const [busyItemIds, setBusyItemIds] = useState([]);
     const [isBulkDeleting, setIsBulkDeleting] = useState(false);
@@ -582,12 +584,34 @@ export default function CartIndex({ cart_items: serverCartItems }) {
 
                             {/* Action Buttons */}
                             <div className="space-y-2.5 pt-1">
-                                <Link
-                                    href="/buyer/checkout"
-                                    className="w-full py-3 rounded-lg bg-[#086f8e] hover:bg-[#065b75] text-white text-xs font-bold shadow-md transition-all flex items-center justify-center text-center active:scale-[0.98]"
+                                {!isVerifiedBuyer && (
+                                    <div className="rounded-lg border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-3 text-[11px] text-amber-800 dark:text-amber-300 space-y-1">
+                                        <p className="font-semibold">Akun belum terverifikasi</p>
+                                        <p>
+                                            Lengkapi verifikasi instansi di{' '}
+                                            <Link href="/buyer/profile" className="underline font-bold">
+                                                Profil Perusahaan
+                                            </Link>{' '}
+                                            sebelum melakukan Checkout atau mengajukan RFQ.
+                                        </p>
+                                    </div>
+                                )}
+
+                                <button
+                                    type="button"
+                                    disabled={selectedItems.length === 0 || hasUnpricedItems}
+                                    onClick={() => {
+                                        router.get('/buyer/checkout', {
+                                            items: selectedItems.map((i) => i.id),
+                                            pr_reference: prReference.trim() || undefined,
+                                            npwp_number: companyNpwp.trim() || undefined,
+                                            shipping_notes: deliveryNotes.trim() || undefined,
+                                        });
+                                    }}
+                                    className="w-full py-3 rounded-lg bg-[#086f8e] hover:bg-[#065b75] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold shadow-md transition-all flex items-center justify-center text-center active:scale-[0.98]"
                                 >
                                     Lanjut ke Checkout / Bayar Langsung
-                                </Link>
+                                </button>
 
                                 <Link
                                     href="/buyer/rfq/create?source=cart"

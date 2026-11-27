@@ -9,29 +9,82 @@ import {
     Wrench,
     LogOut,
     Check,
+    CheckCircle2,
+    Clock,
+    AlertTriangle,
+    ShieldCheck,
+    UploadCloud,
+    Download,
+    Plus,
+    Trash2,
     MapPin,
     Lock,
     User,
     X,
-    Info,
 } from 'lucide-react';
 import BuyerNavbar from '@/Components/Buyer/BuyerNavbar';
 import BuyerFooter from '@/Components/Buyer/BuyerFooter';
 import Modal from '@/Components/Modal';
 
+const DOCUMENT_TYPE_OPTIONS = [
+    { value: 'npwp', label: 'NPWP Instansi / Perusahaan' },
+    { value: 'nib', label: 'NIB / Legalitas Usaha' },
+    { value: 'sk_pkp', label: 'SK PKP / SPPKP' },
+    { value: 'surat_tugas', label: 'Surat Tugas / Identitas Instansi' },
+    { value: 'dokumen_lainnya', label: 'Dokumen Pendukung Lainnya' },
+];
+
+const VERIFICATION_BADGES = {
+    verified: {
+        label: 'Akun Terverifikasi',
+        className: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800',
+        icon: CheckCircle2,
+    },
+    pending: {
+        label: 'Menunggu Review Admin',
+        className: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800',
+        icon: Clock,
+    },
+    rejected: {
+        label: 'Verifikasi Ditolak',
+        className: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800',
+        icon: AlertTriangle,
+    },
+    unverified: {
+        label: 'Belum Terverifikasi',
+        className: 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700',
+        icon: ShieldCheck,
+    },
+};
+
+function formatFileSize(bytes) {
+    if (!bytes) return '';
+    if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+    return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}
+
 export default function ProfileIndex({
     profile: serverProfile = null,
     companyProfile: serverCompanyProfile = null,
     addresses: serverAddresses = [],
+    verification: serverVerification = null,
 }) {
     const { props } = usePage();
     const auth = props?.auth;
+    const pageErrors = props?.errors || {};
 
     const initialName = serverProfile?.name ?? auth?.user?.name ?? '';
     const initialEmail = serverProfile?.email ?? auth?.user?.email ?? '';
     const initialPhone = serverProfile?.phone ?? serverCompanyProfile?.phone ?? auth?.user?.phone ?? '';
     const initialCompanyName = serverProfile?.company_name ?? serverCompanyProfile?.company_name ?? auth?.user?.company_name ?? '';
     const initialCompanyAddress = serverProfile?.company_address ?? serverCompanyProfile?.company_address ?? auth?.user?.company_address ?? '';
+
+    const verificationStatus = serverVerification?.status ?? auth?.user?.verification_status ?? 'unverified';
+    const verificationHistory = Array.isArray(serverVerification?.history) ? serverVerification.history : [];
+    const latestVerification = serverVerification?.latest ?? null;
+    const canSubmitVerification = verificationStatus === 'unverified' || verificationStatus === 'rejected';
+    const badgeConfig = VERIFICATION_BADGES[verificationStatus] || VERIFICATION_BADGES.unverified;
+    const BadgeIcon = badgeConfig.icon;
 
     const profileForm = useForm({
         company_name: initialCompanyName,
@@ -45,7 +98,13 @@ export default function ProfileIndex({
         password_confirmation: '',
     });
 
+    const verificationForm = useForm({
+        notes: '',
+        documents: [{ document_type: 'npwp', file: null }],
+    });
+
     const [isSaved, setIsSaved] = useState(false);
+    const [verificationSubmitted, setVerificationSubmitted] = useState(false);
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
     const [passwordSuccess, setPasswordSuccess] = useState(false);
 
@@ -65,9 +124,6 @@ export default function ProfileIndex({
     ]);
 
     const addresses = Array.isArray(serverAddresses) ? serverAddresses : [];
-    const taxStatus = serverCompanyProfile?.tax_status || '';
-    const npwpNumber = serverCompanyProfile?.npwp_number || '';
-    const nibNumber = serverCompanyProfile?.nib_number || '';
 
     const sidebarMenuItems = [
         { id: 'overview', label: 'Ringkasan Dashboard', icon: LayoutDashboard, href: '/buyer/dashboard' },
@@ -75,7 +131,7 @@ export default function ProfileIndex({
         { id: 'rfq', label: 'Status Pengajuan RFQ / SPH', icon: FileText, href: '/buyer/quotations' },
         { id: 'invoices', label: 'Dokumen & Faktur Pajak', icon: Receipt, href: '/buyer/invoices' },
         { id: 'services', label: 'Jadwal Instalasi & Tiket Servis', icon: Wrench, href: '/buyer/services' },
-        { id: 'company', label: 'Profil Perusahaan & Alamat', icon: Building2, href: '/buyer/profile' },
+        { id: 'company', label: 'Profil Perusahaan & Verifikasi', icon: Building2, href: '/buyer/profile' },
     ];
 
     const handleSaveProfile = (e) => {
@@ -103,9 +159,53 @@ export default function ProfileIndex({
         });
     };
 
+    const addDocumentRow = () => {
+        if (verificationForm.data.documents.length >= 5) return;
+        verificationForm.setData('documents', [
+            ...verificationForm.data.documents,
+            { document_type: 'dokumen_lainnya', file: null },
+        ]);
+    };
+
+    const removeDocumentRow = (index) => {
+        if (verificationForm.data.documents.length <= 1) return;
+        verificationForm.setData(
+            'documents',
+            verificationForm.data.documents.filter((_, i) => i !== index)
+        );
+    };
+
+    const updateDocumentRow = (index, field, value) => {
+        verificationForm.setData(
+            'documents',
+            verificationForm.data.documents.map((row, i) => (i === index ? { ...row, [field]: value } : row))
+        );
+    };
+
+    const handleSubmitVerification = (e) => {
+        e.preventDefault();
+        setVerificationSubmitted(false);
+        verificationForm.post(route('buyer.verification.store'), {
+            forceFormData: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                verificationForm.setData({
+                    notes: '',
+                    documents: [{ document_type: 'npwp', file: null }],
+                });
+                setVerificationSubmitted(true);
+                setTimeout(() => setVerificationSubmitted(false), 4000);
+            },
+        });
+    };
+
+    const verificationErrors = Object.entries(verificationForm.errors)
+        .filter(([key]) => key === 'verification' || key === 'documents' || key.startsWith('documents.') || key === 'notes')
+        .map(([, msg]) => msg);
+
     return (
         <div className="min-h-screen bg-[#f3f7fa] dark:bg-[#0C0D12] text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-[#086f8e] selection:text-white flex flex-col transition-colors duration-150">
-            <Head title="Profil Perusahaan & Alamat — CV. Putra Nugraha" />
+            <Head title="Profil Perusahaan & Verifikasi Akun — CV. Putra Nugraha" />
 
             <BuyerNavbar />
 
@@ -170,12 +270,18 @@ export default function ProfileIndex({
                     <div className="lg:col-span-9 space-y-6">
                         <div>
                             <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                                Profil Perusahaan, Kontak &amp; Alamat
+                                Profil Perusahaan, Verifikasi Akun &amp; Alamat
                             </h1>
                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                Perbarui informasi perusahaan, alamat utama, dan nomor kontak aktif akun Anda.
+                                Lengkapi profil perusahaan dan verifikasi dokumen instansi untuk mengaktifkan pengajuan RFQ dan checkout.
                             </p>
                         </div>
+
+                        {pageErrors.verification && (
+                            <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 px-4 py-3 text-xs font-medium text-amber-800 dark:text-amber-300">
+                                {pageErrors.verification}
+                            </div>
+                        )}
 
                         {passwordSuccess && (
                             <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-4 py-3 text-xs font-medium text-emerald-700 dark:text-emerald-300">
@@ -183,16 +289,210 @@ export default function ProfileIndex({
                             </div>
                         )}
 
-                        <form onSubmit={handleSaveProfile} className="space-y-6">
-                            {/* CARD 1: DATA PERUSAHAAN & KONTAK */}
-                            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-sm">
-                                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800/80 pb-4">
+                        {/* CARD 0: VERIFIKASI AKUN BUYER */}
+                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-sm">
+                            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800/80 pb-4">
+                                <div>
                                     <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-                                        1. Data Perusahaan / Instansi &amp; Alamat Utama
+                                        1. Status Verifikasi Akun Pembeli
                                     </h2>
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 shrink-0">
-                                        <span>{taxStatus || 'Profil Dasar'}</span>
-                                    </span>
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                        Pembeli yang belum terverifikasi tetap dapat mengisi keranjang, namun pengajuan RFQ dan checkout memerlukan verifikasi pengelola.
+                                    </p>
+                                </div>
+                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border shrink-0 ${badgeConfig.className}`}>
+                                    <BadgeIcon className="h-3.5 w-3.5 shrink-0" />
+                                    <span>{badgeConfig.label}</span>
+                                </span>
+                            </div>
+
+                            {verificationSubmitted && (
+                                <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-4 py-3 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                                    Dokumen verifikasi berhasil dikirim dan sedang menunggu peninjauan pengelola CV. Putra Nugraha.
+                                </div>
+                            )}
+
+                            {verificationStatus === 'rejected' && latestVerification?.rejection_reason && (
+                                <div className="rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30 p-4 text-xs space-y-1">
+                                    <div className="font-bold text-rose-700 dark:text-rose-300">
+                                        Pengajuan #{latestVerification.attempt_number} Ditolak oleh Pengelola
+                                    </div>
+                                    <p className="text-rose-600 dark:text-rose-200 leading-relaxed">
+                                        Alasan: {latestVerification.rejection_reason}
+                                    </p>
+                                    <p className="text-[11px] text-rose-500 dark:text-rose-300/80 pt-1">
+                                        Anda dapat mengunggah ulang dokumen perbaikan pada formulir di bawah ini.
+                                    </p>
+                                </div>
+                            )}
+
+                            {verificationStatus === 'pending' && (
+                                <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 p-4 text-xs text-amber-800 dark:text-amber-200">
+                                    Pengajuan verifikasi #{latestVerification?.attempt_number ?? 1} sedang dalam proses peninjauan pengelola. Anda akan dapat mengajukan RFQ dan melakukan checkout segera setelah disetujui.
+                                </div>
+                            )}
+
+                            {verificationStatus === 'verified' && (
+                                <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/30 p-4 text-xs text-emerald-800 dark:text-emerald-200">
+                                    Akun Anda telah terverifikasi. Anda kini dapat mengajukan RFQ dan melakukan checkout pesanan di CV. Putra Nugraha.
+                                </div>
+                            )}
+
+                            {canSubmitVerification && (
+                                <form onSubmit={handleSubmitVerification} className="space-y-4 text-xs">
+                                    {verificationErrors.length > 0 && (
+                                        <div className="rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30 p-3 text-rose-600 dark:text-rose-300 space-y-1">
+                                            {verificationErrors.map((err, idx) => (
+                                                <p key={idx}>{err}</p>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    <div className="space-y-2.5">
+                                        <div className="flex items-center justify-between">
+                                            <label className="font-semibold text-slate-700 dark:text-slate-300">
+                                                Unggah Dokumen Verifikasi (PDF / JPG / PNG, maks. 5 MB per berkas)
+                                            </label>
+                                            {verificationForm.data.documents.length < 5 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={addDocumentRow}
+                                                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#086f8e] hover:underline cursor-pointer"
+                                                >
+                                                    <Plus className="h-3.5 w-3.5" />
+                                                    <span>Tambah Dokumen</span>
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {verificationForm.data.documents.map((docRow, index) => (
+                                            <div
+                                                key={index}
+                                                className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center p-3 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800"
+                                            >
+                                                <select
+                                                    value={docRow.document_type}
+                                                    onChange={(e) => updateDocumentRow(index, 'document_type', e.target.value)}
+                                                    className="sm:col-span-5 h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#171B26] text-slate-900 dark:text-white text-xs"
+                                                >
+                                                    {DOCUMENT_TYPE_OPTIONS.map((opt) => (
+                                                        <option key={opt.value} value={opt.value}>
+                                                            {opt.label}
+                                                        </option>
+                                                    ))}
+                                                </select>
+
+                                                <input
+                                                    type="file"
+                                                    required
+                                                    accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                                                    onChange={(e) => updateDocumentRow(index, 'file', e.target.files?.[0] || null)}
+                                                    className="sm:col-span-6 text-xs text-slate-600 dark:text-slate-300 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#086f8e]/10 file:text-[#086f8e] hover:file:bg-[#086f8e]/20 cursor-pointer"
+                                                />
+
+                                                <div className="sm:col-span-1 flex justify-end">
+                                                    {verificationForm.data.documents.length > 1 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeDocumentRow(index)}
+                                                            className="p-1.5 text-rose-500 hover:text-rose-700 cursor-pointer"
+                                                            aria-label="Hapus baris dokumen"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label htmlFor="verification_notes" className="font-semibold text-slate-700 dark:text-slate-300">
+                                            Catatan Pengajuan (Opsional)
+                                        </label>
+                                        <textarea
+                                            id="verification_notes"
+                                            rows="2"
+                                            value={verificationForm.data.notes}
+                                            onChange={(e) => verificationForm.setData('notes', e.target.value)}
+                                            placeholder="Tambahkan keterangan instansi atau revisi dokumen jika diperlukan..."
+                                            className="w-full rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
+                                        />
+                                    </div>
+
+                                    <div className="flex justify-end">
+                                        <button
+                                            type="submit"
+                                            disabled={verificationForm.processing}
+                                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#086f8e] hover:bg-[#065b75] text-white text-xs font-bold shadow-sm transition cursor-pointer disabled:opacity-60"
+                                        >
+                                            <UploadCloud className="h-4 w-4" />
+                                            <span>
+                                                {verificationForm.processing
+                                                    ? 'Mengunggah...'
+                                                    : verificationStatus === 'rejected'
+                                                        ? 'Kirim Ulang Dokumen Verifikasi'
+                                                        : 'Kirim Pengajuan Verifikasi'}
+                                            </span>
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
+
+                            {/* Riwayat Pengajuan Verifikasi */}
+                            {verificationHistory.length > 0 && (
+                                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2.5 text-xs">
+                                    <div className="font-semibold text-slate-700 dark:text-slate-300">
+                                        Riwayat Pengajuan Verifikasi ({verificationHistory.length})
+                                    </div>
+                                    <div className="space-y-2">
+                                        {verificationHistory.map((item) => (
+                                            <div
+                                                key={item.id}
+                                                className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 space-y-2"
+                                            >
+                                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                                    <span className="font-bold text-slate-900 dark:text-white">
+                                                        Pengajuan #{item.attempt_number}
+                                                    </span>
+                                                    <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-200/70 dark:bg-slate-800 text-slate-700 dark:text-slate-300 capitalize">
+                                                        {item.status === 'approved' ? 'Disetujui' : item.status === 'rejected' ? 'Ditolak' : 'Menunggu Review'}
+                                                    </span>
+                                                </div>
+                                                {item.rejection_reason && (
+                                                    <p className="text-[11px] text-rose-600 dark:text-rose-400">
+                                                        Alasan penolakan: {item.rejection_reason}
+                                                    </p>
+                                                )}
+                                                <div className="flex flex-wrap gap-2">
+                                                    {(item.documents || []).map((doc) => (
+                                                        <a
+                                                            key={doc.id}
+                                                            href={doc.download_url}
+                                                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white dark:bg-[#171B26] border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-700 dark:text-slate-200 hover:border-[#086f8e]"
+                                                        >
+                                                            <Download className="h-3 w-3 text-[#086f8e]" />
+                                                            <span>{doc.original_name}</span>
+                                                            {doc.file_size ? (
+                                                                <span className="text-slate-400">({formatFileSize(doc.file_size)})</span>
+                                                            ) : null}
+                                                        </a>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <form onSubmit={handleSaveProfile} className="space-y-6">
+                            {/* CARD 2: DATA PERUSAHAAN & KONTAK */}
+                            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-sm">
+                                <div className="border-b border-slate-200 dark:border-slate-800/80 pb-4">
+                                    <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                                        2. Data Perusahaan / Instansi &amp; Alamat Utama
+                                    </h2>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -247,33 +547,13 @@ export default function ProfileIndex({
                                         )}
                                     </div>
                                 </div>
-
-                                {(npwpNumber || nibNumber) ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-100 dark:border-slate-800">
-                                        <div className="text-xs">
-                                            <div className="text-slate-500 dark:text-slate-400">NPWP</div>
-                                            <div className="font-mono font-semibold text-slate-900 dark:text-white mt-0.5">{npwpNumber || '-'}</div>
-                                        </div>
-                                        <div className="text-xs">
-                                            <div className="text-slate-500 dark:text-slate-400">NIB</div>
-                                            <div className="font-mono font-semibold text-slate-900 dark:text-white mt-0.5">{nibNumber || '-'}</div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400">
-                                        <Info className="h-4 w-4 text-[#086f8e] shrink-0 mt-0.5" />
-                                        <span>
-                                            Pengelolaan dokumen perpajakan (NPWP/PKP/NIB) dan verifikasi termin pembayaran belum diaktifkan pada backend. Koordinasi administrasi pajak dilakukan langsung bersama tim CV. Putra Nugraha.
-                                        </span>
-                                    </div>
-                                )}
                             </div>
 
-                            {/* CARD 2: PIC & KEAMANAN LOGIN */}
+                            {/* CARD 3: PIC & KEAMANAN LOGIN */}
                             <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-sm">
                                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800/80 pb-4">
                                     <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-                                        2. Penanggung Jawab Akun (PIC) &amp; Keamanan Login
+                                        3. Penanggung Jawab Akun (PIC) &amp; Keamanan Login
                                     </h2>
                                     <Link
                                         href={route('profile.edit')}
@@ -342,11 +622,11 @@ export default function ProfileIndex({
                             </div>
                         </form>
 
-                        {/* CARD 3: DAFTAR ALAMAT */}
+                        {/* CARD 4: DAFTAR ALAMAT */}
                         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-sm">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800/80 pb-4">
                                 <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-                                    3. Daftar Alamat Pengiriman &amp; Lokasi Instalasi
+                                    4. Daftar Alamat Pengiriman &amp; Lokasi Instalasi
                                 </h2>
                             </div>
 

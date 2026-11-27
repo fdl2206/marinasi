@@ -36,10 +36,10 @@ class SellerProductController extends Controller
                 }))
                 ->when($filters['category_id'] ?? null, fn ($query, int $categoryId) => $query->where('category_id', $categoryId))
                 ->when($filters['type'] ?? null, fn ($query, string $type) => $query->where('type', $type))
-                ->when($stockStatus === 'ready', fn ($query) => $query->where('stock_quantity', '>', 2))
+                ->when($stockStatus === 'ready', fn ($query) => $query->where('type', 'goods')->where('stock_quantity', '>', 2))
                 ->when($stockStatus === 'critical', fn ($query) => $query->where('type', 'goods')->whereNotNull('stock_quantity')->where('stock_quantity', '>', 0)->where('stock_quantity', '<=', 2))
-                ->when($stockStatus === 'out_of_stock', fn ($query) => $query->whereNotNull('stock_quantity')->where('stock_quantity', '<=', 0))
-                ->when($stockStatus === 'unknown', fn ($query) => $query->whereNull('stock_quantity'))
+                ->when($stockStatus === 'out_of_stock', fn ($query) => $query->where('type', 'goods')->whereNotNull('stock_quantity')->where('stock_quantity', '<=', 0))
+                ->when($stockStatus === 'unknown', fn ($query) => $query->where('type', 'goods')->whereNull('stock_quantity'))
                 ->latest('id')->paginate(15)->withQueryString(),
             'categories' => Category::query()->withCount('products')->orderBy('name')->get(),
             'filters' => [
@@ -100,7 +100,13 @@ class SellerProductController extends Controller
                     $product = Product::query()->lockForUpdate()->findOrFail($product->id);
                 }
 
-                $product->fill(Arr::except($request->validated(), ['images']))->save();
+                $data = Arr::except($request->validated(), ['images']);
+
+                if (($data['type'] ?? $product->type) === 'service') {
+                    $data['stock_quantity'] = null;
+                }
+
+                $product->fill($data)->save();
                 $sortOrder = (int) $product->images()->max('sort_order');
 
                 foreach ($request->file('images', []) as $image) {

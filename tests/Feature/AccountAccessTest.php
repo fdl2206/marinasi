@@ -92,7 +92,7 @@ class AccountAccessTest extends TestCase
             $path = '/buyer/products/'.$product->id;
         }
 
-        $this->actingAs(User::factory()->create())->get($path)->assertOk();
+        $this->actingAs(User::factory()->verifiedBuyer()->create())->get($path)->assertOk();
     }
 
     public function test_seller_can_open_internal_pages_and_admin_aliases(): void

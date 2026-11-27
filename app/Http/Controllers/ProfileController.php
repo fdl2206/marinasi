@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Http\Requests\UpdateBuyerProfileRequest;
+use App\Models\BuyerVerification;
+use App\Models\BuyerVerificationDocument;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -18,6 +20,25 @@ class ProfileController extends Controller
     public function buyerEdit(Request $request): Response|JsonResponse
     {
         $user = $request->user();
+        $user->load(['verifications.documents']);
+
+        $history = $user->verifications->map(fn (BuyerVerification $verification): array => [
+            'id' => $verification->id,
+            'attempt_number' => $verification->attempt_number,
+            'status' => $verification->status,
+            'notes' => $verification->notes,
+            'rejection_reason' => $verification->rejection_reason,
+            'submitted_at' => $verification->submitted_at?->toIso8601String(),
+            'reviewed_at' => $verification->reviewed_at?->toIso8601String(),
+            'documents' => $verification->documents->map(fn (BuyerVerificationDocument $doc): array => [
+                'id' => $doc->id,
+                'document_type' => $doc->document_type,
+                'original_name' => $doc->original_name,
+                'file_size' => $doc->file_size,
+                'download_url' => route('buyer.verification.documents.show', $doc->id),
+            ])->all(),
+        ])->all();
+
         $data = [
             'profile' => $user->only(['name', 'email', 'phone', 'company_name', 'company_address']),
             'companyProfile' => [
@@ -36,6 +57,13 @@ class ProfileController extends Controller
             ],
             'pics' => [],
             'addresses' => [],
+            'verification' => [
+                'status' => $user->verification_status,
+                'is_verified' => $user->isVerifiedBuyer(),
+                'verified_at' => $user->verified_at?->toIso8601String(),
+                'latest' => $history[0] ?? null,
+                'history' => $history,
+            ],
         ];
 
         if ($request->expectsJson()) {

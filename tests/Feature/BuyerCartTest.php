@@ -120,9 +120,9 @@ class BuyerCartTest extends TestCase
         $buyer = User::factory()->create();
         $inactiveProduct = Product::factory()->create(['is_active' => false]);
         $inactiveCategoryProduct = Product::factory()->for(Category::factory()->create(['is_active' => false]))->create();
-        $outOfStock = Product::factory()->create(['stock_quantity' => 0]);
-        $fractionalBelowOne = Product::factory()->create(['stock_quantity' => '0.500']);
-        $limited = Product::factory()->create(['stock_quantity' => 2]);
+        $outOfStock = Product::factory()->create(['type' => 'goods', 'stock_quantity' => 0]);
+        $fractionalBelowOne = Product::factory()->create(['type' => 'goods', 'stock_quantity' => '0.500']);
+        $limited = Product::factory()->create(['type' => 'goods', 'stock_quantity' => 2]);
 
         $this->actingAs($buyer)
             ->post('/buyer/cart/items', ['product_id' => $inactiveProduct->id, 'quantity' => 1])
@@ -184,7 +184,7 @@ class BuyerCartTest extends TestCase
     public function test_cart_preserves_null_price_zero_stock_and_consistent_cart_count(): void
     {
         $buyer = User::factory()->create();
-        $product = Product::factory()->create(['type' => 'service', 'price' => null, 'stock_quantity' => null]);
+        $product = Product::factory()->create(['type' => 'goods', 'price' => null, 'stock_quantity' => null]);
         CartItem::query()->create([
             'user_id' => $buyer->id,
             'product_id' => $product->id,
@@ -212,5 +212,38 @@ class BuyerCartTest extends TestCase
         $this->actingAs($buyer)
             ->get('/portal')
             ->assertInertia(fn ($page) => $page->where('cartCount', 0));
+    }
+
+    public function test_service_items_ignore_stock_and_follow_active_status_in_cart(): void
+    {
+        $buyer = User::factory()->create();
+        $service = Product::factory()->create([
+            'type' => 'service',
+            'price' => 50000,
+            'stock_quantity' => null,
+            'stock_unit' => 'paket',
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($buyer)
+            ->post('/buyer/cart/items', ['product_id' => $service->id, 'quantity' => 3])
+            ->assertSessionHasNoErrors();
+
+        $this->actingAs($buyer)
+            ->get('/buyer/cart')
+            ->assertInertia(fn ($page) => $page
+                ->where('cart_items.0.stock', null)
+                ->where('cart_items.0.stock_status', 'official_service')
+                ->where('cart_items.0.is_available', true)
+                ->where('cartCount', 3));
+
+        $service->update(['is_active' => false]);
+
+        $this->actingAs($buyer)
+            ->get('/buyer/cart')
+            ->assertInertia(fn ($page) => $page
+                ->where('cart_items.0.stock_status', 'unavailable')
+                ->where('cart_items.0.is_available', false)
+                ->where('cartCount', 0));
     }
 }

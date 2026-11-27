@@ -22,8 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Gate::define('access-seller', fn (User $user): bool => $user->is_seller === true);
-        Gate::define('access-buyer', fn (User $user): bool => $user->is_seller === false);
+        Gate::define('access-seller', fn (User $user): bool => $user->is_seller === true && $user->is_active === true);
+        Gate::define('access-buyer', fn (User $user): bool => $user->is_seller === false && $user->is_active === true);
+        Gate::define('verified-buyer', fn (User $user): bool => $user->isVerifiedBuyer());
 
         Vite::prefetch(concurrency: 3);
     }

@@ -361,7 +361,11 @@ export default function ProductDetail({
                                     </button>
                                 </div>
                                 <div className="text-[11px] font-medium text-emerald-600 dark:text-[#8cd4b4]">
-                                    {product.stock === null ? 'Ketersediaan belum dikonfirmasi' : 'Stok tercatat: ' + product.stock + ' ' + (product.unit || '')}
+                                    {product.type === 'service'
+                                        ? 'Jasa resmi tersedia (tanpa stok kuantitatif)'
+                                        : product.stock === null
+                                            ? 'Ketersediaan stok belum dicantumkan'
+                                            : `Stok tercatat: ${Number(product.stock)} ${product.unit || 'unit'}`}
                                 </div>
                             </div>
 

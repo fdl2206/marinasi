@@ -37,7 +37,8 @@ class CartItem extends Model
         return $query->whereHas('product', fn (Builder $productQuery) => $productQuery
             ->where('is_active', true)
             ->where(fn (Builder $stockQuery) => $stockQuery
-                ->whereNull('stock_quantity')
+                ->where('type', 'service')
+                ->orWhereNull('stock_quantity')
                 ->orWhere('stock_quantity', '>=', 1))
             ->whereHas('category', fn (Builder $categoryQuery) => $categoryQuery->where('is_active', true)));
     }
