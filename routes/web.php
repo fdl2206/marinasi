@@ -4,11 +4,13 @@ use App\Http\Controllers\BuyerCartController;
 use App\Http\Controllers\BuyerCatalogController;
 use App\Http\Controllers\BuyerCheckoutController;
 use App\Http\Controllers\BuyerOrderController;
+use App\Http\Controllers\BuyerRfqController;
 use App\Http\Controllers\BuyerVerificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicCatalogController;
 use App\Http\Controllers\SellerCategoryController;
 use App\Http\Controllers\SellerClientController;
+use App\Http\Controllers\SellerNegotiationController;
 use App\Http\Controllers\SellerOrderController;
 use App\Http\Controllers\SellerProductController;
 use App\Http\Controllers\SellerProductImageController;
@@ -81,13 +83,23 @@ Route::prefix('buyer')->name('buyer.')->middleware(['auth', 'can:access-buyer'])
         return Inertia::render('Buyer/Dashboard');
     })->name('dashboard');
 
-    Route::get('/quotations', function () {
-        return Inertia::render('Buyer/Quotations/Index');
-    })->name('quotations.index');
+    Route::get('/quotations', [BuyerRfqController::class, 'index'])->name('quotations.index');
+    Route::get('/quotations/{rfq}/attachment', [BuyerRfqController::class, 'downloadAttachment'])
+        ->name('quotations.attachment');
+    Route::post('/quotations/{rfq}/agree', [BuyerRfqController::class, 'agree'])
+        ->middleware('verified.buyer')
+        ->name('quotations.agree');
+    Route::post('/quotations/{rfq}/reject', [BuyerRfqController::class, 'reject'])
+        ->name('quotations.reject');
+    Route::post('/quotations/{rfq}/cancel', [BuyerRfqController::class, 'cancel'])
+        ->name('quotations.cancel');
 
-    Route::get('/rfq/create', function () {
-        return Inertia::render('Buyer/Rfq/Create');
-    })->name('rfq.create');
+    Route::get('/rfq/create', [BuyerRfqController::class, 'create'])
+        ->middleware('verified.buyer')
+        ->name('rfq.create');
+    Route::post('/rfq', [BuyerRfqController::class, 'store'])
+        ->middleware('verified.buyer')
+        ->name('rfq.store');
 
     Route::get('/orders', [BuyerOrderController::class, 'index'])->name('orders.index');
     Route::post('/orders/{order}/cancel', [BuyerOrderController::class, 'cancel'])->name('orders.cancel');
@@ -157,9 +169,11 @@ Route::prefix('seller')->name('seller.')->middleware(['auth', 'can:access-seller
     Route::delete('/products/{product}/images/{image}', [SellerProductImageController::class, 'destroy'])
         ->scopeBindings()->name('products.images.destroy');
 
-    Route::get('/negotiations', function () {
-        return Inertia::render('Seller/Negotiations/Index');
-    })->name('negotiations.index');
+    Route::get('/negotiations', [SellerNegotiationController::class, 'index'])->name('negotiations.index');
+    Route::post('/negotiations/{rfq}/quote', [SellerNegotiationController::class, 'quote'])->name('negotiations.quote');
+    Route::post('/negotiations/{rfq}/reject', [SellerNegotiationController::class, 'reject'])->name('negotiations.reject');
+    Route::get('/negotiations/{rfq}/attachment', [SellerNegotiationController::class, 'downloadAttachment'])
+        ->name('negotiations.attachment');
 
     Route::get('/orders', [SellerOrderController::class, 'index'])->name('orders.index');
     Route::post('/orders/{order}/status', [SellerOrderController::class, 'advanceStatus'])->name('orders.status.advance');
