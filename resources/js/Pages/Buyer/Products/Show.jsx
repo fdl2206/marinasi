@@ -42,6 +42,11 @@ export default function ProductDetail({
     const [isAdded, setIsAdded] = useState(false);
     const [activeTab, setActiveTab] = useState('specs');
     const [cartCount, setCartCount] = useState(serverCartCount);
+    const [cartError, setCartError] = useState('');
+
+    useEffect(() => {
+        setCartCount(serverCartCount);
+    }, [serverCartCount]);
 
     const unitPrice = product.base_price;
 
@@ -63,21 +68,21 @@ export default function ProductDetail({
     const handleAddToCart = () => {
         if (product.cart_enabled === false || isAdding) return;
         setIsAdding(true);
-        router.post('/buyer/cart', {
+        setCartError('');
+        router.post('/buyer/cart/items', {
             product_id: product.id,
             quantity: quantity,
-            include_installation: includeInstallation,
         }, {
             preserveScroll: true,
             onSuccess: () => {
                 setIsAdding(false);
                 setIsAdded(true);
-                setCartCount(prev => prev + quantity);
                 setTimeout(() => setIsAdded(false), 2500);
             },
-            onError: () => {
+            onError: (errors) => {
                 setIsAdding(false);
                 setIsAdded(false);
+                setCartError(errors?.quantity || errors?.product_id || 'Gagal menambahkan produk ke keranjang.');
             }
         });
     };
@@ -356,7 +361,11 @@ export default function ProductDetail({
                                     </button>
                                 </div>
                                 <div className="text-[11px] font-medium text-emerald-600 dark:text-[#8cd4b4]">
-                                    {product.stock === null ? 'Ketersediaan belum dikonfirmasi' : 'Stok tercatat: ' + product.stock + ' ' + (product.unit || '')}
+                                    {product.type === 'service'
+                                        ? 'Jasa resmi tersedia (tanpa stok kuantitatif)'
+                                        : product.stock === null
+                                            ? 'Ketersediaan stok belum dicantumkan'
+                                            : `Stok tercatat: ${Number(product.stock)} ${product.unit || 'unit'}`}
                                 </div>
                             </div>
 
@@ -372,11 +381,16 @@ export default function ProductDetail({
 
                             {/* Action Buttons */}
                             <div className="space-y-2.5 pt-1">
+                                {cartError && (
+                                    <p className="text-[11px] font-medium text-rose-600 dark:text-rose-400">
+                                        {cartError}
+                                    </p>
+                                )}
                                 <button
                                     type="button"
                                     onClick={handleAddToCart}
                                     disabled={isAdding || product.cart_enabled === false}
-                                    className="w-full py-2.5 rounded-lg text-xs sm:text-sm font-semibold bg-[#086f8e] hover:bg-[#065b75] text-white flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all shadow-xs"
+                                    className="w-full py-2.5 rounded-lg text-xs sm:text-sm font-semibold bg-[#086f8e] hover:bg-[#065b75] text-white flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all shadow-xs disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
                                     {isAdding ? (
                                         <>
@@ -391,7 +405,7 @@ export default function ProductDetail({
                                     ) : (
                                         <>
                                             <Plus className="h-3.5 w-3.5" />
-                                            <span>{product.cart_enabled === false ? 'Keranjang belum tersedia' : 'Tambah ke Keranjang'}</span>
+                                            <span>{product.cart_enabled === false ? (product.stock_status === 'out_of_stock' ? 'Stok habis' : 'Keranjang belum tersedia') : 'Tambah ke Keranjang'}</span>
                                         </>
                                     )}
                                 </button>
@@ -507,7 +521,7 @@ export default function ProductDetail({
                                     </div>
                                 </div>
                                 <a
-                                    href="/images/hero-datacenter-clean.jpg"
+                                    href={product.datasheet_url}
                                     download={`${product.name.replace(/\s+/g, '-').slice(0, 30)}.pdf`}
                                     className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-md transition shrink-0"
                                 >

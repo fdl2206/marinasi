@@ -1,318 +1,237 @@
-import { useState, useRef } from 'react';
-import { Head, Link, usePage } from '@inertiajs/react';
-import { 
-    Building2, 
-    LayoutDashboard, 
-    Package, 
-    FileText, 
-    Receipt, 
-    Wrench, 
-    LogOut, 
-    Check, 
-    CheckCircle2, 
-    MapPin, 
-    Plus, 
+import { useEffect, useState } from 'react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import {
+    Building2,
+    LayoutDashboard,
+    Package,
+    FileText,
+    Receipt,
+    Wrench,
+    LogOut,
+    Check,
+    CheckCircle2,
+    Clock,
+    AlertTriangle,
+    ShieldCheck,
+    UploadCloud,
+    Download,
+    Plus,
+    Trash2,
+    MapPin,
     Lock,
     User,
-    Clock,
     X,
-    Upload
 } from 'lucide-react';
 import BuyerNavbar from '@/Components/Buyer/BuyerNavbar';
 import BuyerFooter from '@/Components/Buyer/BuyerFooter';
 import Modal from '@/Components/Modal';
 
-/**
- * Data mock profil perusahaan, legalitas perpajakan & alamat B2B
- * Sesuai mockup UI/UX terbaru (media_1795276878752_3f5e253b.jpg)
- */
-const DEFAULT_COMPANY_DATA = {
-    company_name: 'PT Maju Jaya Teknologi',
-    industry: 'Teknologi Informasi & Konsultan',
-    npwp_number: '01.234.567.8-423.000',
-    nib_number: '9120301829102',
-    npwp_address: 'Jl. Asia Afrika No. 128, Gedung Menara Lt. 5, Kec. Sumur Bandung, Kota Bandung 40111',
-    pdf_file: 'SK_PKP_dan_NPWP_PT_Maju_Jaya.pdf',
-    pdf_verified_by: 'Terverifikasi oleh Admin CV. Putra Nugraha',
-};
-
-const DEFAULT_PIC_DATA = {
-    name: 'Budi Santoso',
-    role: 'IT Procurement Officer',
-    email: 'budi.santoso@majujaya.co.id',
-    phone: '0812-3456-7890',
-};
-
-const DEFAULT_ADDRESSES_DATA = [
-    {
-        id: 'addr-1',
-        label: 'Kantor Pusat Bandung (Gedung Menara Lt. 5)',
-        tag: 'Alamat Utama & Lokasi Server',
-        is_default: true,
-        full_address: 'Jl. Asia Afrika No. 128, Kota Bandung, Jawa Barat 40111',
-        recipient: 'Budi Santoso (0812-3456-7890)',
-        notes: 'Akses lift barang via basement',
-    },
-    {
-        id: 'addr-2',
-        label: 'Kantor Operasional Cimahi',
-        tag: 'Kantor Cabang / Gudang',
-        is_default: false,
-        full_address: 'Jl. Raya Cibabat No. 45, Kota Cimahi, Jawa Barat 40513',
-        recipient: 'Andi Wijaya - GA (0813-8988-7766)',
-        notes: '',
-    },
+const DOCUMENT_TYPE_OPTIONS = [
+    { value: 'npwp', label: 'NPWP Instansi / Perusahaan' },
+    { value: 'nib', label: 'NIB / Legalitas Usaha' },
+    { value: 'sk_pkp', label: 'SK PKP / SPPKP' },
+    { value: 'surat_tugas', label: 'Surat Tugas / Identitas Instansi' },
+    { value: 'dokumen_lainnya', label: 'Dokumen Pendukung Lainnya' },
 ];
 
+const VERIFICATION_BADGES = {
+    verified: {
+        label: 'Akun Terverifikasi',
+        className: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800',
+        icon: CheckCircle2,
+    },
+    pending: {
+        label: 'Menunggu Review Admin',
+        className: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800',
+        icon: Clock,
+    },
+    rejected: {
+        label: 'Verifikasi Ditolak',
+        className: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800',
+        icon: AlertTriangle,
+    },
+    unverified: {
+        label: 'Belum Terverifikasi',
+        className: 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700',
+        icon: ShieldCheck,
+    },
+};
+
+function formatFileSize(bytes) {
+    if (!bytes) return '';
+    if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+    return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}
+
 export default function ProfileIndex({
-    companyProfile: serverCompanyProfile,
-    pics: serverPics,
-    addresses: serverAddresses,
+    profile: serverProfile = null,
+    companyProfile: serverCompanyProfile = null,
+    addresses: serverAddresses = [],
+    verification: serverVerification = null,
 }) {
     const { props } = usePage();
     const auth = props?.auth;
+    const pageErrors = props?.errors || {};
 
-    // State Section 1: Legalitas Perusahaan
-    const [company, setCompany] = useState(() => {
-        if (!serverCompanyProfile) return DEFAULT_COMPANY_DATA;
-        return {
-            ...DEFAULT_COMPANY_DATA,
-            company_name: serverCompanyProfile.company_name || auth?.user?.company_name || DEFAULT_COMPANY_DATA.company_name,
-            industry: serverCompanyProfile.industry || DEFAULT_COMPANY_DATA.industry,
-            npwp_number: serverCompanyProfile.npwp_number || DEFAULT_COMPANY_DATA.npwp_number,
-            nib_number: serverCompanyProfile.nib_number || DEFAULT_COMPANY_DATA.nib_number,
-            npwp_address: serverCompanyProfile.npwp_address || DEFAULT_COMPANY_DATA.npwp_address,
-            pdf_file: serverCompanyProfile.pdf_file || DEFAULT_COMPANY_DATA.pdf_file,
-            pdf_verified_by: serverCompanyProfile.pdf_verified_by || DEFAULT_COMPANY_DATA.pdf_verified_by,
-        };
+    const initialName = serverProfile?.name ?? auth?.user?.name ?? '';
+    const initialEmail = serverProfile?.email ?? auth?.user?.email ?? '';
+    const initialPhone = serverProfile?.phone ?? serverCompanyProfile?.phone ?? auth?.user?.phone ?? '';
+    const initialCompanyName = serverProfile?.company_name ?? serverCompanyProfile?.company_name ?? auth?.user?.company_name ?? '';
+    const initialCompanyAddress = serverProfile?.company_address ?? serverCompanyProfile?.company_address ?? auth?.user?.company_address ?? '';
+
+    const verificationStatus = serverVerification?.status ?? auth?.user?.verification_status ?? 'unverified';
+    const verificationHistory = Array.isArray(serverVerification?.history) ? serverVerification.history : [];
+    const latestVerification = serverVerification?.latest ?? null;
+    const canSubmitVerification = verificationStatus === 'unverified' || verificationStatus === 'rejected';
+    const badgeConfig = VERIFICATION_BADGES[verificationStatus] || VERIFICATION_BADGES.unverified;
+    const BadgeIcon = badgeConfig.icon;
+
+    const profileForm = useForm({
+        company_name: initialCompanyName,
+        company_address: initialCompanyAddress,
+        phone: initialPhone,
     });
 
-    // State Section 2: PIC & Keamanan
-    const [pic, setPic] = useState(() => {
-        if (serverPics && serverPics.length > 0) {
-            const firstPic = serverPics[0];
-            return {
-                name: firstPic.name || DEFAULT_PIC_DATA.name,
-                role: firstPic.role || DEFAULT_PIC_DATA.role,
-                email: firstPic.email || DEFAULT_PIC_DATA.email,
-                phone: firstPic.phone || DEFAULT_PIC_DATA.phone,
-            };
-        }
-        return {
-            ...DEFAULT_PIC_DATA,
-            name: auth?.user?.name || DEFAULT_PIC_DATA.name,
-            email: auth?.user?.email || DEFAULT_PIC_DATA.email,
-        };
+    const passwordForm = useForm({
+        current_password: '',
+        password: '',
+        password_confirmation: '',
     });
 
-    // State Section 3: Daftar Alamat
-    const [addresses, setAddresses] = useState(
-        serverAddresses && serverAddresses.length > 0 ? serverAddresses : DEFAULT_ADDRESSES_DATA
-    );
+    const verificationForm = useForm({
+        notes: '',
+        documents: [{ document_type: 'npwp', file: null }],
+    });
 
-    // Feedback State
     const [isSaved, setIsSaved] = useState(false);
-    const fileInputRef = useRef(null);
-
-    // Modal Ubah Kata Sandi State
+    const [verificationSubmitted, setVerificationSubmitted] = useState(false);
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-    const [currentPassword, setCurrentPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [passwordFeedback, setPasswordFeedback] = useState('');
+    const [passwordSuccess, setPasswordSuccess] = useState(false);
 
-    // Modal Tambah / Ubah Alamat State
-    const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-    const [editingAddressId, setEditingAddressId] = useState(null);
-    const [addrLabel, setAddrLabel] = useState('');
-    const [addrTag, setAddrTag] = useState('');
-    const [addrFullAddress, setAddrFullAddress] = useState('');
-    const [addrRecipient, setAddrRecipient] = useState('');
-    const [addrNotes, setAddrNotes] = useState('');
-    const [addrIsDefault, setAddrIsDefault] = useState(false);
-    const [addrError, setAddrError] = useState('');
+    useEffect(() => {
+        profileForm.setData({
+            company_name: serverProfile?.company_name ?? serverCompanyProfile?.company_name ?? auth?.user?.company_name ?? '',
+            company_address: serverProfile?.company_address ?? serverCompanyProfile?.company_address ?? auth?.user?.company_address ?? '',
+            phone: serverProfile?.phone ?? serverCompanyProfile?.phone ?? auth?.user?.phone ?? '',
+        });
+    }, [
+        serverProfile?.company_name,
+        serverProfile?.company_address,
+        serverProfile?.phone,
+        serverCompanyProfile?.company_name,
+        serverCompanyProfile?.company_address,
+        serverCompanyProfile?.phone,
+    ]);
+
+    const addresses = Array.isArray(serverAddresses) ? serverAddresses : [];
 
     const sidebarMenuItems = [
         { id: 'overview', label: 'Ringkasan Dashboard', icon: LayoutDashboard, href: '/buyer/dashboard' },
-        { id: 'orders', label: 'Riwayat Pesanan & Pengiriman (4)', icon: Package, href: '/buyer/orders' },
-        { id: 'rfq', label: 'Status Pengajuan RFQ / SPH (2)', icon: FileText, href: '/buyer/quotations' },
-        { id: 'invoices', label: 'Dokumen & Faktur Pajak (e-Faktur)', icon: Receipt, href: '/buyer/invoices' },
+        { id: 'orders', label: 'Riwayat Pesanan & Pengiriman', icon: Package, href: '/buyer/orders' },
+        { id: 'rfq', label: 'Status Pengajuan RFQ / SPH', icon: FileText, href: '/buyer/quotations' },
+        { id: 'invoices', label: 'Dokumen & Faktur Pajak', icon: Receipt, href: '/buyer/invoices' },
         { id: 'services', label: 'Jadwal Instalasi & Tiket Servis', icon: Wrench, href: '/buyer/services' },
-        { id: 'company', label: 'Profil Perusahaan & Alamat', icon: Building2, href: '/buyer/profile' },
+        { id: 'company', label: 'Profil Perusahaan & Verifikasi', icon: Building2, href: '/buyer/profile' },
     ];
 
     const handleSaveProfile = (e) => {
         e.preventDefault();
-        setIsSaved(true);
-        setTimeout(() => setIsSaved(false), 2500);
-    };
-
-    const handleGantiPdf = () => {
-        if (fileInputRef.current) {
-            fileInputRef.current.click();
-        }
-    };
-
-    const handlePdfFileChange = (e) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setCompany(prev => ({
-                ...prev,
-                pdf_file: file.name,
-                pdf_verified_by: 'Dokumen baru diunggah (Menunggu verifikasi admin)',
-            }));
-            alert(`Dokumen PDF "${file.name}" berhasil diunggah!`);
-        }
-    };
-
-    const openCreateAddressModal = () => {
-        setEditingAddressId(null);
-        setAddrLabel('');
-        setAddrTag('Kantor Cabang / Gudang');
-        setAddrFullAddress('');
-        setAddrRecipient(`${pic.name} (${pic.phone})`);
-        setAddrNotes('');
-        setAddrIsDefault(addresses.length === 0);
-        setAddrError('');
-        setIsAddressModalOpen(true);
-    };
-
-    const openEditAddressModal = (addr) => {
-        setEditingAddressId(addr.id);
-        setAddrLabel(addr.label || '');
-        setAddrTag(addr.tag || (addr.is_default ? 'Alamat Utama & Lokasi Server' : 'Kantor Cabang / Gudang'));
-        setAddrFullAddress(addr.full_address || '');
-        setAddrRecipient(addr.recipient || '');
-        setAddrNotes(addr.notes || '');
-        setAddrIsDefault(addr.is_default || false);
-        setAddrError('');
-        setIsAddressModalOpen(true);
-    };
-
-    const handleSetDefaultAddress = (id) => {
-        setAddresses(prev => prev.map(a => ({
-            ...a,
-            is_default: a.id === id,
-            tag: a.id === id ? 'Alamat Utama & Lokasi Server' : (a.tag.includes('Server') ? 'Kantor Cabang / Gudang' : a.tag),
-        })));
-    };
-
-    const handleDeleteAddress = (id) => {
-        if (confirm('Apakah Anda yakin ingin menghapus alamat ini dari buku alamat perusahaan?')) {
-            setAddresses(prev => prev.filter(a => a.id !== id));
-        }
-    };
-
-    const handleSaveAddress = (e) => {
-        e.preventDefault();
-        if (!addrLabel.trim() || !addrFullAddress.trim() || !addrRecipient.trim()) {
-            setAddrError('Mohon lengkapi nama alamat, alamat lengkap, dan informasi penerima.');
-            return;
-        }
-
-        if (editingAddressId) {
-            setAddresses(prev => prev.map(a => {
-                if (a.id === editingAddressId) {
-                    return {
-                        ...a,
-                        label: addrLabel.trim(),
-                        tag: addrIsDefault ? 'Alamat Utama & Lokasi Server' : addrTag.trim(),
-                        full_address: addrFullAddress.trim(),
-                        recipient: addrRecipient.trim(),
-                        notes: addrNotes.trim(),
-                        is_default: addrIsDefault,
-                    };
-                }
-                return addrIsDefault ? { ...a, is_default: false, tag: a.tag.includes('Server') ? 'Kantor Cabang / Gudang' : a.tag } : a;
-            }));
-        } else {
-            const newAddr = {
-                id: `addr-${Date.now()}`,
-                label: addrLabel.trim(),
-                tag: addrIsDefault ? 'Alamat Utama & Lokasi Server' : addrTag.trim() || 'Kantor Cabang / Gudang',
-                is_default: addrIsDefault || addresses.length === 0,
-                full_address: addrFullAddress.trim(),
-                recipient: addrRecipient.trim(),
-                notes: addrNotes.trim(),
-            };
-
-            setAddresses(prev => {
-                const updated = addrIsDefault 
-                    ? prev.map(a => ({ ...a, is_default: false, tag: a.tag.includes('Server') ? 'Kantor Cabang / Gudang' : a.tag })) 
-                    : [...prev];
-                return [...updated, newAddr];
-            });
-        }
-
-        setIsAddressModalOpen(false);
+        setIsSaved(false);
+        profileForm.patch(route('buyer.profile.update'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsSaved(true);
+                setTimeout(() => setIsSaved(false), 3000);
+            },
+        });
     };
 
     const handleSavePassword = (e) => {
         e.preventDefault();
-        if (!currentPassword || !newPassword || !confirmPassword) {
-            setPasswordFeedback('Semua kolom kata sandi wajib diisi.');
-            return;
-        }
-        if (newPassword !== confirmPassword) {
-            setPasswordFeedback('Konfirmasi kata sandi baru tidak cocok.');
-            return;
-        }
-        setPasswordFeedback('');
-        alert('Kata sandi akun pengadaan berhasil diperbarui!');
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-        setIsPasswordModalOpen(false);
+        passwordForm.put(route('password.update'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                passwordForm.reset();
+                setIsPasswordModalOpen(false);
+                setPasswordSuccess(true);
+                setTimeout(() => setPasswordSuccess(false), 3000);
+            },
+        });
     };
+
+    const addDocumentRow = () => {
+        if (verificationForm.data.documents.length >= 5) return;
+        verificationForm.setData('documents', [
+            ...verificationForm.data.documents,
+            { document_type: 'dokumen_lainnya', file: null },
+        ]);
+    };
+
+    const removeDocumentRow = (index) => {
+        if (verificationForm.data.documents.length <= 1) return;
+        verificationForm.setData(
+            'documents',
+            verificationForm.data.documents.filter((_, i) => i !== index)
+        );
+    };
+
+    const updateDocumentRow = (index, field, value) => {
+        verificationForm.setData(
+            'documents',
+            verificationForm.data.documents.map((row, i) => (i === index ? { ...row, [field]: value } : row))
+        );
+    };
+
+    const handleSubmitVerification = (e) => {
+        e.preventDefault();
+        setVerificationSubmitted(false);
+        verificationForm.post(route('buyer.verification.store'), {
+            forceFormData: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                verificationForm.setData({
+                    notes: '',
+                    documents: [{ document_type: 'npwp', file: null }],
+                });
+                setVerificationSubmitted(true);
+                setTimeout(() => setVerificationSubmitted(false), 4000);
+            },
+        });
+    };
+
+    const verificationErrors = Object.entries(verificationForm.errors)
+        .filter(([key]) => key === 'verification' || key === 'documents' || key.startsWith('documents.') || key === 'notes')
+        .map(([, msg]) => msg);
 
     return (
         <div className="min-h-screen bg-[#f3f7fa] dark:bg-[#0C0D12] text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-[#086f8e] selection:text-white flex flex-col transition-colors duration-150">
-            <Head title="Profil Perusahaan, Legalitas Pajak & Alamat — CV. Putra Nugraha" />
+            <Head title="Profil Perusahaan & Verifikasi Akun — CV. Putra Nugraha" />
 
-            {/* Hidden PDF file input */}
-            <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handlePdfFileChange} 
-                accept="application/pdf" 
-                className="hidden" 
-            />
-
-            {/* ========================================================= */}
-            {/* HEADER NAVBAR                                             */}
-            {/* ========================================================= */}
             <BuyerNavbar />
 
-            {/* ========================================================= */}
-            {/* MAIN CONTENT AREA                                         */}
-            {/* ========================================================= */}
             <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    
-                    {/* ===================================================== */}
-                    {/* LEFT SIDEBAR: PROFILE & NAVIGATION MENU (3 Cols)      */}
-                    {/* ===================================================== */}
+                    {/* LEFT SIDEBAR */}
                     <aside className="lg:col-span-3 space-y-5">
-                        
-                        {/* 1. Akun Perusahaan Card (Deep Navy Sesuai Mockup) */}
                         <div className="rounded-2xl bg-[#0a2540] p-4 sm:p-5 space-y-2.5 text-white shadow-sm border border-[#0a2540]">
                             <div className="flex items-center gap-2 text-slate-300 text-[10px] font-bold uppercase tracking-wider">
                                 <Building2 className="h-3.5 w-3.5 text-white" />
-                                <span>Akun Perusahaan</span>
+                                <span>Akun Pembeli</span>
                             </div>
 
                             <div className="space-y-0.5">
                                 <h2 className="text-sm sm:text-base font-bold text-white leading-tight">
-                                    {company.company_name}
+                                    {profileForm.data.company_name || initialName || 'Akun Pembeli'}
                                 </h2>
-                                <p className="text-xs text-slate-300">
-                                    PIC: {pic.name} ({pic.role})
+                                <p className="text-xs text-slate-300 truncate">
+                                    PIC: {initialName || 'Belum diisi'}
+                                </p>
+                                <p className="text-[11px] text-slate-400 truncate">
+                                    {initialEmail}
                                 </p>
                             </div>
                         </div>
 
-                        {/* 2. Sidebar Navigation Items */}
                         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-2 space-y-1 shadow-sm">
                             {sidebarMenuItems.map((item) => {
                                 const IconComponent = item.icon;
@@ -334,7 +253,6 @@ export default function ProfileIndex({
                             })}
                         </div>
 
-                        {/* 3. Keluar Akun */}
                         <div className="pt-1 px-1">
                             <Link
                                 href="/logout"
@@ -346,348 +264,414 @@ export default function ProfileIndex({
                                 <span>Keluar Akun</span>
                             </Link>
                         </div>
-
                     </aside>
 
-                    {/* ===================================================== */}
-                    {/* RIGHT CONTENT: COMPANY PROFILE & ADDRESSES (9 Cols)   */}
-                    {/* ===================================================== */}
+                    {/* RIGHT CONTENT */}
                     <div className="lg:col-span-9 space-y-6">
-                        
-                        {/* Page Title */}
                         <div>
                             <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                                Profil Perusahaan, Legalitas Pajak &amp; Alamat
+                                Profil Perusahaan, Verifikasi Akun &amp; Alamat
                             </h1>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                Lengkapi profil perusahaan dan verifikasi dokumen instansi untuk mengaktifkan pengajuan RFQ dan checkout.
+                            </p>
                         </div>
 
-                        {/* ================================================= */}
-                        {/* CARD 1: DATA LEGALITAS & ADMINISTRASI E-FAKTUR   */}
-                        {/* ================================================= */}
+                        {pageErrors.verification && (
+                            <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 px-4 py-3 text-xs font-medium text-amber-800 dark:text-amber-300">
+                                {pageErrors.verification}
+                            </div>
+                        )}
+
+                        {passwordSuccess && (
+                            <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-4 py-3 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                                Kata sandi akun berhasil diperbarui.
+                            </div>
+                        )}
+
+                        {/* CARD 0: VERIFIKASI AKUN BUYER */}
                         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-sm">
-                            
-                            {/* Card Header */}
-                            <div className="flex items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800/80 pb-4">
-                                <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-                                    1. Data Legalitas Perusahaan &amp; Administrasi e-Faktur PPN 11%
-                                </h2>
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800 shrink-0">
-                                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                                    <span>Data Pajak Valid</span>
+                            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800/80 pb-4">
+                                <div>
+                                    <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                                        1. Status Verifikasi Akun Pembeli
+                                    </h2>
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                        Pembeli yang belum terverifikasi tetap dapat mengisi keranjang, namun pengajuan RFQ dan checkout memerlukan verifikasi pengelola.
+                                    </p>
+                                </div>
+                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border shrink-0 ${badgeConfig.className}`}>
+                                    <BadgeIcon className="h-3.5 w-3.5 shrink-0" />
+                                    <span>{badgeConfig.label}</span>
                                 </span>
                             </div>
 
-                            {/* Form Fields: 2 Columns */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                
-                                {/* Nama Resmi Perusahaan / Instansi */}
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                        Nama Resmi Perusahaan / Instansi
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={company.company_name}
-                                        onChange={(e) => setCompany({ ...company, company_name: e.target.value })}
-                                        className="w-full h-10 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
-                                    />
+                            {verificationSubmitted && (
+                                <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-4 py-3 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                                    Dokumen verifikasi berhasil dikirim dan sedang menunggu peninjauan pengelola CV. Putra Nugraha.
                                 </div>
+                            )}
 
-                                {/* Bidang Usaha / Industri */}
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                        Bidang Usaha / Industri
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={company.industry}
-                                        onChange={(e) => setCompany({ ...company, industry: e.target.value })}
-                                        className="w-full h-10 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
-                                    />
-                                </div>
-
-                                {/* Nomor NPWP Perusahaan (16 Digit) */}
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                        Nomor NPWP Perusahaan (16 Digit)
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={company.npwp_number}
-                                        onChange={(e) => setCompany({ ...company, npwp_number: e.target.value })}
-                                        className="w-full h-10 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 text-xs font-mono text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
-                                    />
-                                </div>
-
-                                {/* Nomor Induk Berusaha (NIB) */}
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                        Nomor Induk Berusaha (NIB)
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={company.nib_number}
-                                        onChange={(e) => setCompany({ ...company, nib_number: e.target.value })}
-                                        className="w-full h-10 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
-                                    />
-                                </div>
-
-                                {/* Alamat Sesuai NPWP (Full Width) */}
-                                <div className="md:col-span-2 space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                        Alamat Sesuai NPWP (Untuk Pencetakan Faktur Pajak)
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={company.npwp_address}
-                                        onChange={(e) => setCompany({ ...company, npwp_address: e.target.value })}
-                                        className="w-full h-10 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
-                                    />
-                                </div>
-
-                            </div>
-
-                            {/* Dokumen PDF Box */}
-                            <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs gap-3">
-                                <div className="flex items-center gap-3 min-w-0">
-                                    <div className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/60 shrink-0">
-                                        <FileText className="h-5 w-5" />
+                            {verificationStatus === 'rejected' && latestVerification?.rejection_reason && (
+                                <div className="rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30 p-4 text-xs space-y-1">
+                                    <div className="font-bold text-rose-700 dark:text-rose-300">
+                                        Pengajuan #{latestVerification.attempt_number} Ditolak oleh Pengelola
                                     </div>
-                                    <div className="min-w-0">
-                                        <div className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm truncate">
-                                            {company.pdf_file}
+                                    <p className="text-rose-600 dark:text-rose-200 leading-relaxed">
+                                        Alasan: {latestVerification.rejection_reason}
+                                    </p>
+                                    <p className="text-[11px] text-rose-500 dark:text-rose-300/80 pt-1">
+                                        Anda dapat mengunggah ulang dokumen perbaikan pada formulir di bawah ini.
+                                    </p>
+                                </div>
+                            )}
+
+                            {verificationStatus === 'pending' && (
+                                <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 p-4 text-xs text-amber-800 dark:text-amber-200">
+                                    Pengajuan verifikasi #{latestVerification?.attempt_number ?? 1} sedang dalam proses peninjauan pengelola. Anda akan dapat mengajukan RFQ dan melakukan checkout segera setelah disetujui.
+                                </div>
+                            )}
+
+                            {verificationStatus === 'verified' && (
+                                <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/30 p-4 text-xs text-emerald-800 dark:text-emerald-200">
+                                    Akun Anda telah terverifikasi. Anda kini dapat mengajukan RFQ dan melakukan checkout pesanan di CV. Putra Nugraha.
+                                </div>
+                            )}
+
+                            {canSubmitVerification && (
+                                <form onSubmit={handleSubmitVerification} className="space-y-4 text-xs">
+                                    {verificationErrors.length > 0 && (
+                                        <div className="rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30 p-3 text-rose-600 dark:text-rose-300 space-y-1">
+                                            {verificationErrors.map((err, idx) => (
+                                                <p key={idx}>{err}</p>
+                                            ))}
                                         </div>
-                                        <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                                            ({company.pdf_verified_by})
-                                        </div>
-                                    </div>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={handleGantiPdf}
-                                    className="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold shrink-0 transition shadow-2xs cursor-pointer"
-                                >
-                                    Ganti Dokumen PDF
-                                </button>
-                            </div>
-
-                        </div>
-
-                        {/* ================================================= */}
-                        {/* CARD 2: PIC & KEAMANAN LOGIN                     */}
-                        {/* ================================================= */}
-                        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-sm">
-                            
-                            {/* Card Header */}
-                            <div className="border-b border-slate-200 dark:border-slate-800/80 pb-4">
-                                <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-                                    2. Penanggung Jawab Pengadaan (PIC) &amp; Keamanan Login
-                                </h2>
-                            </div>
-
-                            {/* Form Fields: 2 Columns */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                
-                                {/* Nama Lengkap PIC */}
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                        Nama Lengkap PIC
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={pic.name}
-                                        onChange={(e) => setPic({ ...pic, name: e.target.value })}
-                                        className="w-full h-10 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
-                                    />
-                                </div>
-
-                                {/* Jabatan / Divisi */}
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                        Jabatan / Divisi
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={pic.role}
-                                        onChange={(e) => setPic({ ...pic, role: e.target.value })}
-                                        className="w-full h-10 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
-                                    />
-                                </div>
-
-                                {/* Email Resmi Perusahaan */}
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                        Email Resmi Perusahaan
-                                    </label>
-                                    <input
-                                        type="email"
-                                        value={pic.email}
-                                        onChange={(e) => setPic({ ...pic, email: e.target.value })}
-                                        className="w-full h-10 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
-                                    />
-                                </div>
-
-                                {/* Nomor WhatsApp Aktif */}
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                        Nomor WhatsApp Aktif (Untuk Notifikasi Kurir &amp; Teknisi)
-                                    </label>
-                                    <input
-                                        type="tel"
-                                        value={pic.phone}
-                                        onChange={(e) => setPic({ ...pic, phone: e.target.value })}
-                                        className="w-full h-10 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
-                                    />
-                                </div>
-
-                            </div>
-
-                            {/* Card Footer: Ubah Password & Simpan Profil */}
-                            <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsPasswordModalOpen(true)}
-                                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition self-start shadow-2xs cursor-pointer"
-                                >
-                                    <Lock className="h-3.5 w-3.5 text-[#086f8e] dark:text-[#38bdf8]" />
-                                    <span>Ubah Kata Sandi</span>
-                                </button>
-
-                                <button
-                                    type="button"
-                                    onClick={handleSaveProfile}
-                                    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#086f8e] hover:bg-[#065b75] text-white text-xs font-bold shadow-sm transition cursor-pointer"
-                                >
-                                    {isSaved ? (
-                                        <>
-                                            <Check className="h-4 w-4" />
-                                            <span>Perubahan Tersimpan!</span>
-                                        </>
-                                    ) : (
-                                        <span>Simpan Perubahan Profil</span>
                                     )}
-                                </button>
-                            </div>
 
+                                    <div className="space-y-2.5">
+                                        <div className="flex items-center justify-between">
+                                            <label className="font-semibold text-slate-700 dark:text-slate-300">
+                                                Unggah Dokumen Verifikasi (PDF / JPG / PNG, maks. 5 MB per berkas)
+                                            </label>
+                                            {verificationForm.data.documents.length < 5 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={addDocumentRow}
+                                                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#086f8e] hover:underline cursor-pointer"
+                                                >
+                                                    <Plus className="h-3.5 w-3.5" />
+                                                    <span>Tambah Dokumen</span>
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {verificationForm.data.documents.map((docRow, index) => (
+                                            <div
+                                                key={index}
+                                                className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center p-3 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800"
+                                            >
+                                                <select
+                                                    value={docRow.document_type}
+                                                    onChange={(e) => updateDocumentRow(index, 'document_type', e.target.value)}
+                                                    className="sm:col-span-5 h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#171B26] text-slate-900 dark:text-white text-xs"
+                                                >
+                                                    {DOCUMENT_TYPE_OPTIONS.map((opt) => (
+                                                        <option key={opt.value} value={opt.value}>
+                                                            {opt.label}
+                                                        </option>
+                                                    ))}
+                                                </select>
+
+                                                <input
+                                                    type="file"
+                                                    required
+                                                    accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                                                    onChange={(e) => updateDocumentRow(index, 'file', e.target.files?.[0] || null)}
+                                                    className="sm:col-span-6 text-xs text-slate-600 dark:text-slate-300 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#086f8e]/10 file:text-[#086f8e] hover:file:bg-[#086f8e]/20 cursor-pointer"
+                                                />
+
+                                                <div className="sm:col-span-1 flex justify-end">
+                                                    {verificationForm.data.documents.length > 1 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeDocumentRow(index)}
+                                                            className="p-1.5 text-rose-500 hover:text-rose-700 cursor-pointer"
+                                                            aria-label="Hapus baris dokumen"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label htmlFor="verification_notes" className="font-semibold text-slate-700 dark:text-slate-300">
+                                            Catatan Pengajuan (Opsional)
+                                        </label>
+                                        <textarea
+                                            id="verification_notes"
+                                            rows="2"
+                                            value={verificationForm.data.notes}
+                                            onChange={(e) => verificationForm.setData('notes', e.target.value)}
+                                            placeholder="Tambahkan keterangan instansi atau revisi dokumen jika diperlukan..."
+                                            className="w-full rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
+                                        />
+                                    </div>
+
+                                    <div className="flex justify-end">
+                                        <button
+                                            type="submit"
+                                            disabled={verificationForm.processing}
+                                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#086f8e] hover:bg-[#065b75] text-white text-xs font-bold shadow-sm transition cursor-pointer disabled:opacity-60"
+                                        >
+                                            <UploadCloud className="h-4 w-4" />
+                                            <span>
+                                                {verificationForm.processing
+                                                    ? 'Mengunggah...'
+                                                    : verificationStatus === 'rejected'
+                                                        ? 'Kirim Ulang Dokumen Verifikasi'
+                                                        : 'Kirim Pengajuan Verifikasi'}
+                                            </span>
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
+
+                            {/* Riwayat Pengajuan Verifikasi */}
+                            {verificationHistory.length > 0 && (
+                                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2.5 text-xs">
+                                    <div className="font-semibold text-slate-700 dark:text-slate-300">
+                                        Riwayat Pengajuan Verifikasi ({verificationHistory.length})
+                                    </div>
+                                    <div className="space-y-2">
+                                        {verificationHistory.map((item) => (
+                                            <div
+                                                key={item.id}
+                                                className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 space-y-2"
+                                            >
+                                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                                    <span className="font-bold text-slate-900 dark:text-white">
+                                                        Pengajuan #{item.attempt_number}
+                                                    </span>
+                                                    <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-200/70 dark:bg-slate-800 text-slate-700 dark:text-slate-300 capitalize">
+                                                        {item.status === 'approved' ? 'Disetujui' : item.status === 'rejected' ? 'Ditolak' : 'Menunggu Review'}
+                                                    </span>
+                                                </div>
+                                                {item.rejection_reason && (
+                                                    <p className="text-[11px] text-rose-600 dark:text-rose-400">
+                                                        Alasan penolakan: {item.rejection_reason}
+                                                    </p>
+                                                )}
+                                                <div className="flex flex-wrap gap-2">
+                                                    {(item.documents || []).map((doc) => (
+                                                        <a
+                                                            key={doc.id}
+                                                            href={doc.download_url}
+                                                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white dark:bg-[#171B26] border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-700 dark:text-slate-200 hover:border-[#086f8e]"
+                                                        >
+                                                            <Download className="h-3 w-3 text-[#086f8e]" />
+                                                            <span>{doc.original_name}</span>
+                                                            {doc.file_size ? (
+                                                                <span className="text-slate-400">({formatFileSize(doc.file_size)})</span>
+                                                            ) : null}
+                                                        </a>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
-                        {/* ================================================= */}
-                        {/* CARD 3: DAFTAR ALAMAT PENGIRIMAN & INSTALASI      */}
-                        {/* ================================================= */}
+                        <form onSubmit={handleSaveProfile} className="space-y-6">
+                            {/* CARD 2: DATA PERUSAHAAN & KONTAK */}
+                            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-sm">
+                                <div className="border-b border-slate-200 dark:border-slate-800/80 pb-4">
+                                    <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                                        2. Data Perusahaan / Instansi &amp; Alamat Utama
+                                    </h2>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label htmlFor="company_name" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                            Nama Resmi Perusahaan / Instansi
+                                        </label>
+                                        <input
+                                            id="company_name"
+                                            type="text"
+                                            value={profileForm.data.company_name}
+                                            onChange={(e) => profileForm.setData('company_name', e.target.value)}
+                                            placeholder="Contoh: PT / CV / Instansi Anda"
+                                            className="w-full h-10 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
+                                        />
+                                        {profileForm.errors.company_name && (
+                                            <p className="text-[11px] text-rose-600 dark:text-rose-400">{profileForm.errors.company_name}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label htmlFor="phone" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                            Nomor WhatsApp / Telepon Aktif
+                                        </label>
+                                        <input
+                                            id="phone"
+                                            type="tel"
+                                            value={profileForm.data.phone}
+                                            onChange={(e) => profileForm.setData('phone', e.target.value)}
+                                            placeholder="Contoh: 0812-3456-7890"
+                                            className="w-full h-10 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
+                                        />
+                                        {profileForm.errors.phone && (
+                                            <p className="text-[11px] text-rose-600 dark:text-rose-400">{profileForm.errors.phone}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="md:col-span-2 space-y-1.5">
+                                        <label htmlFor="company_address" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                            Alamat Perusahaan / Instansi
+                                        </label>
+                                        <textarea
+                                            id="company_address"
+                                            rows="3"
+                                            value={profileForm.data.company_address}
+                                            onChange={(e) => profileForm.setData('company_address', e.target.value)}
+                                            placeholder="Masukkan alamat lengkap kantor atau instansi Anda..."
+                                            className="w-full rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-800 px-3.5 py-2.5 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
+                                        />
+                                        {profileForm.errors.company_address && (
+                                            <p className="text-[11px] text-rose-600 dark:text-rose-400">{profileForm.errors.company_address}</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* CARD 3: PIC & KEAMANAN LOGIN */}
+                            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-sm">
+                                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800/80 pb-4">
+                                    <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                                        3. Penanggung Jawab Akun (PIC) &amp; Keamanan Login
+                                    </h2>
+                                    <Link
+                                        href={route('profile.edit')}
+                                        className="text-xs font-semibold text-[#086f8e] dark:text-[#38bdf8] hover:underline"
+                                    >
+                                        Ubah Nama / Email Akun
+                                    </Link>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                            Nama Lengkap Akun
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={initialName}
+                                            readOnly
+                                            className="w-full h-10 rounded-xl bg-slate-100 dark:bg-[#0C0D12]/60 border border-slate-200 dark:border-slate-800 px-3.5 text-xs text-slate-600 dark:text-slate-400 font-medium cursor-not-allowed"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                            Email Akun
+                                        </label>
+                                        <input
+                                            type="email"
+                                            value={initialEmail}
+                                            readOnly
+                                            className="w-full h-10 rounded-xl bg-slate-100 dark:bg-[#0C0D12]/60 border border-slate-200 dark:border-slate-800 px-3.5 text-xs text-slate-600 dark:text-slate-400 font-medium cursor-not-allowed"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            passwordForm.clearErrors();
+                                            setIsPasswordModalOpen(true);
+                                        }}
+                                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition self-start shadow-2xs cursor-pointer"
+                                    >
+                                        <Lock className="h-3.5 w-3.5 text-[#086f8e] dark:text-[#38bdf8]" />
+                                        <span>Ubah Kata Sandi</span>
+                                    </button>
+
+                                    <button
+                                        type="submit"
+                                        disabled={profileForm.processing}
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#086f8e] hover:bg-[#065b75] text-white text-xs font-bold shadow-sm transition cursor-pointer disabled:opacity-60"
+                                    >
+                                        {profileForm.processing ? (
+                                            <span>Menyimpan...</span>
+                                        ) : isSaved ? (
+                                            <>
+                                                <Check className="h-4 w-4" />
+                                                <span>Perubahan Tersimpan!</span>
+                                            </>
+                                        ) : (
+                                            <span>Simpan Perubahan Profil</span>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        {/* CARD 4: DAFTAR ALAMAT */}
                         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] p-5 sm:p-6 space-y-5 shadow-sm">
-                            
-                            {/* Card Header with Yellow Action Button */}
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800/80 pb-4">
                                 <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-                                    3. Daftar Alamat Pengiriman Barang &amp; Lokasi Instalasi Jaringan
+                                    4. Daftar Alamat Pengiriman &amp; Lokasi Instalasi
                                 </h2>
-
-                                <button
-                                    type="button"
-                                    onClick={openCreateAddressModal}
-                                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#f59e0b] hover:bg-[#d97706] text-slate-950 font-bold text-xs shadow-xs transition self-start sm:self-auto cursor-pointer"
-                                >
-                                    <Plus className="h-3.5 w-3.5 text-slate-950" />
-                                    <span>Tambah Alamat Kantor / Cabang</span>
-                                </button>
                             </div>
 
-                            {/* 2-Column Address Cards Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {addresses.map((addr) => (
-                                    <div
-                                        key={addr.id}
-                                        className={`rounded-2xl p-4 sm:p-5 space-y-3.5 transition flex flex-col justify-between ${
-                                            addr.is_default
-                                                ? 'border-2 border-[#086f8e] bg-white dark:bg-[#171B26] shadow-sm'
-                                                : 'border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] shadow-sm hover:border-slate-300 dark:hover:border-slate-700'
-                                        }`}
-                                    >
-                                        <div className="space-y-3">
-                                            {/* Tag / Badge */}
-                                            <div>
-                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-semibold ${
-                                                    addr.is_default
-                                                        ? 'bg-[#086f8e] text-white'
-                                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60'
-                                                }`}>
-                                                    {addr.tag || (addr.is_default ? 'Alamat Utama & Lokasi Server' : 'Kantor Cabang / Gudang')}
-                                                </span>
-                                            </div>
-
-                                            {/* Address Label / Title */}
+                            {addresses.length === 0 ? (
+                                <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0C0D12] p-6 text-center space-y-2">
+                                    <MapPin className="h-6 w-6 text-slate-400 mx-auto" />
+                                    <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                        Belum ada buku alamat terpisah.
+                                    </p>
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+                                        {profileForm.data.company_address
+                                            ? `Alamat utama saat ini: ${profileForm.data.company_address}`
+                                            : 'Silakan lengkapi Alamat Perusahaan / Instansi pada formulir di atas dan klik Simpan Perubahan Profil.'}
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {addresses.map((addr) => (
+                                        <div
+                                            key={addr.id}
+                                            className="rounded-2xl p-4 sm:p-5 space-y-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#171B26] shadow-sm"
+                                        >
                                             <h3 className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm leading-snug">
                                                 {addr.label}
                                             </h3>
-
-                                            {/* Full Address Row */}
                                             <div className="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-300">
                                                 <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0 mt-0.5" />
                                                 <span className="leading-relaxed">{addr.full_address}</span>
                                             </div>
-
-                                            {/* Recipient & Phone Row */}
-                                            <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-                                                <User className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                                                <span>Penerima: {addr.recipient}</span>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-2.5 pt-2">
-                                            {/* Action Links Row */}
-                                            <div className="flex items-center gap-3.5 text-xs font-semibold pt-1">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => openEditAddressModal(addr)}
-                                                    className="text-slate-900 dark:text-white hover:text-[#086f8e] dark:hover:text-[#38bdf8] transition cursor-pointer"
-                                                >
-                                                    Ubah Alamat
-                                                </button>
-
-                                                {!addr.is_default && (
-                                                    <>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleSetDefaultAddress(addr.id)}
-                                                            className="text-[#086f8e] dark:text-[#38bdf8] hover:underline transition cursor-pointer"
-                                                        >
-                                                            Jadikan Utama
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleDeleteAddress(addr.id)}
-                                                            className="text-rose-600 hover:text-rose-700 hover:underline transition cursor-pointer ml-auto"
-                                                        >
-                                                            Hapus
-                                                        </button>
-                                                    </>
-                                                )}
-                                            </div>
-
-                                            {/* Catatan Teknisi (Optional Note Box) */}
-                                            {addr.notes && (
-                                                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-200/80 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-300 flex items-center gap-2">
-                                                    <Clock className="h-3.5 w-3.5 text-[#086f8e] dark:text-[#38bdf8] shrink-0" />
-                                                    <span>Catatan Teknisi: {addr.notes}</span>
+                                            {addr.recipient && (
+                                                <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                                                    <User className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                                                    <span>Penerima: {addr.recipient}</span>
                                                 </div>
                                             )}
                                         </div>
-
-                                    </div>
-                                ))}
-                            </div>
-
+                                    ))}
+                                </div>
+                            )}
                         </div>
-
                     </div>
-
                 </div>
-
             </main>
 
-            {/* ========================================================= */}
-            {/* MODAL: UBAH KATA SANDI AKUN PENGADAAN                     */}
-            {/* ========================================================= */}
+            {/* MODAL: UBAH KATA SANDI */}
             <Modal show={isPasswordModalOpen} onClose={() => setIsPasswordModalOpen(false)} maxWidth="md">
                 <form onSubmit={handleSavePassword} className="p-6 space-y-5 bg-white dark:bg-[#171B26] text-slate-900 dark:text-slate-100">
                     <div className="flex items-start justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
@@ -696,7 +680,7 @@ export default function ProfileIndex({
                                 Ubah Kata Sandi Akun
                             </h3>
                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                                Perbarui kata sandi untuk keamanan akses dashboard pengadaan B2B Anda.
+                                Perbarui kata sandi untuk keamanan akses akun Anda.
                             </p>
                         </div>
                         <button
@@ -707,12 +691,6 @@ export default function ProfileIndex({
                             <X className="h-5 w-5" />
                         </button>
                     </div>
-
-                    {passwordFeedback && (
-                        <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 text-xs font-medium">
-                            {passwordFeedback}
-                        </div>
-                    )}
 
                     <div className="space-y-4 text-xs">
                         <div className="space-y-1">
@@ -721,12 +699,15 @@ export default function ProfileIndex({
                             </label>
                             <input
                                 type="password"
-                                value={currentPassword}
-                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                value={passwordForm.data.current_password}
+                                onChange={(e) => passwordForm.setData('current_password', e.target.value)}
                                 placeholder="Masukkan kata sandi lama Anda"
                                 className="w-full rounded-lg bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
                                 required
                             />
+                            {passwordForm.errors.current_password && (
+                                <p className="text-[11px] text-rose-600 dark:text-rose-400">{passwordForm.errors.current_password}</p>
+                            )}
                         </div>
 
                         <div className="space-y-1">
@@ -735,12 +716,15 @@ export default function ProfileIndex({
                             </label>
                             <input
                                 type="password"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                                placeholder="Minimal 8 karakter kombinasi huruf & angka"
+                                value={passwordForm.data.password}
+                                onChange={(e) => passwordForm.setData('password', e.target.value)}
+                                placeholder="Minimal 8 karakter"
                                 className="w-full rounded-lg bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
                                 required
                             />
+                            {passwordForm.errors.password && (
+                                <p className="text-[11px] text-rose-600 dark:text-rose-400">{passwordForm.errors.password}</p>
+                            )}
                         </div>
 
                         <div className="space-y-1">
@@ -749,12 +733,15 @@ export default function ProfileIndex({
                             </label>
                             <input
                                 type="password"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                value={passwordForm.data.password_confirmation}
+                                onChange={(e) => passwordForm.setData('password_confirmation', e.target.value)}
                                 placeholder="Ulangi kata sandi baru"
                                 className="w-full rounded-lg bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
                                 required
                             />
+                            {passwordForm.errors.password_confirmation && (
+                                <p className="text-[11px] text-rose-600 dark:text-rose-400">{passwordForm.errors.password_confirmation}</p>
+                            )}
                         </div>
                     </div>
 
@@ -768,161 +755,16 @@ export default function ProfileIndex({
                         </button>
                         <button
                             type="submit"
-                            className="px-5 py-2 rounded-lg bg-[#086f8e] hover:bg-[#065b75] text-white text-xs font-bold shadow-md transition cursor-pointer"
+                            disabled={passwordForm.processing}
+                            className="px-5 py-2 rounded-lg bg-[#086f8e] hover:bg-[#065b75] text-white text-xs font-bold shadow-md transition cursor-pointer disabled:opacity-60"
                         >
-                            Simpan Kata Sandi
+                            {passwordForm.processing ? 'Menyimpan...' : 'Simpan Kata Sandi'}
                         </button>
                     </div>
                 </form>
             </Modal>
 
-            {/* ========================================================= */}
-            {/* MODAL: TAMBAH / EDIT ALAMAT PENGIRIMAN B2B                */}
-            {/* ========================================================= */}
-            <Modal show={isAddressModalOpen} onClose={() => setIsAddressModalOpen(false)} maxWidth="lg">
-                <form onSubmit={handleSaveAddress} className="p-6 space-y-5 bg-white dark:bg-[#171B26] text-slate-900 dark:text-slate-100">
-                    
-                    {/* Modal Header */}
-                    <div className="flex items-start justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
-                        <div>
-                            <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                                {editingAddressId ? 'Edit Alamat Kantor / Cabang' : 'Tambah Alamat Kantor / Cabang Baru'}
-                            </h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                                Alamat kantor, gudang, atau data center untuk pengiriman fisik &amp; instalasi perangkat on-site.
-                            </p>
-                        </div>
-                        <button
-                            type="button"
-                            onClick={() => setIsAddressModalOpen(false)}
-                            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-                        >
-                            <X className="h-5 w-5" />
-                        </button>
-                    </div>
-
-                    {addrError && (
-                        <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 text-xs font-medium">
-                            {addrError}
-                        </div>
-                    )}
-
-                    {/* Form Fields */}
-                    <div className="space-y-4 text-xs">
-                        
-                        {/* Nama / Label Alamat */}
-                        <div className="space-y-1">
-                            <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                Label Alamat Kantor / Cabang <span className="text-rose-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                value={addrLabel}
-                                onChange={(e) => setAddrLabel(e.target.value)}
-                                placeholder="Contoh: Kantor Pusat Bandung (Gedung Menara Lt. 5)"
-                                className="w-full rounded-lg bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
-                                required
-                            />
-                        </div>
-
-                        {/* Tag Kategori Alamat */}
-                        <div className="space-y-1">
-                            <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                Kategori / Tipe Lokasi
-                            </label>
-                            <input
-                                type="text"
-                                value={addrTag}
-                                onChange={(e) => setAddrTag(e.target.value)}
-                                placeholder="Contoh: Kantor Cabang / Gudang, Server Room, dsb"
-                                className="w-full rounded-lg bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
-                            />
-                        </div>
-
-                        {/* Penerima & Telepon */}
-                        <div className="space-y-1">
-                            <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                Nama Penerima &amp; Nomor Kontak PIC <span className="text-rose-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                value={addrRecipient}
-                                onChange={(e) => setAddrRecipient(e.target.value)}
-                                placeholder="Contoh: Budi Santoso (0812-3456-7890) atau Andi Wijaya - GA (0813-8988-7766)"
-                                className="w-full rounded-lg bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
-                                required
-                            />
-                        </div>
-
-                        {/* Alamat Lengkap */}
-                        <div className="space-y-1">
-                            <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                Alamat Lengkap Gedung / Lokasi <span className="text-rose-500">*</span>
-                            </label>
-                            <textarea
-                                rows="3"
-                                value={addrFullAddress}
-                                onChange={(e) => setAddrFullAddress(e.target.value)}
-                                placeholder="Contoh: Jl. Asia Afrika No. 128, Kota Bandung, Jawa Barat 40111"
-                                className="w-full rounded-lg bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#086f8e] resize-none"
-                                required
-                            />
-                        </div>
-
-                        {/* Catatan Khusus Pengiriman */}
-                        <div className="space-y-1">
-                            <label className="font-semibold text-slate-700 dark:text-slate-300">
-                                Catatan Teknisi / Akses Masuk (Opsional)
-                            </label>
-                            <input
-                                type="text"
-                                value={addrNotes}
-                                onChange={(e) => setAddrNotes(e.target.value)}
-                                placeholder="Contoh: Akses lift barang via basement, wajib konfirmasi security H-1"
-                                className="w-full rounded-lg bg-slate-50 dark:bg-[#0C0D12] border border-slate-200 dark:border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#086f8e]"
-                            />
-                        </div>
-
-                        {/* Checkbox Jadikan Alamat Utama */}
-                        <label className="flex items-center gap-2.5 cursor-pointer pt-1">
-                            <input
-                                type="checkbox"
-                                checked={addrIsDefault}
-                                onChange={(e) => setAddrIsDefault(e.target.checked)}
-                                className="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-[#086f8e] focus:ring-0 focus:ring-offset-0 bg-transparent"
-                            />
-                            <span className="text-slate-700 dark:text-slate-300 font-medium">
-                                Jadikan sebagai alamat utama &amp; lokasi server
-                            </span>
-                        </label>
-
-                    </div>
-
-                    {/* Modal Footer Actions */}
-                    <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
-                        <button
-                            type="button"
-                            onClick={() => setIsAddressModalOpen(false)}
-                            className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-                        >
-                            Batal
-                        </button>
-                        <button
-                            type="submit"
-                            className="px-5 py-2 rounded-lg bg-[#086f8e] hover:bg-[#065b75] text-white text-xs font-bold shadow-md transition cursor-pointer"
-                        >
-                            {editingAddressId ? 'Perbarui Alamat' : 'Simpan Alamat'}
-                        </button>
-                    </div>
-
-                </form>
-            </Modal>
-
-            {/* ========================================================= */}
-            {/* FOOTER B2B CORPORATE 4 KOLOM & WA HOTLINE                 */}
-            {/* ========================================================= */}
             <BuyerFooter />
-
         </div>
     );
 }

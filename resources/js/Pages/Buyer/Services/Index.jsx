@@ -36,6 +36,7 @@ import {
 } from 'lucide-react';
 import BuyerNavbar from '@/Components/Buyer/BuyerNavbar';
 import BuyerFooter from '@/Components/Buyer/BuyerFooter';
+import { getBuyerClientProfile } from '@/Utils/buyerProfile';
 
 /**
  * Data mock jadwal instalasi & tiket servis B2B CV. Putra Nugraha
@@ -140,7 +141,7 @@ export default function ServicesIndex({
     const { props } = usePage();
     const auth = props?.auth;
 
-    const client = serverClient || DEFAULT_CLIENT;
+    const client = serverClient || getBuyerClientProfile(auth?.user);
     const metrics = serverMetrics || DEFAULT_METRICS;
     const upcomingSchedule = serverUpcomingSchedule || DEFAULT_UPCOMING_SCHEDULE;
     const initialTickets = serverTickets || DEFAULT_SERVICE_TICKETS;
@@ -209,18 +210,18 @@ export default function ServicesIndex({
                                 </div>
                                 <div className="space-y-1 min-w-0">
                                     <h2 className="text-sm font-bold text-slate-900 dark:text-white leading-tight truncate">
-                                        {client.company_name || 'PT Maju Jaya Teknologi'}
+                                        {client.company_name}
                                     </h2>
                                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                                        PIC: {client.pic_name || 'Budi Santoso'}
+                                        PIC: {client.pic_name}
                                     </p>
                                 </div>
                             </div>
 
                             {/* Verification Pill */}
-                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-semibold w-full">
-                                <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                                <span className="truncate">{client.tax_status || 'PKP & NPWP Terverifikasi'}</span>
+                            <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-[10px] font-semibold w-full ${client.badge_class || 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400'}`}>
+                                <CheckCircle2 className="h-3 w-3 shrink-0" />
+                                <span className="truncate">{client.tax_status}</span>
                             </div>
                         </div>
 

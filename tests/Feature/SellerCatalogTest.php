@@ -132,6 +132,45 @@ class SellerCatalogTest extends TestCase
         $this->assertSame('service', $product->type);
     }
 
+    public function test_service_always_clears_stock_quantity_even_if_submitted(): void
+    {
+        $category = Category::factory()->create();
+        $this->actingAs(User::factory()->seller()->create());
+
+        $this->post('/seller/products', [
+            'category_id' => $category->id,
+            'name' => 'Jasa Maintenance Jaringan',
+            'type' => 'service',
+            'price' => 750000,
+            'stock_quantity' => 15,
+            'stock_unit' => 'paket',
+            'is_active' => true,
+        ])->assertSessionHasNoErrors();
+
+        $service = Product::query()->sole();
+        $this->assertSame('service', $service->type);
+        $this->assertNull($service->stock_quantity);
+
+        $goods = Product::factory()->for($category)->create([
+            'type' => 'goods',
+            'stock_quantity' => 12,
+            'stock_unit' => 'unit',
+        ]);
+
+        $this->put('/seller/products/'.$goods->id, [
+            'category_id' => $category->id,
+            'name' => 'Konversi Jadi Jasa',
+            'type' => 'service',
+            'price' => 500000,
+            'stock_quantity' => 12,
+            'stock_unit' => 'paket',
+            'is_active' => true,
+        ])->assertSessionHasNoErrors();
+
+        $this->assertSame('service', $goods->fresh()->type);
+        $this->assertNull($goods->fresh()->stock_quantity);
+    }
+
     public function test_invalid_product_and_inactive_category_are_rejected(): void
     {
         $category = Category::factory()->create(['is_active' => false]);

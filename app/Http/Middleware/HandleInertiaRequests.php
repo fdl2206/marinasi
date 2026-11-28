@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\CartItem;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -32,7 +33,28 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? [
+                    ...$request->user()->only([
+                        'id',
+                        'name',
+                        'email',
+                        'phone',
+                        'company_name',
+                        'company_address',
+                        'is_seller',
+                        'is_active',
+                        'verification_status',
+                        'email_verified_at',
+                    ]),
+                    'is_verified_buyer' => $request->user()->isVerifiedBuyer(),
+                ] : null,
+            ],
+            'cartCount' => fn (): int => CartItem::activeCountForUser($request->user()),
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+                'order_number' => fn () => $request->session()->get('order_number'),
+                'whatsapp_url' => fn () => $request->session()->get('whatsapp_url'),
             ],
         ];
     }

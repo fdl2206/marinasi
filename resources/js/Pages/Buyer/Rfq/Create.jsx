@@ -36,12 +36,15 @@ const CATEGORY_OPTIONS = [
 export default function RfqCreate() {
     const { props } = usePage();
     const auth = props?.auth;
+    const user = auth?.user;
 
-    // 1. Data Perusahaan & Administrasi Pajak
-    const [companyName, setCompanyName] = useState('PT Maju Jaya Teknologi');
-    const [npwpNumber, setNpwpNumber] = useState('01.234.567.8-423.000');
-    const [picName, setPicName] = useState('Budi Santoso (IT Procurement)');
-    const [picContact, setPicContact] = useState('budi@majujaya.co.id / 0812-3456-7890');
+    // 1. Data Perusahaan & Administrasi Pajak (diambil dari profil akun yang login)
+    const [companyName, setCompanyName] = useState(user?.company_name || '');
+    const [npwpNumber, setNpwpNumber] = useState('');
+    const [picName, setPicName] = useState(user?.name || '');
+    const [picContact, setPicContact] = useState(
+        [user?.email, user?.phone].filter(Boolean).join(' / ')
+    );
 
     // 2. Rincian Kebutuhan Barang / Jasa IT (Sesuai Mockup 1:1)
     const [items, setItems] = useState([

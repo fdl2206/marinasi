@@ -46,8 +46,21 @@ class BuyerCatalogTest extends TestCase
             ->where('products.0.stock', null)
             ->where('products.0.stock_status', 'unknown')
             ->where('products.0.image_url', null)
-            ->where('products.0.cart_enabled', false)
+            ->where('products.0.cart_enabled', true)
             ->where('pagination.total', 1));
+
+        $outOfStock = Product::factory()->create(['name' => 'Habis SSD', 'type' => 'goods', 'stock_quantity' => 0]);
+        $this->get('/portal?search=Habis%20SSD')->assertInertia(fn ($page) => $page
+            ->where('products.0.id', $outOfStock->id)
+            ->where('products.0.stock_status', 'out_of_stock')
+            ->where('products.0.cart_enabled', false));
+
+        $service = Product::factory()->create(['name' => 'Jasa Instalasi Server', 'type' => 'service', 'stock_quantity' => null]);
+        $this->get('/portal?search=Jasa%20Instalasi%20Server')->assertInertia(fn ($page) => $page
+            ->where('products.0.id', $service->id)
+            ->where('products.0.stock', null)
+            ->where('products.0.stock_status', 'official_service')
+            ->where('products.0.cart_enabled', true));
     }
 
     public function test_empty_catalog_and_no_matches_return_empty_products(): void
@@ -72,9 +85,9 @@ class BuyerCatalogTest extends TestCase
 
     public function test_price_sorting_keeps_unknown_prices_last_and_ready_stock_excludes_unknown(): void
     {
-        $cheap = Product::factory()->create(['price' => 0, 'stock_quantity' => 2]);
-        $expensive = Product::factory()->create(['price' => 100, 'stock_quantity' => 0]);
-        $unknown = Product::factory()->create(['price' => null, 'stock_quantity' => null]);
+        $cheap = Product::factory()->create(['type' => 'goods', 'price' => 0, 'stock_quantity' => 2]);
+        $expensive = Product::factory()->create(['type' => 'goods', 'price' => 100, 'stock_quantity' => 0]);
+        $unknown = Product::factory()->create(['type' => 'goods', 'price' => null, 'stock_quantity' => null]);
         $this->actingAs(User::factory()->create());
         $this->get('/portal?sort=price_asc')->assertInertia(fn ($page) => $page
             ->where('products.0.id', $cheap->id)->where('products.1.id', $expensive->id)->where('products.2.id', $unknown->id));

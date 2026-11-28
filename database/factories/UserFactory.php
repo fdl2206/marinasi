@@ -49,4 +49,21 @@ class UserFactory extends Factory
             'is_seller' => true,
         ]);
     }
+
+    public function verifiedBuyer(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'is_seller' => false,
+            'is_active' => true,
+            'verification_status' => User::VERIFICATION_VERIFIED,
+            'verified_at' => now(),
+        ]);
+    }
+
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'is_active' => false,
+        ]);
+    }
 }

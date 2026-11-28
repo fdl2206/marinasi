@@ -28,6 +28,7 @@ import {
 import BuyerNavbar from '@/Components/Buyer/BuyerNavbar';
 import BuyerFooter from '@/Components/Buyer/BuyerFooter';
 import Modal from '@/Components/Modal';
+import { getBuyerClientProfile } from '@/Utils/buyerProfile';
 
 /**
  * Data mock status pengajuan RFQ & Surat Penawaran Harga (SPH)
@@ -133,7 +134,7 @@ export default function QuotationsIndex({
     const { props } = usePage();
     const auth = props?.auth;
 
-    const client = serverClient || DEFAULT_CLIENT;
+    const client = serverClient || getBuyerClientProfile(auth?.user);
     const metrics = serverMetrics || DEFAULT_METRICS;
     const initialQuotations = serverQuotations || DEFAULT_QUOTATIONS;
 
@@ -220,8 +221,8 @@ export default function QuotationsIndex({
                             </div>
 
                             {/* Verification Pill */}
-                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 border border-white/20 text-emerald-300 text-[10px] font-semibold w-full">
-                                <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-400" />
+                            <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-[10px] font-semibold w-full ${client.dark_badge_class || 'bg-white/10 border-white/20 text-emerald-300'}`}>
+                                <CheckCircle2 className="h-3 w-3 shrink-0" />
                                 <span className="truncate">{client.tax_status}</span>
                             </div>
                         </div>

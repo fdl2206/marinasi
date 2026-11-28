@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     ShoppingCart,
     Plus,
@@ -11,54 +11,6 @@ import {
 import { formatRupiah } from '@/Components/Buyer/ProductCard';
 import BuyerNavbar from '@/Components/Buyer/BuyerNavbar';
 import BuyerFooter from '@/Components/Buyer/BuyerFooter';
-
-const DEFAULT_CART_ITEMS = [
-    {
-        id: 1,
-        product_id: 1,
-        name: 'Server HPE ProLiant ML30 Gen10 - Xeon E-2224 16GB RAM',
-        sku: 'PN-SRV-ML30G10',
-        price: 32500000,
-        unit: 'unit',
-        quantity: 1,
-        stock: 12,
-        stock_status: 'ready_stock',
-        badge_label: 'Ready Stock',
-        tax_badge: 'Faktur Pajak Aktif',
-        image_url: '/images/product-server-hpe.png',
-        selected: true,
-    },
-    {
-        id: 2,
-        product_id: 101,
-        name: 'Cisco Catalyst Switch 24-Port Gigabit',
-        sku: 'PN-CSCO-24G',
-        price: 15450000,
-        unit: 'unit',
-        quantity: 2,
-        stock: 8,
-        stock_status: 'ready_stock',
-        badge_label: 'Ready Stock',
-        tax_badge: 'B2B',
-        image_url: '/images/product-cisco-switch.png',
-        selected: true,
-    },
-    {
-        id: 3,
-        product_id: 102,
-        name: 'Paket Jasa Instalasi Jaringan LAN Kantor (10 Titik)',
-        sku: 'PN-SRV-LAN10',
-        price: 8500000,
-        unit: 'paket',
-        quantity: 1,
-        stock: 99,
-        stock_status: 'official_service',
-        badge_label: 'Jasa Resmi CV. Putra Nugraha',
-        tax_badge: null,
-        image_url: '/images/service-technician-lan.png',
-        selected: true,
-    },
-];
 
 function resolveCartItemUrl(action, cartItemId) {
     if (typeof window !== 'undefined' && typeof window.route === 'function') {
@@ -75,20 +27,28 @@ function resolveCartItemUrl(action, cartItemId) {
 }
 
 function normalizeCartItems(rawItems, previousSelectionMap = {}) {
-    const source = Array.isArray(rawItems) ? rawItems : DEFAULT_CART_ITEMS;
-    return source.map((item) => ({
-        ...item,
-        quantity: Number(item.quantity) || 1,
-        price: Number(item.price) || 0,
-        stock: Number(item.stock) || 99,
-        selected:
-            Object.prototype.hasOwnProperty.call(previousSelectionMap, item.id)
-                ? previousSelectionMap[item.id]
-                : item.selected ?? true,
-    }));
+    const source = Array.isArray(rawItems) ? rawItems : [];
+    return source.map((item) => {
+        const isAvailable = item.is_available !== false && item.stock_status !== 'out_of_stock' && item.stock_status !== 'unavailable';
+        return {
+            ...item,
+            moq: item.moq !== null && item.moq !== undefined ? Math.max(1, Number(item.moq) || 1) : 1,
+            quantity: Math.max(1, Number(item.quantity) || 1),
+            price: item.price === null || item.price === undefined || item.price === '' ? null : Number(item.price),
+            stock: item.stock === null || item.stock === undefined ? null : Number(item.stock),
+            is_available: isAvailable,
+            selected: !isAvailable
+                ? false
+                : Object.prototype.hasOwnProperty.call(previousSelectionMap, item.id)
+                    ? previousSelectionMap[item.id]
+                    : item.selected ?? true,
+        };
+    });
 }
 
 export default function CartIndex({ cart_items: serverCartItems }) {
+    const { props } = usePage();
+    const isVerifiedBuyer = Boolean(props?.auth?.user?.is_verified_buyer);
     const [items, setItems] = useState(() => normalizeCartItems(serverCartItems));
     const [busyItemIds, setBusyItemIds] = useState([]);
     const [isBulkDeleting, setIsBulkDeleting] = useState(false);
@@ -119,26 +79,32 @@ export default function CartIndex({ cart_items: serverCartItems }) {
     const isItemBusy = (id) => busyItemIds.includes(id) || isBulkDeleting;
 
     // Checkbox toggles
-    const allSelected = useMemo(
-        () => items.length > 0 && items.every((i) => i.selected),
+    const selectableItems = useMemo(
+        () => items.filter((i) => i.is_available),
         [items]
+    );
+    const allSelected = useMemo(
+        () => selectableItems.length > 0 && selectableItems.every((i) => i.selected),
+        [selectableItems]
     );
 
     const toggleSelectAll = () => {
         const nextState = !allSelected;
-        setItems((prev) => prev.map((item) => ({ ...item, selected: nextState })));
+        setItems((prev) => prev.map((item) => (item.is_available ? { ...item, selected: nextState } : item)));
     };
 
     const toggleSelectItem = (id) => {
         setItems((prev) =>
-            prev.map((item) => (item.id === id ? { ...item, selected: !item.selected } : item))
+            prev.map((item) => (item.id === id && item.is_available ? { ...item, selected: !item.selected } : item))
         );
     };
 
     const handleQuantityChange = (item, delta) => {
-        if (isItemBusy(item.id)) return;
+        if (isItemBusy(item.id) || !item.is_available) return;
 
-        const nextQty = Math.max(1, Math.min(item.stock, item.quantity + delta));
+        const minAllowed = Math.max(1, Number(item.moq) || 1);
+        const maxAllowed = item.stock !== null ? item.stock : 1000000;
+        const nextQty = Math.max(minAllowed, Math.min(maxAllowed, item.quantity + delta));
         if (nextQty === item.quantity) return;
 
         const previousItems = items;
@@ -219,12 +185,12 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                     deleteSequentially(index + 1);
                 },
                 onError: () => {
-                    setItems(previousItems);
                     setIsBulkDeleting(false);
                     setFeedbackMessage({
                         type: 'error',
                         text: 'Sebagian atau seluruh item pilihan gagal dihapus dari keranjang.',
                     });
+                    router.reload({ only: ['cart_items', 'cartCount'], preserveScroll: true });
                 },
             });
         };
@@ -233,12 +199,16 @@ export default function CartIndex({ cart_items: serverCartItems }) {
     };
 
     const cartCount = useMemo(
-        () => items.reduce((acc, curr) => acc + curr.quantity, 0),
+        () => items.filter((item) => item.is_available).reduce((acc, curr) => acc + curr.quantity, 0),
         [items]
     );
 
     // Selected items metrics
-    const selectedItems = useMemo(() => items.filter((i) => i.selected), [items]);
+    const selectedItems = useMemo(() => items.filter((i) => i.selected && i.is_available), [items]);
+    const hasUnpricedItems = useMemo(
+        () => selectedItems.some((item) => item.price === null),
+        [selectedItems]
+    );
     const totalUnits = useMemo(
         () => selectedItems.reduce((acc, curr) => acc + curr.quantity, 0),
         [selectedItems]
@@ -246,7 +216,7 @@ export default function CartIndex({ cart_items: serverCartItems }) {
 
     // Financial calculations (PPN 11% Inklusif)
     const totalPrice = useMemo(() => {
-        return selectedItems.reduce((acc, curr) => acc + curr.price * curr.quantity, 0);
+        return selectedItems.reduce((acc, curr) => acc + (curr.price ?? 0) * curr.quantity, 0);
     }, [selectedItems]);
 
     const dppAmount = useMemo(() => {
@@ -360,17 +330,24 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                                 <input
                                                     type="checkbox"
                                                     checked={item.selected}
+                                                    disabled={!item.is_available}
                                                     onChange={() => toggleSelectItem(item.id)}
-                                                    className="h-4 w-4 mt-1 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0C0D12] text-blue-600 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                                                    className="h-4 w-4 mt-1 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0C0D12] text-blue-600 focus:ring-0 focus:ring-offset-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                                                 />
 
                                                 {/* Thumbnail Image Box */}
                                                 <div className="h-20 w-20 sm:h-24 sm:w-24 bg-slate-50 dark:bg-white rounded-xl p-2 flex items-center justify-center shrink-0 overflow-hidden border border-slate-100 dark:border-slate-700/50">
-                                                    <img
-                                                        src={item.image_url}
-                                                        alt={item.name}
-                                                        className="max-h-full max-w-full object-contain"
-                                                    />
+                                                    {item.image_url ? (
+                                                        <img
+                                                            src={item.image_url}
+                                                            alt={item.name}
+                                                            className="max-h-full max-w-full object-contain"
+                                                        />
+                                                    ) : (
+                                                        <span className="text-[10px] text-center text-slate-400">
+                                                            Foto belum tersedia
+                                                        </span>
+                                                    )}
                                                 </div>
 
                                                 {/* Details */}
@@ -405,6 +382,10 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                                                 <span className="h-1.5 w-1.5 rounded-full dot-sage shrink-0" />
                                                                 <span>Ready Stock</span>
                                                             </div>
+                                                        ) : item.stock_status === 'out_of_stock' || item.stock_status === 'unavailable' ? (
+                                                            <span className="px-2 py-0.5 rounded text-[10px] font-medium badge-crimson">
+                                                                {item.badge_label}
+                                                            </span>
                                                         ) : (
                                                             <span className="px-2 py-0.5 rounded text-[10px] font-medium badge-azure">
                                                                 {item.badge_label}
@@ -447,7 +428,7 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => handleQuantityChange(item, -1)}
-                                                                        disabled={itemBusy || item.quantity <= 1}
+                                                                        disabled={itemBusy || !item.is_available || item.quantity <= Math.max(1, Number(item.moq) || 1)}
                                                                         className="h-6 w-6 rounded flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed"
                                                                     >
                                                                         <Minus className="h-3 w-3" />
@@ -458,7 +439,7 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => handleQuantityChange(item, 1)}
-                                                                        disabled={itemBusy || item.quantity >= item.stock}
+                                                                        disabled={itemBusy || !item.is_available || (item.stock !== null && item.quantity >= item.stock)}
                                                                         className="h-6 w-6 rounded flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed"
                                                                     >
                                                                         <Plus className="h-3 w-3" />
@@ -471,7 +452,7 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                                                     Subtotal
                                                                 </span>
                                                                 <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
-                                                                    {formatRupiah(item.price * item.quantity)}
+                                                                    {item.price !== null ? formatRupiah(item.price * item.quantity) : 'Hubungi untuk penawaran'}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -589,8 +570,13 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                     Total Tagihan
                                 </div>
                                 <div className="text-2xl font-extrabold text-slate-900 dark:text-white">
-                                    {formatRupiah(totalPrice)}
+                                    {hasUnpricedItems && totalPrice === 0 ? 'Menunggu Penawaran' : formatRupiah(totalPrice)}
                                 </div>
+                                {hasUnpricedItems && (
+                                    <div className="text-[11px] text-amber-600 dark:text-amber-400">
+                                        Sebagian item belum memiliki harga acuan dan memerlukan konfirmasi / RFQ.
+                                    </div>
+                                )}
                                 <div className="text-[11px] text-slate-500 dark:text-slate-400">
                                     Faktur Pajak PPN 11%
                                 </div>
@@ -598,12 +584,34 @@ export default function CartIndex({ cart_items: serverCartItems }) {
 
                             {/* Action Buttons */}
                             <div className="space-y-2.5 pt-1">
-                                <Link
-                                    href="/buyer/checkout"
-                                    className="w-full py-3 rounded-lg bg-[#086f8e] hover:bg-[#065b75] text-white text-xs font-bold shadow-md transition-all flex items-center justify-center text-center active:scale-[0.98]"
+                                {!isVerifiedBuyer && (
+                                    <div className="rounded-lg border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-3 text-[11px] text-amber-800 dark:text-amber-300 space-y-1">
+                                        <p className="font-semibold">Akun belum terverifikasi</p>
+                                        <p>
+                                            Lengkapi verifikasi instansi di{' '}
+                                            <Link href="/buyer/profile" className="underline font-bold">
+                                                Profil Perusahaan
+                                            </Link>{' '}
+                                            sebelum melakukan Checkout atau mengajukan RFQ.
+                                        </p>
+                                    </div>
+                                )}
+
+                                <button
+                                    type="button"
+                                    disabled={selectedItems.length === 0 || hasUnpricedItems}
+                                    onClick={() => {
+                                        router.get('/buyer/checkout', {
+                                            items: selectedItems.map((i) => i.id),
+                                            pr_reference: prReference.trim() || undefined,
+                                            npwp_number: companyNpwp.trim() || undefined,
+                                            shipping_notes: deliveryNotes.trim() || undefined,
+                                        });
+                                    }}
+                                    className="w-full py-3 rounded-lg bg-[#086f8e] hover:bg-[#065b75] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold shadow-md transition-all flex items-center justify-center text-center active:scale-[0.98]"
                                 >
                                     Lanjut ke Checkout / Bayar Langsung
-                                </Link>
+                                </button>
 
                                 <Link
                                     href="/buyer/rfq/create?source=cart"

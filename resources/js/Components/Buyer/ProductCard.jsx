@@ -65,10 +65,10 @@ export default function ProductCard({ product, onAddToCart, viewMode = 'grid' })
             return;
         }
 
-        // Default Inertia POST endpoint ke cart/orders
-        router.post('/buyer/cart', {
+        // Default Inertia POST endpoint ke cart items
+        router.post('/buyer/cart/items', {
             product_id: product.id,
-            quantity: 1,
+            quantity: Math.max(1, Number(product.moq) || 1),
         }, {
             preserveScroll: true,
             onSuccess: () => {
@@ -167,7 +167,7 @@ export default function ProductCard({ product, onAddToCart, viewMode = 'grid' })
                         ) : (
                             <>
                                 <Plus className="h-3.5 w-3.5" />
-                                <span>{product.cart_enabled === false ? 'Belum tersedia' : 'Tambah'}</span>
+                                <span>{product.cart_enabled === false ? (product.stock_status === 'out_of_stock' ? 'Stok habis' : 'Belum tersedia') : 'Tambah'}</span>
                             </>
                         )}
                     </button>
@@ -255,7 +255,7 @@ export default function ProductCard({ product, onAddToCart, viewMode = 'grid' })
                     ) : (
                         <>
                             <Plus className="h-3.5 w-3.5" />
-                            <span>{product.cart_enabled === false ? 'Keranjang belum tersedia' : 'Tambah ke Keranjang'}</span>
+                            <span>{product.cart_enabled === false ? (product.stock_status === 'out_of_stock' ? 'Stok habis' : 'Keranjang belum tersedia') : 'Tambah ke Keranjang'}</span>
                         </>
                     )}
                 </button>

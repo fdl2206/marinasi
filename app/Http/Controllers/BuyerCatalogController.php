@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CartItem;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,7 +30,7 @@ class BuyerCatalogController extends Controller
             ->when($filters['kategori'] ?? null, fn ($query, int $categoryId) => $query->where('category_id', $categoryId))
             ->when($filters['min_price'] ?? null, fn ($query, $minPrice) => $query->where('price', '>=', $minPrice))
             ->when($filters['max_price'] ?? null, fn ($query, $maxPrice) => $query->where('price', '<=', $maxPrice))
-            ->when($sort === 'ready_stock', fn ($query) => $query->where('stock_quantity', '>', 0));
+            ->when($sort === 'ready_stock', fn ($query) => $query->where('type', 'goods')->where('stock_quantity', '>', 0));
 
         if (in_array($sort, ['price_asc', 'price_desc'], true)) {
             $query->orderByRaw('price IS NULL')->orderBy('price', $sort === 'price_asc' ? 'asc' : 'desc');
@@ -49,11 +50,11 @@ class BuyerCatalogController extends Controller
             ],
             'pagination' => ['current_page' => $products->currentPage(), 'last_page' => $products->lastPage(), 'total' => $products->total()],
             'paginationLinks' => ['previous' => $products->previousPageUrl(), 'next' => $products->nextPageUrl()],
-            'cartCount' => 0,
+            'cartCount' => $this->cartCount($request),
         ]);
     }
 
-    public function show(Product $product): Response
+    public function show(Request $request, Product $product): Response
     {
         abort_unless($product->is_active && $product->category()->where('is_active', true)->exists(), 404);
         $product->load(['category', 'images']);
@@ -64,8 +65,13 @@ class BuyerCatalogController extends Controller
             'related_products' => $this->publicProducts()->where('category_id', $product->category_id)
                 ->whereKeyNot($product->id)->latest('id')->limit(4)->get()
                 ->map(fn (Product $related): array => $this->productData($related))->all(),
-            'cartCount' => 0,
+            'cartCount' => $this->cartCount($request),
         ]);
+    }
+
+    private function cartCount(Request $request): int
+    {
+        return CartItem::activeCountForUser($request->user());
     }
 
     private function publicProducts(): Builder
@@ -92,7 +98,11 @@ class BuyerCatalogController extends Controller
     /** @return array<string, mixed> */
     private function productData(Product $product): array
     {
-        $stockStatus = $product->stock_quantity === null ? 'unknown' : ((float) $product->stock_quantity > 0 ? 'ready_stock' : 'out_of_stock');
+        $isService = $product->type === 'service';
+        $stockQty = ! $isService && $product->stock_quantity !== null ? (float) $product->stock_quantity : null;
+        $stockStatus = $isService
+            ? 'official_service'
+            : ($stockQty === null ? 'unknown' : ($stockQty >= 1 ? 'ready_stock' : 'out_of_stock'));
 
         return [
             'id' => $product->id,
@@ -104,11 +114,12 @@ class BuyerCatalogController extends Controller
             'description' => $product->description,
             'price' => $product->price,
             'base_price' => $product->price,
-            'stock' => $product->stock_quantity,
+            'stock' => $isService ? null : $product->stock_quantity,
             'unit' => $product->stock_unit,
             'moq' => $product->moq,
             'stock_status' => $stockStatus,
             'badge_label' => match ($stockStatus) {
+                'official_service' => 'Jasa Resmi Tersedia',
                 'ready_stock' => 'Stok tersedia',
                 'out_of_stock' => 'Stok habis',
                 default => 'Ketersediaan belum dikonfirmasi',
@@ -121,7 +132,7 @@ class BuyerCatalogController extends Controller
             ])->values()->all(),
             'tags' => [],
             'tier_prices' => [],
-            'cart_enabled' => false,
+            'cart_enabled' => $stockStatus !== 'out_of_stock',
         ];
     }
 }
