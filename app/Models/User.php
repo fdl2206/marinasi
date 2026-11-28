@@ -67,6 +67,11 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
+    public function rfqs(): HasMany
+    {
+        return $this->hasMany(Rfq::class);
+    }
+
     public function verifications(): HasMany
     {
         return $this->hasMany(BuyerVerification::class)->orderByDesc('attempt_number');
