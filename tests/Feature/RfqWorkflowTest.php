@@ -342,4 +342,46 @@ class RfqWorkflowTest extends TestCase
         ])->assertForbidden();
         $this->actingAs($owner)->post('/seller/negotiations/'.$rfq->id.'/reject', ['rejection_reason' => 'Tidak berhak'])->assertForbidden();
     }
+
+    public function test_buyer_cannot_agree_to_expired_sph_quote(): void
+    {
+        $buyer = User::factory()->verifiedBuyer()->create();
+        $seller = User::factory()->seller()->create();
+
+        $this->actingAs($buyer)->post('/buyer/rfq', [
+            'company_name' => 'Instansi Expired SPH',
+            'pic_name' => $buyer->name,
+            'pic_email' => $buyer->email,
+            'pic_phone' => '081234567890',
+            'shipping_address' => 'Jl. Braga No. 1, Bandung',
+            'items' => [[
+                'product_name' => 'Laptop Bisnis',
+                'product_type' => 'goods',
+                'quantity' => 2,
+            ]],
+        ])->assertSessionHasNoErrors();
+
+        $rfq = Rfq::query()->with('items')->sole();
+
+        $this->actingAs($seller)->post('/seller/negotiations/'.$rfq->id.'/quote', [
+            'valid_days' => 7,
+            'items' => [[
+                'id' => $rfq->items->sole()->id,
+                'quoted_quantity' => 2,
+                'quoted_unit_price' => 10000000,
+            ]],
+        ])->assertSessionHasNoErrors();
+
+        // Simulate expired SPH
+        $rfq->update(['valid_until' => now()->subDay()->toDateString()]);
+
+        $this->assertTrue($rfq->fresh()->isExpired());
+        $this->assertFalse($rfq->fresh()->canBeAgreedByBuyer());
+
+        $this->actingAs($buyer)
+            ->post('/buyer/quotations/'.$rfq->id.'/agree')
+            ->assertSessionHasErrors('status');
+
+        $this->assertDatabaseCount('orders', 0);
+    }
 }

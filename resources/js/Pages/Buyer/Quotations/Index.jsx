@@ -341,6 +341,12 @@ export default function QuotationsIndex({
                                                                 Harga &amp; Qty Terkunci
                                                             </span>
                                                         )}
+                                                        {rfq.is_expired && (
+                                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300 text-[10px] font-bold">
+                                                                <AlertTriangle className="h-3 w-3" />
+                                                                SPH Kedaluwarsa
+                                                            </span>
+                                                        )}
                                                     </div>
                                                     <div className="text-[11px] text-slate-500 flex items-center gap-3 flex-wrap">
                                                         <span>Diajukan: {rfq.created_at_formatted}</span>
@@ -407,6 +413,17 @@ export default function QuotationsIndex({
                                             {rfq.rejection_reason && (
                                                 <div className="rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 px-3.5 py-2.5 text-xs text-rose-700 dark:text-rose-300">
                                                     <strong>Alasan Penolakan:</strong> {rfq.rejection_reason}
+                                                </div>
+                                            )}
+
+                                            {rfq.is_expired && (
+                                                <div className="rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 px-3.5 py-2.5 text-xs text-amber-800 dark:text-amber-300 flex flex-wrap items-center justify-between gap-2">
+                                                    <span>
+                                                        Masa berlaku penawaran SPH ini telah berakhir pada <strong>{rfq.valid_until_formatted}</strong>. Ajukan RFQ baru atau minta admin menerbitkan revisi SPH.
+                                                    </span>
+                                                    <Link href="/buyer/rfq/create" className="font-bold underline">
+                                                        Ajukan RFQ Baru
+                                                    </Link>
                                                 </div>
                                             )}
 

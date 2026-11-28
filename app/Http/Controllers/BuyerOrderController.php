@@ -43,7 +43,7 @@ class BuyerOrderController extends Controller
         ];
 
         $orders = (clone $baseQuery)
-            ->with(['items', 'statusHistories.changedByUser'])
+            ->with(['items', 'statusHistories.changedByUser', 'payments.submittedByUser', 'payments.verifiedByUser', 'documents'])
             ->when($statusFilter !== 'all', fn ($query) => $query->where('status', $statusFilter))
             ->when($search !== '', function ($query) use ($search): void {
                 $query->where(function ($sub) use ($search): void {
@@ -56,7 +56,7 @@ class BuyerOrderController extends Controller
             })
             ->latest('id')
             ->get()
-            ->map(fn (Order $order): array => $this->workflow->serializeOrder($order))
+            ->map(fn (Order $order): array => $this->workflow->serializeOrder($order, false))
             ->all();
 
         return Inertia::render('Buyer/Orders/Index', [

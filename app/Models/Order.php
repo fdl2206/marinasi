@@ -25,6 +25,16 @@ class Order extends Model
 
     public const SOURCE_RFQ = 'rfq';
 
+    public const DELIVERY_EXPEDITION = 'expedition';
+
+    public const DELIVERY_INTERNAL = 'internal_delivery';
+
+    /** @var array<string, string> */
+    public const DELIVERY_METHOD_LABELS = [
+        self::DELIVERY_EXPEDITION => 'Ekspedisi / Kurir',
+        self::DELIVERY_INTERNAL => 'Antar Langsung (Armada Internal Bandung)',
+    ];
+
     /** @var list<string> */
     public const STAGES = [
         self::STATUS_MOU_ORDER,
@@ -69,6 +79,7 @@ class Order extends Model
         'dpp_amount',
         'ppn_amount',
         'total_amount',
+        'delivery_method',
         'courier_name',
         'tracking_number',
         'shipped_at',
@@ -109,6 +120,136 @@ class Order extends Model
     public function statusHistories(): HasMany
     {
         return $this->hasMany(OrderStatusHistory::class)->orderByDesc('id');
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(OrderPayment::class)->orderByDesc('id');
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(OrderDocument::class)->orderByDesc('issued_at');
+    }
+
+    public function verifiedPaidAmount(): float
+    {
+        if ($this->relationLoaded('payments')) {
+            return round((float) $this->payments
+                ->where('status', OrderPayment::STATUS_VERIFIED)
+                ->sum(fn (OrderPayment $p): float => (float) $p->amount), 2);
+        }
+
+        return round((float) $this->payments()
+            ->where('status', OrderPayment::STATUS_VERIFIED)
+            ->sum('amount'), 2);
+    }
+
+    public function pendingPaidAmount(): float
+    {
+        if ($this->relationLoaded('payments')) {
+            return round((float) $this->payments
+                ->where('status', OrderPayment::STATUS_PENDING)
+                ->sum(fn (OrderPayment $p): float => (float) $p->amount), 2);
+        }
+
+        return round((float) $this->payments()
+            ->where('status', OrderPayment::STATUS_PENDING)
+            ->sum('amount'), 2);
+    }
+
+    public function hasPurchaseReceipt(): bool
+    {
+        if ($this->relationLoaded('documents')) {
+            return $this->documents->contains(
+                fn (OrderDocument $doc): bool => $doc->type === OrderDocument::TYPE_PURCHASE_RECEIPT
+            );
+        }
+
+        return $this->documents()->where('type', OrderDocument::TYPE_PURCHASE_RECEIPT)->exists();
+    }
+
+    public function canBuyerUploadPayment(): bool
+    {
+        if ($this->status === self::STATUS_CANCELLED || $this->isPaidInFull() || $this->hasPurchaseReceipt()) {
+            return false;
+        }
+
+        // Jika pesanan sudah Serah Terima tanpa riwayat DP di sistem (pesanan selesai offline/lama),
+        // buyer tidak boleh lagi upload bukti bayar sendiri.
+        if ($this->status === self::STATUS_HANDOVER && ! $this->hasVerifiedPayment()) {
+            return false;
+        }
+
+        return round($this->verifiedPaidAmount() + $this->pendingPaidAmount(), 2) < (float) $this->total_amount;
+    }
+
+    public function canSellerRecordPayment(): bool
+    {
+        return $this->status !== self::STATUS_CANCELLED
+            && ! $this->isPaidInFull()
+            && ! $this->hasPurchaseReceipt();
+    }
+
+    public function canBuyerCancel(): bool
+    {
+        return $this->canBeCancelled() && ! $this->hasVerifiedPayment();
+    }
+
+    public function remainingAmount(): float
+    {
+        return max(0.0, round((float) $this->total_amount - $this->verifiedPaidAmount(), 2));
+    }
+
+    public function isPaidInFull(): bool
+    {
+        return (float) $this->total_amount > 0 && $this->verifiedPaidAmount() >= (float) $this->total_amount;
+    }
+
+    public function hasVerifiedPayment(): bool
+    {
+        return $this->verifiedPaidAmount() > 0;
+    }
+
+    public function paymentStatus(): string
+    {
+        if ($this->isPaidInFull()) {
+            return 'paid_in_full';
+        }
+
+        if ($this->hasVerifiedPayment()) {
+            return 'dp_verified';
+        }
+
+        return 'unpaid';
+    }
+
+    public function paymentStatusLabel(): string
+    {
+        return match ($this->paymentStatus()) {
+            'paid_in_full' => 'Lunas',
+            'dp_verified' => 'DP Terverifikasi (Sisa Pelunasan)',
+            default => 'Belum Dibayar',
+        };
+    }
+
+    public function canIssueInvoice(): bool
+    {
+        return $this->status !== self::STATUS_CANCELLED
+            && $this->stageIndex() >= 2
+            && $this->hasVerifiedPayment();
+    }
+
+    public function canIssuePurchaseReceipt(): bool
+    {
+        return $this->status === self::STATUS_HANDOVER
+            && $this->isPaidInFull();
+    }
+
+    public function deliveryMethodLabel(): string
+    {
+        return self::DELIVERY_METHOD_LABELS[$this->delivery_method ?: self::DELIVERY_EXPEDITION]
+            ?? self::DELIVERY_METHOD_LABELS[self::DELIVERY_EXPEDITION];
     }
 
     public function statusLabel(): string

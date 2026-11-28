@@ -4,6 +4,7 @@ use App\Http\Controllers\BuyerCartController;
 use App\Http\Controllers\BuyerCatalogController;
 use App\Http\Controllers\BuyerCheckoutController;
 use App\Http\Controllers\BuyerOrderController;
+use App\Http\Controllers\BuyerPaymentDocumentController;
 use App\Http\Controllers\BuyerRfqController;
 use App\Http\Controllers\BuyerVerificationController;
 use App\Http\Controllers\ProfileController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\SellerCategoryController;
 use App\Http\Controllers\SellerClientController;
 use App\Http\Controllers\SellerNegotiationController;
 use App\Http\Controllers\SellerOrderController;
+use App\Http\Controllers\SellerPaymentDocumentController;
 use App\Http\Controllers\SellerProductController;
 use App\Http\Controllers\SellerProductImageController;
 use Illuminate\Support\Facades\Auth;
@@ -103,6 +105,8 @@ Route::prefix('buyer')->name('buyer.')->middleware(['auth', 'can:access-buyer'])
 
     Route::get('/orders', [BuyerOrderController::class, 'index'])->name('orders.index');
     Route::post('/orders/{order}/cancel', [BuyerOrderController::class, 'cancel'])->name('orders.cancel');
+    Route::post('/orders/{order}/payments', [BuyerPaymentDocumentController::class, 'storePayment'])->name('orders.payments.store');
+    Route::get('/payments/{payment}/proof', [BuyerPaymentDocumentController::class, 'downloadProof'])->name('payments.proof');
 
     Route::get('/cart', [BuyerCartController::class, 'index'])->name('cart.index');
     Route::post('/cart/items', [BuyerCartController::class, 'store'])->name('cart.items.store');
@@ -116,9 +120,9 @@ Route::prefix('buyer')->name('buyer.')->middleware(['auth', 'can:access-buyer'])
         ->middleware('verified.buyer')
         ->name('checkout.store');
 
-    Route::get('/invoices', function () {
-        return Inertia::render('Buyer/Invoices/Index');
-    })->name('invoices.index');
+    Route::get('/invoices', [BuyerPaymentDocumentController::class, 'index'])->name('invoices.index');
+    Route::get('/documents/{document}/print', [BuyerPaymentDocumentController::class, 'printDocument'])->name('documents.print');
+    Route::get('/documents/{document}/download', [BuyerPaymentDocumentController::class, 'downloadDocument'])->name('documents.download');
 
     Route::get('/services', function () {
         return Inertia::render('Buyer/Services/Index');
@@ -179,10 +183,18 @@ Route::prefix('seller')->name('seller.')->middleware(['auth', 'can:access-seller
     Route::post('/orders/{order}/status', [SellerOrderController::class, 'advanceStatus'])->name('orders.status.advance');
     Route::patch('/orders/{order}/shipping', [SellerOrderController::class, 'updateShipping'])->name('orders.shipping.update');
     Route::post('/orders/{order}/cancel', [SellerOrderController::class, 'cancel'])->name('orders.cancel');
+    Route::post('/orders/{order}/payments', [SellerPaymentDocumentController::class, 'storePayment'])->name('orders.payments.store');
+    Route::post('/orders/{order}/invoice', [SellerPaymentDocumentController::class, 'issueInvoice'])->name('orders.invoice.issue');
+    Route::post('/orders/{order}/receipt', [SellerPaymentDocumentController::class, 'issueReceipt'])->name('orders.receipt.issue');
+    Route::post('/orders/{order}/documents', [SellerPaymentDocumentController::class, 'uploadDocument'])->name('orders.documents.upload');
 
-    Route::get('/legality', function () {
-        return Inertia::render('Seller/Legality/Index');
-    })->name('legality.index');
+    Route::post('/payments/{payment}/verify', [SellerPaymentDocumentController::class, 'verifyPayment'])->name('payments.verify');
+    Route::post('/payments/{payment}/reject', [SellerPaymentDocumentController::class, 'rejectPayment'])->name('payments.reject');
+    Route::get('/payments/{payment}/proof', [SellerPaymentDocumentController::class, 'downloadProof'])->name('payments.proof');
+
+    Route::get('/legality', [SellerPaymentDocumentController::class, 'index'])->name('legality.index');
+    Route::get('/documents/{document}/print', [SellerPaymentDocumentController::class, 'printDocument'])->name('documents.print');
+    Route::get('/documents/{document}/download', [SellerPaymentDocumentController::class, 'downloadDocument'])->name('documents.download');
 
     Route::get('/services', function () {
         return Inertia::render('Seller/Services/Index');

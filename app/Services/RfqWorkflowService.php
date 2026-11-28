@@ -120,10 +120,14 @@ class RfqWorkflowService
                 ->firstOrFail();
 
             if (! $lockedRfq->canBeAgreedByBuyer()) {
+                $message = $lockedRfq->isLocked()
+                    ? 'RFQ ini sudah disepakati sebelumnya dan harga/jumlahnya sudah terkunci.'
+                    : ($lockedRfq->isExpired()
+                        ? 'Masa berlaku penawaran SPH ini telah berakhir pada '.$lockedRfq->valid_until?->translatedFormat('d M Y').'. Silakan ajukan RFQ baru atau minta admin menerbitkan revisi SPH.'
+                        : 'RFQ belum memiliki penawaran resmi (SPH) dari admin sehingga belum dapat disetujui.');
+
                 throw ValidationException::withMessages([
-                    'status' => $lockedRfq->isLocked()
-                        ? 'RFQ ini sudah disepakati sebelumnya dan harga/jumlahnya sudah terkunci.'
-                        : 'RFQ belum memiliki penawaran resmi (SPH) dari admin sehingga belum dapat disetujui.',
+                    'status' => $message,
                 ]);
             }
 
@@ -308,6 +312,7 @@ class RfqWorkflowService
             'status' => $rfq->status,
             'status_label' => $rfq->statusLabel(),
             'is_locked' => $rfq->isLocked(),
+            'is_expired' => $rfq->isExpired(),
             'can_quote' => $rfq->canBeQuoted(),
             'can_agree' => $rfq->canBeAgreedByBuyer(),
             'can_reject' => $rfq->canBeRejected(),

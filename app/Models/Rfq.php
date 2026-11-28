@@ -126,9 +126,16 @@ class Rfq extends Model
         return in_array($this->status, [self::STATUS_SUBMITTED, self::STATUS_QUOTED], true) && ! $this->isLocked();
     }
 
+    public function isExpired(): bool
+    {
+        return $this->status === self::STATUS_QUOTED
+            && $this->valid_until !== null
+            && now()->startOfDay()->gt($this->valid_until->copy()->startOfDay());
+    }
+
     public function canBeAgreedByBuyer(): bool
     {
-        return $this->status === self::STATUS_QUOTED && ! $this->isLocked();
+        return $this->status === self::STATUS_QUOTED && ! $this->isLocked() && ! $this->isExpired();
     }
 
     public function canBeRejected(): bool
