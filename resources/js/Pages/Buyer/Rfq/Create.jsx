@@ -327,6 +327,7 @@ export default function RfqCreate({ prefill_items: prefillItems = [], catalog_pr
                                     </label>
                                     <input
                                         type="date"
+                                        min={new Date().toISOString().slice(0, 10)}
                                         value={targetDeliveryDate}
                                         onChange={(e) => setTargetDeliveryDate(e.target.value)}
                                         className="w-full h-10 rounded-xl bg-slate-50 dark:bg-[#0C0D12] border border-slate-300 dark:border-slate-700 px-3.5 text-xs"

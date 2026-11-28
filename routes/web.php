@@ -3,6 +3,7 @@
 use App\Http\Controllers\BuyerCartController;
 use App\Http\Controllers\BuyerCatalogController;
 use App\Http\Controllers\BuyerCheckoutController;
+use App\Http\Controllers\BuyerDashboardController;
 use App\Http\Controllers\BuyerOrderController;
 use App\Http\Controllers\BuyerPaymentDocumentController;
 use App\Http\Controllers\BuyerRfqController;
@@ -11,11 +12,14 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicCatalogController;
 use App\Http\Controllers\SellerCategoryController;
 use App\Http\Controllers\SellerClientController;
+use App\Http\Controllers\SellerDashboardController;
 use App\Http\Controllers\SellerNegotiationController;
 use App\Http\Controllers\SellerOrderController;
 use App\Http\Controllers\SellerPaymentDocumentController;
 use App\Http\Controllers\SellerProductController;
 use App\Http\Controllers\SellerProductImageController;
+use App\Http\Controllers\SellerSettingsController;
+use App\Http\Controllers\ServiceOrderController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -81,9 +85,7 @@ Route::get('/bantuan', function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('buyer')->name('buyer.')->middleware(['auth', 'can:access-buyer'])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Buyer/Dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [BuyerDashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/quotations', [BuyerRfqController::class, 'index'])->name('quotations.index');
     Route::get('/quotations/{rfq}/attachment', [BuyerRfqController::class, 'downloadAttachment'])
@@ -124,9 +126,7 @@ Route::prefix('buyer')->name('buyer.')->middleware(['auth', 'can:access-buyer'])
     Route::get('/documents/{document}/print', [BuyerPaymentDocumentController::class, 'printDocument'])->name('documents.print');
     Route::get('/documents/{document}/download', [BuyerPaymentDocumentController::class, 'downloadDocument'])->name('documents.download');
 
-    Route::get('/services', function () {
-        return Inertia::render('Buyer/Services/Index');
-    })->name('services.index');
+    Route::get('/services', [ServiceOrderController::class, 'buyerIndex'])->name('services.index');
 
     Route::get('/profile', [ProfileController::class, 'buyerEdit'])->name('profile.index');
     Route::patch('/profile', [ProfileController::class, 'buyerUpdate'])->name('profile.update');
@@ -163,9 +163,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:access-seller']
 });
 
 Route::prefix('seller')->name('seller.')->middleware(['auth', 'can:access-seller'])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Seller/Dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [SellerDashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/catalog', [SellerProductController::class, 'index'])->name('catalog.index');
     Route::resource('products', SellerProductController::class)->only(['store', 'update', 'destroy']);
@@ -196,9 +194,7 @@ Route::prefix('seller')->name('seller.')->middleware(['auth', 'can:access-seller
     Route::get('/documents/{document}/print', [SellerPaymentDocumentController::class, 'printDocument'])->name('documents.print');
     Route::get('/documents/{document}/download', [SellerPaymentDocumentController::class, 'downloadDocument'])->name('documents.download');
 
-    Route::get('/services', function () {
-        return Inertia::render('Seller/Services/Index');
-    })->name('services.index');
+    Route::get('/services', [ServiceOrderController::class, 'sellerIndex'])->name('services.index');
 
     Route::get('/clients', [SellerClientController::class, 'index'])->name('clients.index');
     Route::post('/clients/{client}/verification/approve', [SellerClientController::class, 'approve'])
@@ -210,9 +206,9 @@ Route::prefix('seller')->name('seller.')->middleware(['auth', 'can:access-seller
     Route::get('/clients/verification-documents/{document}', [SellerClientController::class, 'downloadDocument'])
         ->name('clients.documents.show');
 
-    Route::get('/settings', function () {
-        return Inertia::render('Seller/Settings/Index');
-    })->name('settings.index');
+    Route::get('/settings', [SellerSettingsController::class, 'index'])->name('settings.index');
+    Route::patch('/settings/account', [SellerSettingsController::class, 'updateAccount'])->name('settings.account.update');
+    Route::patch('/settings/company', [SellerSettingsController::class, 'updateCompany'])->name('settings.company.update');
 });
 
 /*

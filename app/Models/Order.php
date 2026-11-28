@@ -324,7 +324,9 @@ class Order extends Model
             .($this->shipping_notes ? "Catatan: {$this->shipping_notes}\n" : '')
             ."\nMohon konfirmasi proses MOU/DP dan jadwal penyiapan pesanan. Terima kasih.";
 
-        return 'https://wa.me/6281320777874?text='.rawurlencode($message);
+        $waNumber = CompanySetting::current()->whatsapp_number ?: '6281320777874';
+
+        return 'https://wa.me/'.$waNumber.'?text='.rawurlencode($message);
     }
 
     public static function generateOrderNumber(): string

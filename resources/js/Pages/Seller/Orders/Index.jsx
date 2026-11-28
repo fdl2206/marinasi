@@ -853,6 +853,24 @@ export default function SellerOrdersIndex({
                         </div>
 
                         <div className="space-y-3">
+                            {advanceTarget.next_status === 'unit_preparation' && advanceTarget.verified_paid_amount <= 0 && (
+                                <div className="rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-3 text-[11px] text-amber-800 dark:text-amber-300 flex items-start gap-2">
+                                    <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                                    <span>
+                                        <strong>Perhatian:</strong> Belum ada pembayaran DP terverifikasi untuk pesanan ini. Pastikan kesepakatan termin sudah dikonfirmasi sebelum masuk <strong>Penyiapan Unit</strong> (karena pesanan tidak bisa dibatalkan lagi setelah tahap ini).
+                                    </span>
+                                </div>
+                            )}
+
+                            {advanceTarget.next_status === 'handover' && !advanceTarget.is_paid_in_full && (
+                                <div className="rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-3 text-[11px] text-amber-800 dark:text-amber-300 flex items-start gap-2">
+                                    <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                                    <span>
+                                        <strong>Perhatian:</strong> Pembayaran pesanan ini belum lunas (sisa tagihan <strong>{formatRupiah(advanceTarget.remaining_amount)}</strong>). Bukti Pembelian baru dapat diterbitkan setelah pelunasan dicatat.
+                                    </span>
+                                </div>
+                            )}
+
                             <div className="space-y-1">
                                 <label className="font-semibold">Nomor SPK / Referensi Internal (Opsional)</label>
                                 <input
