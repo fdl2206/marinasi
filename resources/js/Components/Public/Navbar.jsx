@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import ThemeToggle from '@/Components/Common/ThemeToggle';
+import ApplicationLogo from '@/Components/ApplicationLogo';
 
 export default function Navbar() {
     const { url = '' } = usePage();
@@ -76,21 +77,9 @@ export default function Navbar() {
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                         }
                     }}
-                    className="flex items-center gap-3 group"
+                    className="flex items-center group py-1"
                 >
-                    <img
-                        src="/images/logo-pn.png"
-                        alt="Logo CV. Putra Nugraha"
-                        className="h-10 w-10 rounded-lg object-contain shadow-sm transition-transform duration-300 group-hover:scale-105"
-                    />
-                    <div className="flex flex-col">
-                        <span className="text-sm font-bold tracking-tight text-slate-900 dark:text-white uppercase group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                            CV. PUTRA NUGRAHA
-                        </span>
-                        <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
-                            Perdagangan Barang dan Jasa
-                        </span>
-                    </div>
+                    <ApplicationLogo className="h-9 sm:h-10 w-auto transition-transform duration-300 group-hover:scale-105" />
                 </Link>
 
                 {/* Desktop Navigation Links */}

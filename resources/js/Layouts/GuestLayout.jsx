@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import ThemeToggle from '@/Components/Common/ThemeToggle';
+import ApplicationLogo from '@/Components/ApplicationLogo';
 
 export default function GuestLayout({ children }) {
     return (
@@ -9,20 +10,8 @@ export default function GuestLayout({ children }) {
             </div>
 
             <div className="mb-6">
-                <Link href="/" className="flex items-center gap-3">
-                    <img
-                        src="/images/logo-pn.png"
-                        alt="Logo CV. Putra Nugraha"
-                        className="h-10 w-10 rounded-lg object-contain shadow-sm"
-                    />
-                    <div className="flex flex-col">
-                        <span className="text-sm font-bold tracking-tight text-slate-900 dark:text-white uppercase">
-                            CV. PUTRA NUGRAHA
-                        </span>
-                        <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
-                            Perdagangan Barang dan Jasa
-                        </span>
-                    </div>
+                <Link href="/" className="flex items-center">
+                    <ApplicationLogo className="h-11 sm:h-12 w-auto" />
                 </Link>
             </div>
 

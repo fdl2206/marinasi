@@ -54,6 +54,18 @@ Route::get('/kebijakan-privasi', function () {
     return Inertia::render('Public/PrivacyPolicy');
 })->name('privacy');
 
+Route::get('/bantuan', function () {
+    if (Auth::check() && Auth::user()?->is_seller) {
+        return redirect()->route('seller.dashboard');
+    }
+
+    if (Auth::check()) {
+        return redirect()->route('buyer.help.index');
+    }
+
+    return redirect()->route('login');
+})->name('help');
+
 /*
 |--------------------------------------------------------------------------
 | Buyer Zone (Dashboard, RFQ Nego, Orders, Invoices)
@@ -69,7 +81,7 @@ Route::prefix('buyer')->name('buyer.')->middleware(['auth', 'can:access-buyer'])
     })->name('quotations.index');
 
     Route::get('/rfq/create', function () {
-        return Inertia::render('Buyer/Quotations/Index');
+        return Inertia::render('Buyer/Rfq/Create');
     })->name('rfq.create');
 
     Route::get('/orders', function () {
@@ -97,6 +109,14 @@ Route::prefix('buyer')->name('buyer.')->middleware(['auth', 'can:access-buyer'])
     Route::patch('/profile', [ProfileController::class, 'buyerUpdate'])->name('profile.update');
 
     Route::get('/products/{product}', [BuyerCatalogController::class, 'show'])->name('products.show');
+
+    Route::get('/help', function () {
+        return Inertia::render('Buyer/Help/Index');
+    })->name('help.index');
+
+    Route::get('/faq', function () {
+        return redirect()->route('buyer.help.index');
+    })->name('faq.index');
 });
 
 /*

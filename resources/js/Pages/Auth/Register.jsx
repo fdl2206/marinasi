@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Eye, EyeOff } from 'lucide-react';
 import ThemeToggle from '@/Components/Common/ThemeToggle';
+import ApplicationLogo from '@/Components/ApplicationLogo';
 
 export default function Register() {
     const [showPassword, setShowPassword] = useState(false);
@@ -34,20 +35,8 @@ export default function Register() {
             <header className="w-full border-b border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-[#12161F]/95 backdrop-blur-md sticky top-0 z-50 transition-colors duration-150">
                 <div className="mx-auto flex max-w-7xl items-center justify-between px-6 sm:px-8 h-20">
                     {/* Brand Identity / Logo */}
-                    <Link href="/" className="flex items-center gap-3">
-                        <img
-                            src="/images/logo-pn.png"
-                            alt="Logo CV. Putra Nugraha"
-                            className="h-10 w-10 rounded-lg object-contain shadow-sm"
-                        />
-                        <div className="flex flex-col">
-                            <span className="text-sm font-bold tracking-tight text-slate-900 dark:text-white uppercase">
-                                CV. PUTRA NUGRAHA
-                            </span>
-                            <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
-                                Perdagangan Barang dan Jasa
-                            </span>
-                        </div>
+                    <Link href="/" className="flex items-center">
+                        <ApplicationLogo className="h-9 sm:h-10 w-auto" />
                     </Link>
 
                     {/* Right: ThemeToggle + Login Link */}
