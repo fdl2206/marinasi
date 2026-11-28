@@ -20,6 +20,7 @@ class AdvanceOrderStatusRequest extends FormRequest
             'target_status' => ['required', 'string', Rule::in(Order::STAGES)],
             'note' => ['nullable', 'string', 'max:1000'],
             'spk_number' => ['nullable', 'string', 'max:120'],
+            'delivery_method' => ['nullable', 'string', Rule::in([Order::DELIVERY_EXPEDITION, Order::DELIVERY_INTERNAL])],
             'courier_name' => ['nullable', 'string', 'max:120'],
             'tracking_number' => ['nullable', 'string', 'max:120'],
         ];

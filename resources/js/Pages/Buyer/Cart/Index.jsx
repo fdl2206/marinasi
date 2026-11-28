@@ -617,7 +617,7 @@ export default function CartIndex({ cart_items: serverCartItems }) {
                                     href="/buyer/rfq/create?source=cart"
                                     className="w-full py-3 rounded-lg bg-[#f59e0b] hover:bg-[#d97706] text-slate-950 text-xs font-bold shadow-md transition-all flex items-center justify-center text-center active:scale-[0.98]"
                                 >
-                                    Unduh Draft SPH / Ajukan RFQ (PDF)
+                                    Ajukan RFQ dari Keranjang
                                 </Link>
                             </div>
 

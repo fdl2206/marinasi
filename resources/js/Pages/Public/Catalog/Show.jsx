@@ -1,11 +1,13 @@
 import MainLayout from '@/Layouts/MainLayout';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { ArrowLeft, Package, Wrench, MessageCircle, Send, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 
 const cleanCategoryName = (name) => (name || '').replace(/^\d+[\.\)]\s*/, '').trim();
 
 export default function CatalogShow({ product }) {
+    const { props } = usePage();
+    const user = props?.auth?.user;
     const [activeImage, setActiveImage] = useState(product.images?.[0]?.url || null);
     const [quantity, setQuantity] = useState(product.moq || 1);
     const [notes, setNotes] = useState('');
@@ -204,11 +206,17 @@ export default function CatalogShow({ product }) {
                                     </div>
 
                                     <Link
-                                        href="/login"
+                                        href={user ? (user.is_seller ? '/seller/catalog' : `/buyer/products/${product.id}`) : '/login'}
                                         className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition shadow-lg shadow-blue-600/20"
                                     >
                                         <Send className="h-3.5 w-3.5" />
-                                        <span>Masuk untuk Pesan / Ajukan RFQ</span>
+                                        <span>
+                                            {user
+                                                ? user.is_seller
+                                                    ? 'Kelola di Katalog Seller'
+                                                    : 'Buka di Portal Buyer / Tambah ke Keranjang'
+                                                : 'Masuk untuk Pesan / Ajukan RFQ'}
+                                        </span>
                                     </Link>
 
                                     <a

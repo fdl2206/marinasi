@@ -55,7 +55,7 @@ class SellerOrderController extends Controller
         ];
 
         $orders = Order::query()
-            ->with(['user', 'items', 'statusHistories.changedByUser'])
+            ->with(['user', 'items', 'statusHistories.changedByUser', 'payments.submittedByUser', 'payments.verifiedByUser', 'documents'])
             ->when($statusFilter !== 'all', fn ($query) => $query->where('status', $statusFilter))
             ->when($search !== '', function ($query) use ($search): void {
                 $query->where(function ($sub) use ($search): void {
@@ -70,7 +70,7 @@ class SellerOrderController extends Controller
             })
             ->latest('id')
             ->get()
-            ->map(fn (Order $order): array => $this->workflow->serializeOrder($order))
+            ->map(fn (Order $order): array => $this->workflow->serializeOrder($order, true))
             ->all();
 
         return Inertia::render('Seller/Orders/Index', [
@@ -104,13 +104,21 @@ class SellerOrderController extends Controller
 
         $validated = $request->validate([
             'spk_number' => ['nullable', 'string', 'max:120'],
+            'delivery_method' => ['nullable', 'in:expedition,internal_delivery'],
             'courier_name' => ['nullable', 'string', 'max:120'],
             'tracking_number' => ['nullable', 'string', 'max:120'],
         ]);
 
-        if ($order->status === Order::STATUS_SHIPPING && $order->hasGoodsItems() && trim((string) ($validated['tracking_number'] ?? '')) === '') {
+        $deliveryMethod = $validated['delivery_method'] ?? ($order->delivery_method ?: Order::DELIVERY_EXPEDITION);
+
+        if (
+            $order->status === Order::STATUS_SHIPPING
+            && $deliveryMethod === Order::DELIVERY_EXPEDITION
+            && $order->hasGoodsItems()
+            && trim((string) ($validated['tracking_number'] ?? '')) === ''
+        ) {
             throw ValidationException::withMessages([
-                'tracking_number' => 'Nomor resi tidak boleh dikosongkan pada tahap Pengiriman.',
+                'tracking_number' => 'Nomor resi tidak boleh dikosongkan pada pengiriman via Ekspedisi.',
             ]);
         }
 
@@ -118,9 +126,10 @@ class SellerOrderController extends Controller
             'spk_number' => isset($validated['spk_number']) && trim((string) $validated['spk_number']) !== ''
                 ? trim((string) $validated['spk_number'])
                 : null,
+            'delivery_method' => $deliveryMethod,
             'courier_name' => isset($validated['courier_name']) && trim((string) $validated['courier_name']) !== ''
                 ? trim((string) $validated['courier_name'])
-                : null,
+                : ($deliveryMethod === Order::DELIVERY_INTERNAL ? 'Armada Internal CV. Putra Nugraha (Antar Langsung Bandung)' : null),
             'tracking_number' => isset($validated['tracking_number']) && trim((string) $validated['tracking_number']) !== ''
                 ? trim((string) $validated['tracking_number'])
                 : null,
